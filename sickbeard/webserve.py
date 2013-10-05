@@ -742,18 +742,11 @@ class Manage:
         t = PageTemplate(file="manage_torrents.tmpl")
         t.submenu = ManageMenu
         
-        if re.search('localhost', sickbeard.TORRENT_HOST):
+        t.webui_url = sickbeard.TORRENT_HOST
         
-            if sickbeard.LOCALHOST_IP == '':
-                t.webui_url = re.sub('localhost', helpers.get_lan_ip(), sickbeard.TORRENT_HOST)
-            else:
-                t.webui_url = re.sub('localhost', sickbeard.LOCALHOST_IP, sickbeard.TORRENT_HOST)
-        else:
-            t.webui_url = sickbeard.TORRENT_HOST
-
         if sickbeard.TORRENT_METHOD == 'utorrent':
-            t.webui_url = '/'.join(s.strip('/') for s in (t.webui_url, 'gui/'))
-            
+            t.webui_url += '/gui'
+
         return _munge(t)
         
 class History:
@@ -1381,6 +1374,7 @@ class ConfigProviders:
                       tvtorrents_digest=None, tvtorrents_hash=None, 
                       btn_api_key=None,
                       thepiratebay_trusted=None, thepiratebay_proxy=None, thepiratebay_proxy_url=None,
+                      deildu_username=None, deildu_password=None,
                       torrentleech_username=None, torrentleech_password=None,
                       iptorrents_username=None, iptorrents_password=None, iptorrents_freeleech=None,
                       kat_trusted = None, kat_verified = None,
@@ -1488,6 +1482,10 @@ class ConfigProviders:
                 sickbeard.BTN = curEnabled
             elif curProvider == 'thepiratebay':
                 sickbeard.THEPIRATEBAY = curEnabled
+            elif curProvider == 'deildurss':
+                sickbeard.DEILDURSS = curEnabled
+            elif curProvider == 'deildu':
+                sickbeard.DEILDU = curEnabled
             elif curProvider == 'torrentleech':
                 sickbeard.TORRENTLEECH = curEnabled
             elif curProvider == 'iptorrents':
@@ -1533,6 +1531,9 @@ class ConfigProviders:
 
         sickbeard.IPTORRENTS_USERNAME = iptorrents_username.strip()
         sickbeard.IPTORRENTS_PASSWORD = iptorrents_password.strip()
+
+        sickbeard.DEILDU_USERNAME = deildu_username.strip()
+        sickbeard.DEILDU_PASSWORD = deildu_password.strip()
 
         if iptorrents_freeleech == "on":
             iptorrents_freeleech = 1

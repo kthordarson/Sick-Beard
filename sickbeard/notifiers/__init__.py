@@ -16,80 +16,124 @@
 # You should have received a copy of the GNU General Public License
 # along with Sick Beard.  If not, see <http://www.gnu.org/licenses/>.
 
+__all__ = ['ezrss',
+           'tvtorrents',
+           'womble',
+           'btn',
+           'thepiratebay',
+           'torrentleech',
+           'kat',
+           'scc',
+           'hdbits',
+           'iptorrents',
+           'omgwtfnzbs',
+           'deildu'
+           ]
+
 import sickbeard
 
-import xbmc
-import plex
-import nmj
-import nmjv2
-import synoindex
-import synologynotifier
-import pytivo
+from os import sys
 
-import growl
-import prowl
-from . import libnotify
-import pushover
-import boxcar
-import nma
-import pushalot
+def sortedProviderList():
 
-import tweet
-import trakt
-import emailnotify
+    initialList = sickbeard.providerList + sickbeard.newznabProviderList + sickbeard.torrentRssProviderList
+    providerDict = dict(zip([x.getID() for x in initialList], initialList))
 
-from sickbeard.common import *
+    newList = []
 
-# home theater
-xbmc_notifier = xbmc.XBMCNotifier()
-plex_notifier = plex.PLEXNotifier()
-nmj_notifier = nmj.NMJNotifier()
-nmjv2_notifier = nmjv2.NMJv2Notifier()
-synoindex_notifier = synoindex.synoIndexNotifier()
-synology_notifier = synologynotifier.synologyNotifier()
-pytivo_notifier = pytivo.pyTivoNotifier()
-# devices
-growl_notifier = growl.GrowlNotifier()
-prowl_notifier = prowl.ProwlNotifier()
-libnotify_notifier = libnotify.LibnotifyNotifier()
-pushover_notifier = pushover.PushoverNotifier()
-boxcar_notifier = boxcar.BoxcarNotifier()
-nma_notifier = nma.NMA_Notifier()
-pushalot_notifier = pushalot.PushalotNotifier()
-# online
-twitter_notifier = tweet.TwitterNotifier()
-trakt_notifier = trakt.TraktNotifier()
-email_notifier = emailnotify.EmailNotifier()
+    # add all modules in the priority list, in order
+    for curModule in sickbeard.PROVIDER_ORDER:
+        if curModule in providerDict:
+            newList.append(providerDict[curModule])
 
-notifiers = [
-    libnotify_notifier, # Libnotify notifier goes first because it doesn't involve blocking on network activity.
-    xbmc_notifier,
-    plex_notifier,
-    nmj_notifier,
-    nmjv2_notifier,
-    synoindex_notifier,
-    synology_notifier,
-    pytivo_notifier,
-    growl_notifier,
-    prowl_notifier,
-    pushover_notifier,
-    boxcar_notifier,
-    nma_notifier,
-    pushalot_notifier,
-    twitter_notifier,
-    trakt_notifier,
-    email_notifier,
-]
+    # add any modules that are missing from that list
+    for curModule in providerDict:
+        if providerDict[curModule] not in newList:
+            newList.append(providerDict[curModule])
+
+    return newList
+
+def makeProviderList():
+
+    return [x.provider for x in [getProviderModule(y) for y in __all__] if x]
+
+def getNewznabProviderList(data):
+
+    defaultList = [makeNewznabProvider(x) for x in getDefaultNewznabProviders().split('!!!')]
+    providerList = filter(lambda x: x, [makeNewznabProvider(x) for x in data.split('!!!')])
+
+    providerDict = dict(zip([x.name for x in providerList], providerList))
+
+    for curDefault in defaultList:
+        if not curDefault:
+            continue
+
+        # a 0 in the key spot indicates that no key is needed, so set this on the object
+        if curDefault.key == '0':
+            curDefault.key = ''
+            curDefault.needs_auth = False
+
+        if curDefault.name not in providerDict:
+            curDefault.default = True
+            providerList.append(curDefault)
+        else:
+            providerDict[curDefault.name].default = True
+            providerDict[curDefault.name].name = curDefault.name
+            providerDict[curDefault.name].url = curDefault.url
+            providerDict[curDefault.name].needs_auth = curDefault.needs_auth
+        
+    return filter(lambda x: x, providerList)
 
 
-def notify_download(ep_name):
-    for n in notifiers:
-        n.notify_download(ep_name)
+def makeNewznabProvider(configString):
 
-def notify_subtitle_download(ep_name, lang):
-    for n in notifiers:
-        n.notify_subtitle_download(ep_name, lang)
+    if not configString:
+        return None
 
-def notify_snatch(ep_name):
-    for n in notifiers:
-        n.notify_snatch(ep_name)
+    name, url, key, enabled = configString.split('|')
+
+    newznab = sys.modules['sickbeard.providers.newznab']
+
+    newProvider = newznab.NewznabProvider(name, url)
+    newProvider.key = key
+    newProvider.enabled = enabled == '1'
+
+    return newProvider
+
+def getTorrentRssProviderList(data):
+    providerList = filter(lambda x: x, [makeTorrentRssProvider(x) for x in data.split('!!!')])
+    return filter(lambda x: x, providerList)
+
+def makeTorrentRssProvider(configString):
+
+    if not configString:
+        return None
+
+    name, url, enabled = configString.split('|')
+
+    torrentRss = sys.modules['sickbeard.providers.rsstorrent']
+
+    newProvider = torrentRss.TorrentRssProvider(name, url)
+    newProvider.enabled = enabled == '1'
+
+    return newProvider
+
+def getDefaultNewznabProviders():
+    return 'Sick Beard Index|http://lolo.sickbeard.com/|0|0!!!NZBs.org|http://nzbs.org/||0!!!NZBGeek|https://index.nzbgeek.info/||0!!!NZBFinder|http://www.nzbfinder.ws/||0!!!Usenet-Crawler|http://www.usenet-crawler.com/||0'
+
+def getProviderModule(name):
+    name = name.lower()
+    prefix = "sickbeard.providers."
+    if name in __all__ and prefix+name in sys.modules:
+        return sys.modules[prefix+name]
+    else:
+        raise Exception("Can't find " + prefix+name + " in " + "Providers")
+
+def getProviderClass(id):
+
+    providerMatch = [x for x in sickbeard.providerList + sickbeard.newznabProviderList + sickbeard.torrentRssProviderList if x.getID() == id]
+
+    if len(providerMatch) != 1:
+        return None
+    else:
+        return providerMatch[0]

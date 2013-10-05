@@ -150,6 +150,8 @@ class NumericProviders (AddAirdateIndex):
                 9: 'dtt',
                 10: 'torrentleech',
                 11: 'kat',
+                12: 'deildu',
+                13: 'deildurss',
              }
                 
     def execute(self):
