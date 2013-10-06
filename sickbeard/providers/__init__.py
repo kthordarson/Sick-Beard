@@ -26,7 +26,8 @@ __all__ = ['ezrss',
            'scc',
            'hdbits',
            'iptorrents',
-           'omgwtfnzbs'
+           'omgwtfnzbs',
+           'deildu'
            ]
 
 import sickbeard

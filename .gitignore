@@ -32,6 +32,8 @@ tests/cache.db
 *.sw?
 Session.vim
 .ropeproject/*
+.idea/*
+
 
 # OS generated files #
 ######################
