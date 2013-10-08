@@ -204,17 +204,17 @@ class DeilduProvider(generic.TorrentProvider):
                 # get the browse url with the cookiejar provided to get in
                 data = self.getURL(searchURL, [], dlh.cj)
                 if not data or 'login' in data:
-                    logger.log("Login handler failed, login form or nothing returned", logger.ERROR)
+                    logger.log("Login handler failed, login form or nothing returned data1", logger.ERROR)
                     return []
                 # a crude way of checking if deildu returned no results
                 if 'Ekkert fannst!' in data:
-                    logger.log("Deildu reported that no torrent was found", logger.MESSAGE)
+                    logger.log("Deildu reported that no torrent was found  data1", logger.MESSAGE)
                     return []
                 #Extracting torrent information from data returned by searchURL
                 match = re.compile(self.re_title_url, re.DOTALL).finditer(urllib.unquote(data))
                 for torrent in match:
                     title = torrent.group('title').replace('_','.').decode('iso-8859-1')
-                    logger.log(u"deildu.py torrent match loop: "+str(title),logger.DEBUG)
+                    logger.log(u"deildu.py torrent match loop data1: "+str(title),logger.DEBUG)
                     url = torrent.group('url')
                     id = int(torrent.group('id'))
                     seeders = int(re.sub('<[^<]+?>', '', torrent.group('seeders')))
@@ -230,17 +230,17 @@ class DeilduProvider(generic.TorrentProvider):
                     items[mode].append(item)
                 data_2 = self.getURL(searchURL_2, [], dlh.cj)
                 if not data_2 or 'login' in data_2:
-                    logger.log("Login handler failed, login form or nothing returned", logger.ERROR)
-                    return []
+                    logger.log("Login handler failed, login form or nothing returned data2", logger.ERROR)
+                    continue
                 # a crude way of checking if deildu returned no results
                 if 'Ekkert fannst!' in data_2:
-                    logger.log("Deildu reported that no torrent was found", logger.MESSAGE)
-                    return []
+                    logger.log("Deildu reported that no torrent was found data2", logger.MESSAGE)
+                    continue
                 #Extracting torrent information from data returned by searchURL
                 match = re.compile(self.re_title_url, re.DOTALL).finditer(urllib.unquote(data_2))
                 for torrent in match:
                     title = torrent.group('title').replace('_','.').decode('iso-8859-1')
-                    logger.log(u"deildu.py torrent match loop 2: "+str(title),logger.DEBUG)
+                    logger.log(u"deildu.py torrent match loop data2 : "+str(title),logger.DEBUG)
                     url = torrent.group('url')
                     id = int(torrent.group('id'))
                     seeders = int(re.sub('<[^<]+?>', '', torrent.group('seeders')))
