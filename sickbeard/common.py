@@ -23,7 +23,8 @@ import re
 
 from sickbeard import version
 
-USER_AGENT = 'Sick Beard/alpha2-' + version.SICKBEARD_VERSION.replace(' ', '-') + ' (' + platform.system() + ' ' + platform.release() + ')'
+#USER_AGENT = 'Sick Beard/alpha2-' + version.SICKBEARD_VERSION.replace(' ', '-') + ' (' + platform.system() + ' ' + platform.release() + ')'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0'
 
 mediaExtensions = ['avi', 'mkv', 'mpg', 'mpeg', 'wmv',
                    'ogm', 'mp4', 'iso', 'img', 'divx',

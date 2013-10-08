@@ -90,6 +90,7 @@ class DeilduProvider(generic.TorrentProvider):
         self.cache = DeilduCache(self)
         self.url = 'http://deildu.net/'
 
+
         self.searchurl = self.url+'browse.php?cat=0&search=%s&sort=seeders&type=desc'
         self.re_title_url = '<tr>.*?browse\.php.*?details\.php\?id=(?P<id>\d+).+?<b>(?P<title>.*?)</b>.+?class=\"index\" href=\"(?P<url>.*?)".+?sinnum.+?align=\"right\">(?P<seeders>.*?)</td>.*?align=\"right\">(?P<leechers>.*?)</td>.*?</tr>'
 
@@ -178,60 +179,81 @@ class DeilduProvider(generic.TorrentProvider):
         items = {'Season': [], 'Episode': []}
         dlh = DeilduLoginHandler()
 
+# http://deildu.net/bot.php?search=gadget+show&cat=8
+# 1 'http://deildu.net/bot.php?cat=8&search=%s&sort=seeders&type=desc'
+# 2 'http://deildu.net/browse.php?cat=0&search=%s&sort=seeders&type=desc'
+# setja tvo search url, possible ?
+        self.deildu_urls_1 =self.url+'/browse.php?cat=0&search=%s&sort=seeders&type=desc'
+        self.deildu_urls_2 =self.url+'/bot.php?cat=8&search=%s&sort=seeders&type=desc'
+
+
         for mode in search_params.keys():
             for search_string in search_params[mode]:
                 search_string = search_string.replace('.',' ')
                 searchURL = self.searchurl % (urllib.quote(search_string))
+                searchURL_2 = self.deildu_urls_2 % (urllib.quote(search_string))
                 logger.log(u"Search url: " + searchURL, logger.DEBUG)
                 logger.log(u"Search string: " + urllib.quote(search_string), logger.DEBUG)
-
-
+                logger.log(u"Search url: " + searchURL_2, logger.DEBUG)
+                logger.log(u"Search string: " + urllib.quote(search_string), logger.DEBUG)
                 # make sure we've got a cookie ready to use deildu.net
                 if not dlh.loggedIn():
                     logger.log("User or pass for Deildu.net not correct", logger.ERROR)
                     return []
-
-                logger.log('Got cookie from Deildu', logger.DEBUG)
-
+                logger.log(u"deildu.py Got cookie from Deildu", logger.DEBUG)
                 # get the browse url with the cookiejar provided to get in
                 data = self.getURL(searchURL, [], dlh.cj)
                 if not data or 'login' in data:
                     logger.log("Login handler failed, login form or nothing returned", logger.ERROR)
                     return []
-
                 # a crude way of checking if deildu returned no results
                 if 'Ekkert fannst!' in data:
                     logger.log("Deildu reported that no torrent was found", logger.MESSAGE)
                     return []
-                
-                #Extracting torrent information from data returned by searchURL                   
+                #Extracting torrent information from data returned by searchURL
                 match = re.compile(self.re_title_url, re.DOTALL).finditer(urllib.unquote(data))
-
                 for torrent in match:
-
                     title = torrent.group('title').replace('_','.').decode('iso-8859-1')
+                    logger.log(u"deildu.py torrent match loop: "+str(title),logger.DEBUG)
                     url = torrent.group('url')
                     id = int(torrent.group('id'))
                     seeders = int(re.sub('<[^<]+?>', '', torrent.group('seeders')))
                     leechers = int(re.sub('<[^<]+?>', '', torrent.group('leechers')))
-
                     #Filter unseeded torrent
                     if seeders == 0:
                         continue
-                       
                     if not show_name_helpers.filterBadReleases(title):
                         continue
-
-                    # TODO: Find a way to get filelist from Deildu to check quality of whole seasons
-                    # if mode == 'Season' and Quality.nameQuality(title) == Quality.UNKNOWN:
-                    #     title = self._find_season_quality(title,id)
-                    
                     if not title:
                         continue
-                        
                     item = title, self.url+url, id, seeders, leechers
                     items[mode].append(item)
-
+                data_2 = self.getURL(searchURL_2, [], dlh.cj)
+                if not data_2 or 'login' in data_2:
+                    logger.log("Login handler failed, login form or nothing returned", logger.ERROR)
+                    return []
+                # a crude way of checking if deildu returned no results
+                if 'Ekkert fannst!' in data_2:
+                    logger.log("Deildu reported that no torrent was found", logger.MESSAGE)
+                    return []
+                #Extracting torrent information from data returned by searchURL
+                match = re.compile(self.re_title_url, re.DOTALL).finditer(urllib.unquote(data_2))
+                for torrent in match:
+                    title = torrent.group('title').replace('_','.').decode('iso-8859-1')
+                    logger.log(u"deildu.py torrent match loop 2: "+str(title),logger.DEBUG)
+                    url = torrent.group('url')
+                    id = int(torrent.group('id'))
+                    seeders = int(re.sub('<[^<]+?>', '', torrent.group('seeders')))
+                    leechers = int(re.sub('<[^<]+?>', '', torrent.group('leechers')))
+                    #Filter unseeded torrent
+                    if seeders == 0:
+                        continue
+                    if not show_name_helpers.filterBadReleases(title):
+                        continue
+                    if not title:
+                        continue
+                    item = title, self.url+url, id, seeders, leechers
+                    items[mode].append(item)
             #For each search mode sort all the items by seeders
             items[mode].sort(key=lambda tup: tup[3], reverse=True)
 
@@ -346,7 +368,7 @@ class DeilduCache(tvcache.TVCache):
     def _getData(self):
 
 # url for the last 50 tv-show
-        url = self.provider.url+'browse.php?c12=1&c8=1&incldead=0'
+        url = self.provider.url+'bot.php?c12=1&c8=1&incldead=0'
         logger.log(u"Deildu cache update URL: "+ url, logger.DEBUG)
 
         data = self.provider.getURL(url)

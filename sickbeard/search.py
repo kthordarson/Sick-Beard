@@ -336,8 +336,10 @@ def findSeason(show, season):
     didSearch = False
 
     for curProvider in providers.sortedProviderList():
+        logger.log(u"search.py looking "+show.name+" season "+str(season)+" "+str(curProvider.name), logger.DEBUG)
 
         if not curProvider.isActive():
+            logger.log(u"search.py "+str(curProvider.name)+" not active ", logger.DEBUG)
             continue
 
         try:
@@ -372,6 +374,7 @@ def findSeason(show, season):
     anyQualities, bestQualities = Quality.splitQuality(show.quality)
 
     # pick the best season NZB
+    logger.log(u"search.py pick best season.....", logger.DEBUG)
     bestSeasonNZB = None
     if SEASON_RESULT in foundResults:
         bestSeasonNZB = pickBestResult(foundResults[SEASON_RESULT], anyQualities+bestQualities)
