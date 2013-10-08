@@ -8,6 +8,8 @@ sickbeard.db*
 autoProcessTV/autoProcessTV.cfg
 server.crt
 server.key
+*.torrent
+*.cookies
 
 #  SB Test Related   #
 ######################
