@@ -217,8 +217,10 @@ class DeilduProvider(generic.TorrentProvider):
                     logger.log(u"deildu.py torrent match loop data1: "+str(title),logger.DEBUG)
                     url = torrent.group('url')
                     id = int(torrent.group('id'))
-                    seeders = int(re.sub('<[^<]+?>', '', torrent.group('seeders')))
-                    leechers = int(re.sub('<[^<]+?>', '', torrent.group('leechers')))
+ #                   seeders = int(re.sub('<[^<]+?>', '', torrent.group('seeders')))
+ # why not regex only digits ?
+                    seeders = int(re.sub('\D', '', torrent.group('seeders')))
+                    leechers = int(re.sub('\D', '', torrent.group('leechers')))
                     #Filter unseeded torrent
                     if seeders == 0:
                         continue
@@ -243,8 +245,8 @@ class DeilduProvider(generic.TorrentProvider):
                     logger.log(u"deildu.py torrent match loop data2 : "+str(title),logger.DEBUG)
                     url = torrent.group('url')
                     id = int(torrent.group('id'))
-                    seeders = int(re.sub('<[^<]+?>', '', torrent.group('seeders')))
-                    leechers = int(re.sub('<[^<]+?>', '', torrent.group('leechers')))
+                    seeders = int(re.sub('\D', '', torrent.group('seeders')))
+                    leechers = int(re.sub('\D', '', torrent.group('leechers')))
                     #Filter unseeded torrent
                     if seeders == 0:
                         continue
