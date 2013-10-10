@@ -158,7 +158,7 @@ h1.network {
 }
 
 .listing_current {
-    background-color: #E2FFD8;
+    background-color: #59b236;
     color: #AAD450;
 }
 
@@ -167,7 +167,7 @@ h1.network {
 }
 
 .listing_overdue {
-    background-color: #FDEBF3;
+    background-color: #fb6767;
     color: #F49AC1;
 }
 

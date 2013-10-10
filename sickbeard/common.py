@@ -1,3 +1,4 @@
+# coding=utf8
 # Author: Nic Wolfe <nic@wolfeden.ca>
 # URL: http://code.google.com/p/sickbeard/
 #
@@ -156,6 +157,10 @@ class Quality:
         """
         
         name = os.path.basename(name)
+        name2 = name.replace("*",'')
+        if "Nýjasti" in name2:
+          return Quality.SDTV
+        logger.log(u"common.py we are in staticmethod looking for: "+name, logger.DEBUG)
 
         # if we have our exact text then assume we put it there
         for x in sorted(Quality.qualityStrings.keys(), reverse=True):
@@ -165,7 +170,7 @@ class Quality:
                 return Quality.sceneQuality(name)
                 
             regex = '\W' + Quality.qualityStrings[x].replace(' ','\W') + '\W'
-            regex_match = re.search(regex, name, re.I)
+            regex_match = re.search(regex, name2, re.I)
             if regex_match:
                 return x
         
@@ -177,11 +182,15 @@ class Quality:
         """
 
         name = os.path.basename(name)
+        name2 = name.replace('*','')
         logger.log(u"common.py checking: "+name, logger.DEBUG)
-        checkName = lambda list, func: func([re.search(x, name, re.I) for x in list])
+        checkName = lambda list, func: func([re.search(x, name2, re.I|re.U) for x in list])
 
         if checkName(["(pdtv|hdtv|dsr|tvrip|web.dl|webrip|WEB-DL|web-d|WEB-D).(xvid|x264|h.?264|AAC|x26)"], all) and not checkName(["(720|1080)[pi]"], all):
             logger.log(u"common.py match sdtv: "+name, logger.DEBUG)
+            return Quality.SDTV
+        if checkName(["Nýjasti"], all):
+            logger.log(u"common.py match sdtv deildu special: "+name, logger.DEBUG)
             return Quality.SDTV
         elif checkName(["(dvdrip|b[r|d]rip)(.ws)?.(xvid|divx|x264)"], any) and not checkName(["(720|1080)[pi]"], all):
             logger.log(u"common.py match sddvd: "+name, logger.DEBUG)
@@ -214,10 +223,12 @@ class Quality:
             logger.log(u"common.py match fullhdbluray: "+name, logger.DEBUG)
             return Quality.FULLHDBLURAY
         else:
+            logger.log(u"common.py no qualitymatch, return UNKNOWN: "+name, logger.DEBUG)
             return Quality.UNKNOWN
 
     @staticmethod
     def assumeQuality(name):
+        logger.log(u"common.py we are in assumequality for: "+name, logger.DEBUG)
         if name.lower().endswith((".avi", ".mp4")):
             return Quality.SDTV
 #        elif name.lower().endswith(".mkv"):
