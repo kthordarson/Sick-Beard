@@ -10,6 +10,7 @@ server.crt
 server.key
 *.torrent
 *.cookies
+data/*
 
 #  SB Test Related   #
 ######################
