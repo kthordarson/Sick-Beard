@@ -21,13 +21,14 @@ __all__ = ['ezrss',
            'womble',
            'btn',
            'thepiratebay',
-           'torrentleech',
            'kat',
+           'publichd', 
+           'torrentleech',
            'scc',
+           'torrentday',
            'hdbits',
            'iptorrents',
-           'omgwtfnzbs',
-           'deildu'
+           'omgwtfnzbs'
            ]
 
 import sickbeard

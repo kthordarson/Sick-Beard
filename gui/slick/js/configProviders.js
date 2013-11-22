@@ -228,6 +228,7 @@ $(document).ready(function(){
 
       var config_id = $(this).find("input").attr('id').replace("enable_", "") + "Div";
       var config_form = '<div id="config"><form id="configForm_tip" action="saveProviders" method="post"><fieldset class="component-group-list tip_scale"><div class="providerDiv_tip">' + $("div[id*="+config_id+"]").html() + '</div></fieldset></form></div>'
+      var provider_name =  $.trim($(this).text()).replace('*','')
   
       if ($("div[id*="+config_id+"]").length == 0) {
         return false
@@ -251,13 +252,13 @@ $(document).ready(function(){
                effect: true,
           },
           hide: {
-                     fixed: true,
-                     delay: 900,
+               fixed: true,
+               delay: 900,
           },
           content: {
           text: config_form,
                 title: {
-                    text: 'Config Provider',
+                    text: provider_name + ' Config',
                     button: true
                 }
           },
@@ -270,7 +271,7 @@ $(document).ready(function(){
               width: 350,
               background: '#FFF',
               padding: 15,
-  //            tip: true, // Give it a speech bubble tip with automatic corner detection
+              tip: true, // Give it a speech bubble tip with automatic corner detection
               classes: 'qtip-dark qtip-shadow',
           },
       });
@@ -437,13 +438,32 @@ $(document).ready(function(){
       }
     });
 
+    $.fn.makeTorrentOptionString = function(provider_id) {
+
+	    var seed_ratio  = $('.providerDiv_tip #'+provider_id+'_seed_ratio').prop('value');
+	    var seed_time   = $('.providerDiv_tip #'+provider_id+'_seed_time').prop('value');
+	    var process_met = $('.providerDiv_tip #'+provider_id+'_process_method').prop('value');
+		var option_string = $('.providerDiv_tip #'+provider_id+'_option_string');	
+
+        option_string.val([seed_ratio, seed_time, process_met].join('|'))
+
+    }
+
+    $(this).on('change', '.seed_option', function(){
+
+        var provider_id = $(this).attr('id').split('_')[0];
+
+		$(this).makeTorrentOptionString(provider_id);
+
+    });
+
     // initialization stuff
 
-  $(this).hideConfigTab();
+    $(this).hideConfigTab();
 
-  $(this).showHideProviders();
+    $(this).showHideProviders();
 
-  $(this).showProvidersConfig();
+    $(this).showProvidersConfig();
 
     $("#provider_order_list").sortable({
         placeholder: 'ui-state-highlight',

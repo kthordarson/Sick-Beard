@@ -26,7 +26,7 @@ import sickbeard
 
 from sickbeard import helpers, classes, logger, db
 
-from sickbeard.common import Quality, MULTI_EP_RESULT, SEASON_RESULT
+from sickbeard.common import Quality, MULTI_EP_RESULT, SEASON_RESULT#, SEED_POLICY_TIME, SEED_POLICY_RATIO
 from sickbeard import tvcache
 from sickbeard import encodingKludge as ek
 from sickbeard.exceptions import ex
@@ -94,7 +94,7 @@ class GenericProvider:
             
         return result
 
-    def getURL(self, url, headers=None):
+    def getURL(self, url, post_data=None, headers=None):
         """
         By default this is just a simple urlopen call but this method should be overridden
         for providers with special URL requirements (like cookies)
@@ -103,7 +103,7 @@ class GenericProvider:
         if not headers:
             headers = []
 
-        data = helpers.getURL(url, headers)
+        data = helpers.getURL(url, post_data, headers)
 
         if not data:
             logger.log(u"Error loading " + self.name + " URL: " + url, logger.ERROR)
@@ -384,3 +384,15 @@ class TorrentProvider(GenericProvider):
         GenericProvider.__init__(self, name)
 
         self.providerType = GenericProvider.TORRENT
+        
+#        self.option = {SEED_POLICY_TIME : '',
+#                       SEED_POLICY_RATIO: '',
+#                       'PROCESS_METHOD': ''
+#                       }
+    
+#    def get_provider_options(self):
+#        pass
+#    
+#    def set_provider_options(self):
+#        self.option[SEED_POLICY_TIME] + '|' + self.option[SEED_POLICY_RATIO] + '|' + self.option['PROCESS_METHOD']
+        
