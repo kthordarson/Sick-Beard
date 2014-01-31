@@ -61,6 +61,22 @@ class SBRotatingLogHandler(object):
 
         self.log_lock = threading.Lock()
 
+    def close_log(self, handler=None):
+        if not handler:
+            handler = self.cur_handler
+
+        if handler:
+            sb_logger = logging.getLogger('sickbeard')
+            sub_logger = logging.getLogger('subliminal')
+            imdb_logger = logging.getLogger('imdbpy')
+
+            sb_logger.removeHandler(handler)
+            sub_logger.removeHandler(handler)
+            imdb_logger.removeHandler(handler)             
+
+            handler.flush()
+            handler.close()
+
     def initLogging(self, consoleLogging=True):
 
         old_handler = None
@@ -91,6 +107,7 @@ class SBRotatingLogHandler(object):
                 logging.getLogger('subliminal').addHandler(console)
                 logging.getLogger('imdbpy').addHandler(console)
 
+<<<<<<< HEAD
             self.log_file_path = os.path.join(sickbeard.LOG_DIR, self.log_file)
 
             self.cur_handler = self._config_handler()
@@ -101,10 +118,22 @@ class SBRotatingLogHandler(object):
             logging.getLogger('sickbeard').setLevel(DB)
             logging.getLogger('subliminal').setLevel(logging.DEBUG)
             logging.getLogger('imdbpy').setLevel(logging.WARNING)
+=======
+        self.log_file_path = os.path.join(sickbeard.LOG_DIR, self.log_file)
+            
+        self.cur_handler = self._config_handler()
+        logging.getLogger('sickbeard').addHandler(self.cur_handler)
+        logging.getLogger('subliminal').addHandler(self.cur_handler)
+        logging.getLogger('imdbpy').addHandler(self.cur_handler)
+>>>>>>> 9eac0e7a7bd22aab05942f16ff6d5da2a2f8a667
 
+        logging.getLogger('sickbeard').setLevel(DB)
+        logging.getLogger('subliminal').setLevel(logging.WARNING)
+        logging.getLogger('imdbpy').setLevel(logging.WARNING)
 
         # already logging in new log folder, close the old handler
         if old_handler:
+<<<<<<< HEAD
             old_handler.flush()
             old_handler.close()
             sb_logger = logging.getLogger('sickbeard')
@@ -113,6 +142,17 @@ class SBRotatingLogHandler(object):
             sb_logger.removeHandler(old_handler)
             subli_logger.removeHandler(old_handler)
             imdb_logger.removeHandler(old_handler)
+=======
+            self.close_log(old_handler)
+#            old_handler.flush()
+#            old_handler.close()
+#            sb_logger = logging.getLogger('sickbeard')
+#            sub_logger = logging.getLogger('subliminal')
+#            imdb_logger = logging.getLogger('imdbpy')
+#            sb_logger.removeHandler(old_handler)
+#            subli_logger.removeHandler(old_handler)
+#            imdb_logger.removeHandler(old_handler) 
+>>>>>>> 9eac0e7a7bd22aab05942f16ff6d5da2a2f8a667
 
     def _config_handler(self):
         """
@@ -154,17 +194,22 @@ class SBRotatingLogHandler(object):
     def _rotate_logs(self):
 
         sb_logger = logging.getLogger('sickbeard')
-        subli_logger = logging.getLogger('subliminal')
+        sub_logger = logging.getLogger('subliminal')
         imdb_logger = logging.getLogger('imdbpy')
 
         # delete the old handler
         if self.cur_handler:
+<<<<<<< HEAD
             self.cur_handler.flush()
             self.cur_handler.close()
             sb_logger.removeHandler(self.cur_handler)
             subli_logger.removeHandler(self.cur_handler)
             imdb_logger.removeHandler(self.cur_handler)
 
+=======
+            self.close_log()
+    
+>>>>>>> 9eac0e7a7bd22aab05942f16ff6d5da2a2f8a667
         # rename or delete all the old log files
         for i in range(self._num_logs(), -1, -1):
             cur_file_name = self._log_file_name(i)
@@ -182,7 +227,7 @@ class SBRotatingLogHandler(object):
         self.cur_handler = new_file_handler
 
         sb_logger.addHandler(new_file_handler)
-        subli_logger.addHandler(new_file_handler)
+        sub_logger.addHandler(new_file_handler)
         imdb_logger.addHandler(new_file_handler)
 
     def log(self, toLog, logLevel=MESSAGE):
@@ -208,7 +253,7 @@ class SBRotatingLogHandler(object):
             sb_logger = logging.getLogger('sickbeard')
             setattr(sb_logger, 'db', lambda *args: sb_logger.log(DB, *args))
 
-            subli_logger = logging.getLogger('subliminal')
+            sub_logger = logging.getLogger('subliminal')
             imdb_logger = logging.getLogger('imdbpy')
 
             try:
@@ -245,3 +290,9 @@ sb_log_instance = SBRotatingLogHandler('sickbeard.log', NUM_LOGS, LOG_SIZE)
 
 def log(toLog, logLevel=MESSAGE):
     sb_log_instance.log(toLog, logLevel)
+<<<<<<< HEAD
+=======
+    
+def close():
+    sb_log_instance.close_log()    
+>>>>>>> 9eac0e7a7bd22aab05942f16ff6d5da2a2f8a667

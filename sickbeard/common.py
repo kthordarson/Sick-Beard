@@ -1,4 +1,3 @@
-# coding=utf8
 # Author: Nic Wolfe <nic@wolfeden.ca>
 # URL: http://code.google.com/p/sickbeard/
 #
@@ -21,12 +20,10 @@ import os.path
 import operator
 import platform
 import re
-import logger
 
 from sickbeard import version
 
-#USER_AGENT = 'Sick Beard/alpha2-' + version.SICKBEARD_VERSION.replace(' ', '-') + ' (' + platform.system() + ' ' + platform.release() + ')'
-USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0'
+USER_AGENT = 'Sick Beard/alpha2-' + version.SICKBEARD_VERSION.replace(' ', '-') + ' (' + platform.system() + ' ' + platform.release() + ')'
 
 mediaExtensions = ['avi', 'mkv', 'mpg', 'mpeg', 'wmv',
                    'ogm', 'mp4', 'iso', 'img', 'divx',
@@ -61,6 +58,7 @@ ARCHIVED = 6 # episodes that you don't have locally (counts toward download comp
 IGNORED = 7 # episodes that you don't want included in your download stats
 SNATCHED_PROPER = 9 # qualified with quality
 SUBTITLED = 10 # qualified with quality
+FAILED = 11 #episode downloaded or snatched we don't want
 
 NAMING_REPEAT = 1
 NAMING_EXTEND = 2
@@ -76,19 +74,6 @@ multiEpStrings[NAMING_DUPLICATE] = "Duplicate"
 multiEpStrings[NAMING_EXTEND] = "Extend"
 multiEpStrings[NAMING_LIMITED_EXTEND] = "Extend (Limited)"
 multiEpStrings[NAMING_LIMITED_EXTEND_E_PREFIXED] = "Extend (Limited, E-prefixed)"
-
-NAMING_REPEAT = 1
-NAMING_EXTEND = 2
-NAMING_DUPLICATE = 4
-NAMING_LIMITED_EXTEND = 8
-NAMING_SEPARATED_REPEAT = 16
-
-multiEpStrings = {}
-multiEpStrings[NAMING_REPEAT] = "Repeat"
-multiEpStrings[NAMING_SEPARATED_REPEAT] = "Repeat (Separated)"
-multiEpStrings[NAMING_DUPLICATE] = "Duplicate"
-multiEpStrings[NAMING_EXTEND] = "Extend"
-multiEpStrings[NAMING_LIMITED_EXTEND] = "Extend (Limited)"
 
 class Quality:                                                        
     NONE = 0              # 0                                         
@@ -118,7 +103,8 @@ class Quality:
                       FULLHDBLURAY: "1080p BluRay"}
 
     statusPrefixes = {DOWNLOADED: "Downloaded",
-                      SNATCHED: "Snatched"}
+                      SNATCHED: "Snatched",
+                      FAILED: "Failed"}
 
     @staticmethod
     def _getStatusStrings(status):
@@ -157,10 +143,6 @@ class Quality:
         """
         
         name = os.path.basename(name)
-        name2 = name.replace("*",'')
-        if "Nýjasti" in name2:
-          return Quality.SDTV
-        logger.log(u"common.py we are in staticmethod looking for: "+name, logger.DEBUG)
 
         # if we have our exact text then assume we put it there
         for x in sorted(Quality.qualityStrings.keys(), reverse=True):
@@ -170,11 +152,10 @@ class Quality:
                 return Quality.sceneQuality(name)
                 
             regex = '\W' + Quality.qualityStrings[x].replace(' ','\W') + '\W'
-            regex_match = re.search(regex, name2, re.I)
+            regex_match = re.search(regex, name, re.I)
             if regex_match:
                 return x
         
-
     @staticmethod
     def sceneQuality(name):
         """
@@ -182,53 +163,36 @@ class Quality:
         """
 
         name = os.path.basename(name)
-        name2 = name.replace('*','')
-        logger.log(u"common.py checking: "+name, logger.DEBUG)
-        checkName = lambda list, func: func([re.search(x, name2, re.I|re.U) for x in list])
 
-        if checkName(["(pdtv|hdtv|dsr|tvrip|web.dl|webrip|WEB-DL|web-d|WEB-D).(xvid|x264|h.?264|AAC|x26)"], all) and not checkName(["(720|1080)[pi]"], all):
-            logger.log(u"common.py match sdtv: "+name, logger.DEBUG)
-            return Quality.SDTV
-        if checkName(["Nýjasti"], all):
-            logger.log(u"common.py match sdtv deildu special: "+name, logger.DEBUG)
+        checkName = lambda list, func: func([re.search(x, name, re.I) for x in list])
+
+        if checkName(["(pdtv|hdtv|dsr|tvrip|web.dl|webrip).(xvid|x264|h.?264)"], all) and not checkName(["(720|1080)[pi]"], all):
             return Quality.SDTV
         elif checkName(["(dvdrip|b[r|d]rip)(.ws)?.(xvid|divx|x264)"], any) and not checkName(["(720|1080)[pi]"], all):
-            logger.log(u"common.py match sddvd: "+name, logger.DEBUG)
             return Quality.SDDVD
         elif checkName(["720p", "hdtv", "x264"], all) or checkName(["hr.ws.pdtv.x264"], any) and not checkName(["(1080)[pi]"], all):          
-            logger.log(u"common.py match hdtv: "+name, logger.DEBUG)
             return Quality.HDTV                                                                        
         elif checkName(["720p|1080i", "hdtv", "mpeg-?2"], all):
-            logger.log(u"common.py match rawhdtv: "+name, logger.DEBUG)
             return Quality.RAWHDTV                                                                     
         elif checkName(["1080p", "hdtv", "x264"], all):         
-            logger.log(u"common.py match fullhdtv: "+name, logger.DEBUG) 
             return Quality.FULLHDTV                                                                    
         elif checkName(["720p", "web.dl", "h.?264"], all) or checkName(["720p", "itunes", "h.?264"], all):
-            logger.log(u"common.py match hdwebdl: "+name, logger.DEBUG)
             return Quality.HDWEBDL                                                                     
         elif checkName(["1080p", "web.dl", "h.?264"], all) or checkName(["1080p", "itunes", "h.?264"], all):     
-            logger.log(u"common.py match fullhdwebdl: "+name, logger.DEBUG)
             return Quality.FULLHDWEBDL                                                                 
         elif checkName(["720p", "webrip", "x264"], all):
-            logger.log(u"common.py match hdwebdl: "+name, logger.DEBUG)
             return Quality.HDWEBDL                                                                     
         elif checkName(["1080p", "webrip", "x264"], all):
-            logger.log(u"common.py match fullhdwebdl: "+name, logger.DEBUG)
             return Quality.FULLHDWEBDL        
         elif checkName(["720p", "bluray|hddvd|b[r|d]rip", "x264"], all):
-            logger.log(u"common.py match hdbluray: "+name, logger.DEBUG)
             return Quality.HDBLURAY                                                                    
         elif checkName(["1080p", "bluray|hddvd|b[r|d]rip", "x264"], all):
-            logger.log(u"common.py match fullhdbluray: "+name, logger.DEBUG)
             return Quality.FULLHDBLURAY
         else:
-            logger.log(u"common.py no qualitymatch, return UNKNOWN: "+name, logger.DEBUG)
             return Quality.UNKNOWN
 
     @staticmethod
     def assumeQuality(name):
-        logger.log(u"common.py we are in assumequality for: "+name, logger.DEBUG)
         if name.lower().endswith((".avi", ".mp4")):
             return Quality.SDTV
 #        elif name.lower().endswith(".mkv"):
@@ -272,6 +236,7 @@ class Quality:
 Quality.DOWNLOADED = [Quality.compositeStatus(DOWNLOADED, x) for x in Quality.qualityStrings.keys()]
 Quality.SNATCHED = [Quality.compositeStatus(SNATCHED, x) for x in Quality.qualityStrings.keys()]
 Quality.SNATCHED_PROPER = [Quality.compositeStatus(SNATCHED_PROPER, x) for x in Quality.qualityStrings.keys()]
+Quality.FAILED = [Quality.compositeStatus(FAILED, x) for x in Quality.qualityStrings.keys()]
 
 SD = Quality.combineQualities([Quality.SDTV, Quality.SDDVD], [])                                                                                                                                          
 HD = Quality.combineQualities([Quality.HDTV, Quality.FULLHDTV, Quality.HDWEBDL, Quality.FULLHDWEBDL, Quality.HDBLURAY, Quality.FULLHDBLURAY], []) # HD720p + HD1080p                                      
@@ -300,7 +265,8 @@ class StatusStrings:
                               WANTED: "Wanted",
                               ARCHIVED: "Archived",
                               IGNORED: "Ignored",
-                              SUBTITLED: "Subtitled"}
+                              SUBTITLED: "Subtitled",
+                              FAILED: "Failed"}
 
     def __getitem__(self, name):
         if name in Quality.DOWNLOADED + Quality.SNATCHED + Quality.SNATCHED_PROPER:

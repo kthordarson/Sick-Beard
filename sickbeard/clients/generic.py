@@ -1,6 +1,7 @@
 import re
 import time
 from hashlib import sha1
+from base64 import b16encode, b32decode
 
 import sickbeard
 from sickbeard import logger
@@ -31,22 +32,25 @@ class GenericClient(object):
             self.last_time = time.time()
             self._get_auth()
         
-        logger.log(self.name + u': Requested a ' + method.upper() + ' connection to url '+ self.url + ' with Params= ' + str(params) + ' Data=' + str(data if data else 'None')[0:99] + ('...' if len(data if data else 'None') > 100 else ''), logger.DEBUG)
+        logger.log(self.name + u': Requested a ' + method.upper() + ' connection to url '+ self.url + ' with Params= ' + str(params) + ' Data=' + str(data if data else 'None')[0:99] + ('...' if len(data if data else 'None') > 200 else ''), logger.DEBUG)
         
         if not self.auth:
-            logger.log(self.name + u': Autenthication Failed' , logger.ERROR)
+            logger.log(self.name + u': Authentication Failed' , logger.ERROR)
             return False
         
         try:
-            self.response = self.session.__getattribute__(method)(self.url, params=params, data=data, files=files)
+            self.response = self.session.__getattribute__(method)(self.url, params=params, data=data, files=files, timeout=10, verify=False)
         except requests.exceptions.ConnectionError, e:
-            logger.log(self.name + u': Unable to connect ' +ex(e), logger.ERROR)
+            logger.log(self.name + u': Unable to connect ' + ex(e), logger.ERROR)
             return False
         except (requests.exceptions.MissingSchema, requests.exceptions.InvalidURL):
             logger.log(self.name + u': Invalid Host', logger.ERROR)
             return False
         except requests.exceptions.HTTPError, e:
             logger.log(self.name + u': Invalid HTTP Request ' + ex(e), logger.ERROR)
+            return False
+        except requests.exceptions.Timeout, e:
+            logger.log(self.name + u': Connection Timeout ' + ex(e), logger.ERROR)
             return False
         except Exception, e:
             logger.log(self.name + u': Unknown exception raised when send torrent to ' + self.name + ': ' + ex(e), logger.ERROR)
@@ -123,6 +127,8 @@ class GenericClient(object):
         
         if result.url.startswith('magnet'):
             torrent_hash = re.findall('urn:btih:([\w]{32,40})', result.url)[0]
+            if len(torrent_hash) == 32:
+                torrent_hash = b16encode(b32decode(torrent_hash)).lower()
         else:
             info = bdecode(result.content)["info"]
             torrent_hash = sha1(bencode(info)).hexdigest()
@@ -136,7 +142,7 @@ class GenericClient(object):
         logger.log(u'Calling ' + self.name + ' Client', logger.DEBUG)
 
         if not self._get_auth():
-            logger.log(self.name + u': Autenthication Failed' , logger.ERROR)
+            logger.log(self.name + u': Authentication Failed' , logger.ERROR)
             return r_code
         
         try:
@@ -147,6 +153,9 @@ class GenericClient(object):
                 r_code = self._add_torrent_uri(result)
             else:
                 r_code = self._add_torrent_file(result)
+            
+            if not r_code:
+                return False
                 
             if not self._set_torrent_pause(result):
                 logger.log(self.name + u': Unable to set the pause for Torrent', logger.ERROR)
@@ -171,10 +180,10 @@ class GenericClient(object):
         return r_code
 
     def testAuthentication(self):
-        
+
         try:
-            self.response = self.session.get(self.url)
-        except requests.exceptions.ConnectionError:
+            self.response = self.session.get(self.url, timeout=20, verify=False)
+        except requests.exceptions.ConnectionError, e:
             return False, 'Error: ' + self.name + ' Connection Error'
         except (requests.exceptions.MissingSchema, requests.exceptions.InvalidURL):
             return False,'Error: Invalid ' + self.name + ' host'    

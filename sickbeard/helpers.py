@@ -31,8 +31,13 @@ import urllib
 import urllib2
 import zlib
 import hashlib
+import httplib
+import urlparse
+import uuid
+import base64
 
 from httplib import BadStatusLine
+from itertools import izip, cycle
 
 try:
     import json
@@ -106,7 +111,7 @@ def replaceExtension(filename, newExt):
 
 def isMediaFile(filename):
     # ignore samples
-    if re.search('(^|[\W_])(sample\d*|extra)[\W_]', filename, re.I):
+    if re.search('(^|[\W_])(sample\d*)[\W_]', filename, re.I):
         return False
 
     # ignore MAC OS's retarded "resource fork" files
@@ -114,6 +119,10 @@ def isMediaFile(filename):
         return False
 
     sepFile = filename.rpartition(".")
+    
+    if re.search('extras?$', sepFile[0], re.I):
+        return False
+        
     if sepFile[2].lower() in mediaExtensions:
         return True
     else:
@@ -157,19 +166,18 @@ def sanitizeFileName(name):
     return name
 
 
-def getURL(url, headers=[], cj=None):
+def getURL(url, post_data=None, headers=[]):
     """
-    Returns a byte-string retrieved from the url provider.
-    """
+Returns a byte-string retrieved from the url provider.
+"""
 
-    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+    opener = urllib2.build_opener()
     opener.addheaders = [('User-Agent', USER_AGENT), ('Accept-Encoding', 'gzip,deflate')]
     for cur_header in headers:
         opener.addheaders.append(cur_header)
 
     try:
-        url = url.replace(' ','%20')
-        usock = opener.open(url)
+        usock = opener.open(url, post_data)
         url = usock.geturl()
         encoding = usock.info().get("Content-Encoding")
 
@@ -211,6 +219,7 @@ def getURL(url, headers=[], cj=None):
         return None
 
     return result
+
 
 def _remove_file_failed(file):
     try:
@@ -884,30 +893,33 @@ def get_xml_text(element, mini_dom=False):
     return text.strip()
 
  
-
-def backupVersionedFile(oldFile, version):
+def backupVersionedFile(old_file, version):
     numTries = 0
-    
-    newFile = oldFile + '.' + 'v' + str(version)
 
-    while not ek.ek(os.path.isfile, newFile):
-        if not ek.ek(os.path.isfile, oldFile):
+    new_file = old_file + '.' + 'v' + str(version)
+
+    while not ek.ek(os.path.isfile, new_file):
+        if not ek.ek(os.path.isfile, old_file):
+            logger.log(u"Not creating backup, " + old_file + " doesn't exist", logger.DEBUG)
             break
 
         try:
-            logger.log(u"Attempting to back up " + oldFile + " before migration...")
-            shutil.copy(oldFile, newFile)
-            logger.log(u"Done backup, proceeding with migration.")
+            logger.log(u"Trying to back up " + old_file + " to " + new_file, logger.DEBUG)
+            shutil.copy(old_file, new_file)
+            logger.log(u"Backup done", logger.DEBUG)
             break
         except Exception, e:
-            logger.log(u"Error while trying to back up " + oldFile + ": " + ex(e))
+            logger.log(u"Error while trying to back up " + old_file + " to " + new_file + " : " + ex(e), logger.WARNING)
             numTries += 1
             time.sleep(1)
-            logger.log(u"Trying again.")
+            logger.log(u"Trying again.", logger.DEBUG)
 
         if numTries >= 10:
-            logger.log(u"Unable to back up " + oldFile + ", please do it manually.")
-            sys.exit(1)
+            logger.log(u"Unable to back up " + old_file + " to " + new_file + " please do it manually.", logger.ERROR)
+            return False
+
+    return True
+
 
 # try to convert to int, if it fails the default will be returned
 def tryInt(s, s_default = 0):
@@ -966,4 +978,53 @@ def get_lan_ip():
                 pass
     return ip
 
+def check_url(url):
+    """
+    Check if a URL exists without downloading the whole file.
+    We only check the URL header.
+    """
+    # see also http://stackoverflow.com/questions/2924422
+    # http://stackoverflow.com/questions/1140661
+    good_codes = [httplib.OK, httplib.FOUND, httplib.MOVED_PERMANENTLY]
+
+    host, path = urlparse.urlparse(url)[1:3]    # elems [1] and [2]
+    try:
+        conn = httplib.HTTPConnection(host)
+        conn.request('HEAD', path)
+        return conn.getresponse().status in good_codes
+    except StandardError:
+        return None
+        
+
+"""
+Encryption
+==========
+By Pedro Jose Pereira Vieito <pvieito@gmail.com> (@pvieito)
+
+* If encryption_version==0 then return data without encryption
+* The keys should be unique for each device
+
+To add a new encryption_version:
+  1) Code your new encryption_version        
+  2) Update the last encryption_version available in webserve.py
+  3) Remember to maintain old encryption versions and key generators for retrocompatibility
+"""
+
+# Key Generators
+unique_key1 = hex(uuid.getnode()**2) # Used in encryption v1
+
+# Encryption Functions
+def encrypt(data, encryption_version=0, decrypt=False):
     
+    # Version 1: Simple XOR encryption (this is not very secure, but works)
+    if encryption_version == 1:
+    	if decrypt:
+        	return ''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(base64.decodestring(data), cycle(unique_key1)))
+        else:
+        	return base64.encodestring(''.join(chr(ord(x) ^ ord(y)) for (x,y) in izip(data, cycle(unique_key1)))).strip()
+    # Version 0: Plain text
+    else:
+        return data
+        
+def decrypt(data, encryption_version=0):
+	return encrypt(data, encryption_version, decrypt=True)
