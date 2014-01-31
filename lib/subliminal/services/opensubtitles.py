@@ -97,7 +97,10 @@ class OpenSubtitles(ServiceBase):
     def terminate(self):
         super(OpenSubtitles, self).terminate()
         if self.token:
-            self.server.LogOut(self.token)
+            try:
+                self.server.LogOut(self.token)
+            except:
+                logger.debug(' ... subtitle krem vesen ...')
 
     def query(self, filepath, languages, moviehash=None, size=None, imdbid=None, query=None):
         searches = []
@@ -112,7 +115,10 @@ class OpenSubtitles(ServiceBase):
         for search in searches:
             search['sublanguageid'] = ','.join(self.get_code(l) for l in languages)
         logger.debug(u'Getting subtitles %r with token %s' % (searches, self.token))
-        results = self.server.SearchSubtitles(self.token, searches)
+        try:
+            results = self.server.SearchSubtitles(self.token, searches)
+        except:
+            logger.debug(u' ... exception error in subtitle krem ...')
         if not results['data']:
             logger.debug(u'Could not find subtitles for %r with token %s' % (searches, self.token))
             return []

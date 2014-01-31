@@ -52,7 +52,7 @@ class SBRotatingLogHandler(object):
     def __init__(self, log_file, num_files, num_bytes):
         self.num_files = num_files
         self.num_bytes = num_bytes
-        
+
         self.log_file = log_file
         self.log_file_path = log_file
         self.cur_handler = None
@@ -62,16 +62,16 @@ class SBRotatingLogHandler(object):
         self.log_lock = threading.Lock()
 
     def initLogging(self, consoleLogging=True):
-    
+
         old_handler = None
         # get old handler in case we want to close it
         if self.cur_handler:
             old_handler = self.cur_handler
         else:
-            
+
             #Add a new logging level DB
             logging.addLevelName(5,'DB')
-            
+
             # only start consoleLogging on first initialize
             if consoleLogging:
                 # define a Handler which writes INFO messages or higher to the sys.stderr
@@ -87,12 +87,12 @@ class SBRotatingLogHandler(object):
                                                            logging.Formatter('%(message)s'),))
 
                 # add the handler to the root logger
-                logging.getLogger('sickbeard').addHandler(console)             
+                logging.getLogger('sickbeard').addHandler(console)
                 logging.getLogger('subliminal').addHandler(console)
                 logging.getLogger('imdbpy').addHandler(console)
 
             self.log_file_path = os.path.join(sickbeard.LOG_DIR, self.log_file)
-            
+
             self.cur_handler = self._config_handler()
             logging.getLogger('sickbeard').addHandler(self.cur_handler)
             logging.getLogger('subliminal').addHandler(self.cur_handler)
@@ -112,13 +112,13 @@ class SBRotatingLogHandler(object):
             imdb_logger = logging.getLogger('imdbpy')
             sb_logger.removeHandler(old_handler)
             subli_logger.removeHandler(old_handler)
-            imdb_logger.removeHandler(old_handler) 
+            imdb_logger.removeHandler(old_handler)
 
     def _config_handler(self):
         """
         Configure a file handler to log at file_name and return it.
         """
-    
+
         file_handler = logging.FileHandler(self.log_file_path, encoding='utf-8')
         file_handler.setLevel(DB)
         file_handler.setFormatter(DispatchingFormatter({'sickbeard'  : logging.Formatter('%(asctime)s %(levelname)-8s %(message)s', '%Y-%m-%d %H:%M:%S'),
@@ -126,19 +126,19 @@ class SBRotatingLogHandler(object):
                                                         'imdbpy'     : logging.Formatter('%(asctime)s %(levelname)-8s IMDBPY :: %(message)s', '%Y-%m-%d %H:%M:%S')
                                                         },
                                                         logging.Formatter('%(message)s'),))
-                                                            
+
         return file_handler
 
     def _log_file_name(self, i):
         """
         Returns a numbered log file name depending on i. If i==0 it just uses logName, if not it appends
         it to the extension (blah.log.3 for i == 3)
-        
+
         i: Log number to ues
         """
 
         return self.log_file_path + ('.' + str(i) if i else '')
-    
+
     def _num_logs(self):
         """
         Scans the log folder and figures out how many log files there are already on disk
@@ -152,11 +152,11 @@ class SBRotatingLogHandler(object):
         return cur_log - 1
 
     def _rotate_logs(self):
-        
+
         sb_logger = logging.getLogger('sickbeard')
         subli_logger = logging.getLogger('subliminal')
         imdb_logger = logging.getLogger('imdbpy')
-        
+
         # delete the old handler
         if self.cur_handler:
             self.cur_handler.flush()
@@ -164,7 +164,7 @@ class SBRotatingLogHandler(object):
             sb_logger.removeHandler(self.cur_handler)
             subli_logger.removeHandler(self.cur_handler)
             imdb_logger.removeHandler(self.cur_handler)
-    
+
         # rename or delete all the old log files
         for i in range(self._num_logs(), -1, -1):
             cur_file_name = self._log_file_name(i)
@@ -175,12 +175,12 @@ class SBRotatingLogHandler(object):
                     os.rename(cur_file_name, self._log_file_name(i + 1))
             except OSError:
                 pass
-        
+
         # the new log handler will always be on the un-numbered .log file
         new_file_handler = self._config_handler()
-        
+
         self.cur_handler = new_file_handler
-        
+
         sb_logger.addHandler(new_file_handler)
         subli_logger.addHandler(new_file_handler)
         imdb_logger.addHandler(new_file_handler)
@@ -200,7 +200,10 @@ class SBRotatingLogHandler(object):
             meThread = threading.currentThread().getName()
             message = meThread + u" :: " + toLog
 
-            out_line = message.encode('utf-8')
+            try:
+                out_line = message.encode('utf-8')
+            except:
+                out_line = "ERR"
 
             sb_logger = logging.getLogger('sickbeard')
             setattr(sb_logger, 'db', lambda *args: sb_logger.log(DB, *args))

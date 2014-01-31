@@ -89,9 +89,9 @@ class GenericProvider:
             result = classes.TorrentSearchResult(episodes)
         else:
             result = classes.SearchResult(episodes)
-        
-        result.provider = self    
-            
+
+        result.provider = self
+
         return result
 
     def getURL(self, url, headers=None):
@@ -144,7 +144,7 @@ class GenericProvider:
             fileOut.close()
             helpers.chmodAsParent(file_name)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e), logger.ERROR)
+            logger.log(u"Unable to save the file: " + ex(e), logger.ERROR)
             return False
 
         # as long as it's a valid download then consider it a successful snatch
@@ -171,18 +171,18 @@ class GenericProvider:
         return True
 
     def searchRSS(self):
-        
-        self._checkAuth() 
+
+        self._checkAuth()
         self.cache.updateCache()
         return self.cache.findNeededEpisodes()
 
     def getQuality(self, item):
         """
         Figures out the quality of the given RSS item node
-        
+
         item: An elementtree.ElementTree element representing the <item> tag of the RSS feed
-        
-        Returns a Quality value obtained from the node's data 
+
+        Returns a Quality value obtained from the node's data
         """
         (title, url) = self._get_title_and_url(item) # @UnusedVariable
         quality = Quality.sceneQuality(title)
@@ -196,7 +196,7 @@ class GenericProvider:
 
     def _get_episode_search_strings(self, ep_obj):
         return []
-    
+
     def _get_title_and_url(self, item):
         """
         Retrieves the title and URL data from the item XML node
@@ -212,9 +212,9 @@ class GenericProvider:
         url = helpers.get_xml_text(item.find('link'))
         if url:
             url = url.replace('&amp;', '&')
-            
+
         return (title, url)
-        
+
     def findEpisode(self, episode, manualSearch=False):
 
         logger.log(u"Searching "+self.name+" for " + episode.prettyName())
@@ -248,10 +248,10 @@ class GenericProvider:
 
             if episode.show.air_by_date:
                 if parse_result.air_date != episode.airdate:
-                    logger.log("Episode " + title + " didn't air on " + str(episode.airdate) + ", skipping it", logger.DEBUG)
+                    logger.log(u"Episode " + title + " didn't air on " + str(episode.airdate) + ", skipping it", logger.DEBUG)
                     continue
             elif parse_result.season_number != episode.season or episode.episode not in parse_result.episode_numbers:
-                logger.log("Episode " + title + " isn't "+str(episode.season) + "x" + str(episode.episode) + ", skipping it", logger.DEBUG)
+                logger.log(u"Episode " + title + " isn't "+str(episode.season) + "x" + str(episode.episode) + ", skipping it", logger.DEBUG)
                 continue
 
             quality = self.getQuality(item)
@@ -260,15 +260,18 @@ class GenericProvider:
                 logger.log(u"Ignoring result " + title + " because we don't want an episode that is " + Quality.qualityStrings[quality], logger.DEBUG)
                 continue
 
-            logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
+            try:
+                logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
+            except:
+                logger.log(u"logvesen")
 
             result = self.getResult([episode])
             result.url = url
             result.name = title
             result.quality = quality
             result.provider = self
-            result.content = None 
-            
+            result.content = None
+
             results.append(result)
 
         return results
@@ -304,19 +307,19 @@ class GenericProvider:
                 # we just use the existing info for normal searches
                 actual_season = season
                 actual_episodes = parse_result.episode_numbers
-            
+
             else:
                 if not parse_result.air_by_date:
                     logger.log(u"This is supposed to be an air-by-date search but the result "+title+" didn't parse as one, skipping it", logger.DEBUG)
                     continue
-                
+
                 myDB = db.DBConnection()
                 sql_results = myDB.select("SELECT season, episode FROM tv_episodes WHERE showid = ? AND airdate = ?", [show.tvdbid, parse_result.air_date.toordinal()])
 
                 if len(sql_results) != 1:
                     logger.log(u"Tried to look up the date for the episode "+title+" but the database didn't give proper results, skipping it", logger.WARNING)
                     continue
-                
+
                 actual_season = int(sql_results[0]["season"])
                 actual_episodes = [int(sql_results[0]["episode"])]
 
@@ -326,12 +329,12 @@ class GenericProvider:
                 if not show.wantEpisode(actual_season, epNo, quality):
                     wantEp = False
                     break
-            
+
             if not wantEp:
                 logger.log(u"Ignoring result " + title + " because we don't want an episode that is " + Quality.qualityStrings[quality], logger.DEBUG)
                 continue
 
-            logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
+#            logger.log(uu"Found result " + title + " at " + url, logger.DEBUG)
 
             # make a result object
             epObj = []
@@ -343,17 +346,17 @@ class GenericProvider:
             result.name = title
             result.quality = quality
             result.provider = self
-            result.content = None 
+            result.content = None
 
             if len(epObj) == 1:
                 epNum = epObj[0].episode
             elif len(epObj) > 1:
                 epNum = MULTI_EP_RESULT
-                logger.log(u"Separating multi-episode result to check for later - result contains episodes: " + str(parse_result.episode_numbers), logger.DEBUG)
+                logger.log("Separating multi-episode result to check for later - result contains episodes: " + str(parse_result.episode_numbers), logger.DEBUG)
             elif len(epObj) == 0:
                 epNum = SEASON_RESULT
                 result.extraInfo = [show]
-                logger.log(u"Separating full season result to check for later", logger.DEBUG)
+                logger.log("Separating full season result to check for later", logger.DEBUG)
 
             if epNum in results:
                 results[epNum].append(result)
