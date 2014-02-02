@@ -122,7 +122,7 @@ class XBMCNotifier:
 
         # suppress notifications if the notifier is disabled but the notify options are checked
         if not sickbeard.USE_XBMC and not force:
-            logger.log("Notification for XBMC not enabled, skipping this notification")
+            logger.log(u"Notification for XBMC not enabled, skipping this notification")
             return False
 
         result = ''

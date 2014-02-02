@@ -65,9 +65,9 @@ class EmailNotifier:
                 msg['From'] = sickbeard.EMAIL_FROM
                 msg['To'] = ','.join(to)
                 if self._sendmail(sickbeard.EMAIL_HOST, sickbeard.EMAIL_PORT, sickbeard.EMAIL_FROM, sickbeard.EMAIL_TLS, sickbeard.EMAIL_USER, sickbeard.EMAIL_PASSWORD, to, msg):
-                    logger.log("Snatch notification sent to [%s] for '%s'" % (to, ep_name))
+                    logger.log(u"Snatch notification sent to [%s] for '%s'" % (to, ep_name))
                 else:
-                    logger.log("Snatch notification ERROR: %s" % self.last_err)                
+                    logger.log(u"Snatch notification ERROR: %s" % self.last_err)                
 
     def notify_download(self, ep_name, title="Completed:"):
         """
@@ -92,9 +92,9 @@ class EmailNotifier:
                 msg['From'] = sickbeard.EMAIL_FROM
                 msg['To'] = ','.join(to)
                 if self._sendmail(sickbeard.EMAIL_HOST, sickbeard.EMAIL_PORT, sickbeard.EMAIL_FROM, sickbeard.EMAIL_TLS, sickbeard.EMAIL_USER, sickbeard.EMAIL_PASSWORD, to, msg):
-                    logger.log("Download notification sent to [%s] for '%s'" % (to, ep_name))
+                    logger.log(u"Download notification sent to [%s] for '%s'" % (to, ep_name))
                 else:
-                    logger.log("Download notification ERROR: %s" % self.last_err)
+                    logger.log(u"Download notification ERROR: %s" % self.last_err)
 
     def notify_subtitle_download(self, ep_name, lang, title="Downloaded subtitle:"):
         """
@@ -119,9 +119,9 @@ class EmailNotifier:
                 msg['From'] = sickbeard.EMAIL_FROM
                 msg['To'] = ','.join(to)
                 if self._sendmail(sickbeard.EMAIL_HOST, sickbeard.EMAIL_PORT, sickbeard.EMAIL_FROM, sickbeard.EMAIL_TLS, sickbeard.EMAIL_USER, sickbeard.EMAIL_PASSWORD, to, msg):
-                    logger.log("Download notification sent to [%s] for '%s'" % (to, ep_name))
+                    logger.log(u"Download notification sent to [%s] for '%s'" % (to, ep_name))
                 else:
-                    logger.log("Download notification ERROR: %s" % self.last_err)
+                    logger.log(u"Download notification ERROR: %s" % self.last_err)
 
     def _generate_recepients(self, show):
         addrs = []
@@ -170,7 +170,7 @@ class EmailNotifier:
         sep = " - "
         titles = ep_name.split(sep)
         titles.sort(key=len, reverse=True)
-        logger.log("TITLES: %s" % titles)
+        logger.log(u"TITLES: %s" % titles)
         return titles
         
 notifier = EmailNotifier

@@ -176,20 +176,20 @@ class MediaBrowserMetadata(generic.GenericMetadata):
         try:
             myShow = t[int(show_obj.tvdbid)]
         except tvdb_exceptions.tvdb_shownotfound:
-            logger.log("Unable to find show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
+            logger.log(u"Unable to find show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
             raise
     
         except tvdb_exceptions.tvdb_error:
-            logger.log("TVDB is down, can't use its data to make the NFO")
+            logger.log(u"TVDB is down, can't use its data to make the NFO")
             raise
     
         # check for title and id
         try:
             if myShow["seriesname"] == None or myShow["seriesname"] == "" or myShow["id"] == None or myShow["id"] == "":
-                logger.log("Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
+                logger.log(u"Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
                 return False
         except tvdb_exceptions.tvdb_attributenotfound:
-            logger.log("Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
+            logger.log(u"Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
     
             return False
         
@@ -282,7 +282,7 @@ class MediaBrowserMetadata(generic.GenericMetadata):
         except tvdb_exceptions.tvdb_shownotfound, e:
             raise exceptions.ShowNotFoundException(e.message)
         except tvdb_exceptions.tvdb_error, e:
-            logger.log("Unable to connect to TVDB while creating meta files - skipping - "+ex(e))
+            logger.log(u"Unable to connect to TVDB while creating meta files - skipping - "+ex(e))
             return False
 
         rootNode = etree.Element("Item")
@@ -297,7 +297,7 @@ class MediaBrowserMetadata(generic.GenericMetadata):
             try:
                 myEp = myShow[curEpToWrite.season][curEpToWrite.episode]
             except (tvdb_exceptions.tvdb_episodenotfound, tvdb_exceptions.tvdb_seasonnotfound):
-                logger.log("Unable to find episode " + str(curEpToWrite.season) + "x" + str(curEpToWrite.episode) + " on tvdb... has it been removed? Should I delete from db?")
+                logger.log(u"Unable to find episode " + str(curEpToWrite.season) + "x" + str(curEpToWrite.episode) + " on tvdb... has it been removed? Should I delete from db?")
                 return None
             
             if myEp["firstaired"] == None and ep_obj.season == 0:

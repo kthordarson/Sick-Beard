@@ -57,7 +57,7 @@ class DeilduProvider(generic.TorrentProvider):
     def _doLogin(self):
 
         login_params = {'username': sickbeard.deildu_USERNAME,
-                        'password': sickbeard.deildu_USERNAME,
+                        'password': sickbeard.deildu_PASSWORD,
 #                        'login': 'submit',
                         }
 
@@ -69,6 +69,7 @@ class DeilduProvider(generic.TorrentProvider):
         self.session = requests.Session()
 
         try:
+            logger.log(u"DEBUG deildu.py _doLogin starting for user " + sickbeard.deildu_USERNAME)
             response = self.session.post(self.urls['login'], data=login_params, timeout=30)
         except Exception, e:
             logger.log(u'Unable to connect to ' + self.name + ' provider: ' + ex(e))
@@ -158,7 +159,7 @@ class DeilduProvider(generic.TorrentProvider):
 
     def _doSearch(self, search_params, show=None):
 
-        logger.log(u"DEBUG deildu.py starting _doSearch ")
+#        logger.log(u"DEBUG deildu.py starting _doSearch ")
         results = []
 #        items = {'Season': [], 'Episode': []}
         items = {'Season': [], 'Episode': [], 'RSS': []}
@@ -173,21 +174,21 @@ class DeilduProvider(generic.TorrentProvider):
                 search_string = search_string.encode('cp1252', 'ignore')
 
                 searchURL = self.searchurl % (urllib.quote(search_string))
-                logger.log(u"Search url: " + searchURL)
-                logger.log(u"Search string: " + urllib.quote(search_string))
+#                logger.log(u"Search url: " + searchURL)
+#                logger.log(u"Search string: " + urllib.quote(search_string))
 
                 data = self.getURL(searchURL)
-                if 'login' in data:
-                    logger.log("Login handler failed, login form or nothing returned")
+#                if 'login' in data:
+#                    logger.log(u"DEBUG deildu.py Login handler failed, login form or nothing returned")
                 if not data:
-                    logger.log("Deildu reported that no torrent was found")
+                    logger.log(u"DEBUG deildu.py Deildu reported that no torrent was found")
                 try:
                     match = re.compile(self.re_title_url, re.DOTALL).finditer(urllib.unquote(data))
                 except:
-                    logger.log("deildu.py: vesen i regex")
+                    logger.log(u"DEBUG deildu.py: vesen i regex")
                 for torrent in match:
                     title = torrent.group('title').replace('_', '.').decode('cp1252')
-                    logger.log(u"deildu.py torrent match loop data1: " + str(title))
+#                    logger.log(u"deildu.py torrent match loop data1: " + str(title))
                     url = torrent.group('url').decode('cp1252')
                     id = int(torrent.group('id'))
                     seeders = int(re.sub('\D', '', torrent.group('seeders')))
@@ -220,7 +221,7 @@ class DeilduProvider(generic.TorrentProvider):
         Save the result to disk.
         """
         logger.log(u"DEBUG deildu.py running downloadResult ... Making sure we have a cookie for Deildu")
-#        logger.log(u"Downloading a result from " + self.name + " at " + result.url)
+        logger.log(u"DEBUG deildu.py Downloading a result from " + str(self.name) + " at " + str(result.url))
 #        data = self.getURL(result.url, [], dlh.cj)
 
         if not self._doLogin():
@@ -233,14 +234,14 @@ class DeilduProvider(generic.TorrentProvider):
         writeMode = 'wb'
         # use the result name as the filename
         fileName = ek.ek(os.path.join, saveDir, helpers.sanitizeFileName(result.name) + '.' + self.providerType)
-#        logger.log(u"Saving to " + fileName)
+        logger.log(u"Saving to " + fileName)
         try:
             fileOut = open(fileName, writeMode)
             fileOut.write(data)
             fileOut.close()
             helpers.chmodAsParent(fileName)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e))
+            logger.log(u"Unable to save the file: " + ex(e))
             return False
         return self._verify_download(fileName)
 
@@ -252,7 +253,7 @@ class DeilduProvider(generic.TorrentProvider):
         if not headers:
             headers = []
         try:
-            logger.log(u"DEBUG deildu.py running getURL ... ")
+#            logger.log(u"DEBUG deildu.py running getURL ... ")
             response = self.session.get(url)
         except (urllib2.HTTPError, IOError), e:
             logger.log(u"DEBUG deildu.py excetion error from urllib2 getURL ... ")
@@ -269,12 +270,12 @@ class DeilduCache(tvcache.TVCache):
         self.minTime = 10
 
     def updateCache(self):
-        logger.log(u"DEBUG deildu.py in DeilduCache ...")
+#        logger.log(u"DEBUG deildu.py in DeilduCache ...")
         re_title_url = self.provider.re_title_url
 
         if not self.shouldUpdate():
             return
-        logger.log(u"DEBUG deildu.py in DeilduCache calling _getData ... ")
+#        logger.log(u"DEBUG deildu.py in DeilduCache calling _getData ... ")
         data = self._getData()
 
         # as long as the http request worked we count this as an update
@@ -302,13 +303,13 @@ class DeilduCache(tvcache.TVCache):
             self._parseItem(item)
 
     def _getData(self):
-        logger.log(u"DEBUG deildu.py in _getData ...")
+#        logger.log(u"DEBUG deildu.py in _getData ...")
         try:
             url = self.provider.url + 'browse.php?c12=1&c8=1&incldead=0'
-            logger.log(u"DEBUG deildu.py _getData url string: ")
+#            logger.log(u"DEBUG deildu.py _getData url string: ")
         except Exception, e:
             logger.log(u"DEBUG deildu.py vesen med provider.url ... ", ex(e))
-        logger.log(u"Deildu cache update URL ")
+#        logger.log(u"Deildu cache update URL ")
         try:
                 data = self.provider.getURL(url)
         except Exception, e:

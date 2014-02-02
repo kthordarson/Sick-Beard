@@ -57,7 +57,7 @@ class NewzbinDownloader(urllib.FancyURLopener):
             elif newzbinErrCode == 402:
                 raise exceptions.AuthException("Newzbin account not premium status, can't download NZBs")
 
-            logger.log("Newzbin throttled our NZB downloading, pausing for " + result.group(1) + "seconds")
+            logger.log(u"Newzbin throttled our NZB downloading, pausing for " + result.group(1) + "seconds")
 
             time.sleep(int(result.group(1)))
 
@@ -92,7 +92,7 @@ class NewzbinProvider(generic.NZBProvider):
             else:
                 attr_dict[cur_attr].append(cur_attr_value)
 
-        logger.log("Finding quality of item based on attributes "+str(attr_dict))
+        logger.log(u"Finding quality of item based on attributes "+str(attr_dict))
 
         if self._is_SDTV(attr_dict):
             quality = Quality.SDTV
@@ -109,7 +109,7 @@ class NewzbinProvider(generic.NZBProvider):
         else:
             quality = Quality.UNKNOWN
 
-        logger.log("Resulting quality: "+str(quality))
+        logger.log(u"Resulting quality: "+str(quality))
 
         return quality
 
@@ -207,13 +207,13 @@ class NewzbinProvider(generic.NZBProvider):
 
         id = self.getIDFromURL(nzb.url)
         if not id:
-            logger.log("Unable to get an ID from "+str(nzb.url)+", can't download from Newzbin's API")
+            logger.log(u"Unable to get an ID from "+str(nzb.url)+", can't download from Newzbin's API")
             return False
 
-        logger.log("Downloading an NZB from newzbin with id "+id)
+        logger.log(u"Downloading an NZB from newzbin with id "+id)
 
         fileName = ek.ek(os.path.join, sickbeard.NZB_DIR, helpers.sanitizeFileName(nzb.name)+'.nzb')
-        logger.log("Saving to " + fileName)
+        logger.log(u"Saving to " + fileName)
 
         urllib._urlopener = NewzbinDownloader()
 
@@ -221,10 +221,10 @@ class NewzbinProvider(generic.NZBProvider):
         try:
             urllib.urlretrieve(self.url+"api/dnzb/", fileName, data=params)
         except exceptions.NewzbinAPIThrottled:
-            logger.log("Done waiting for Newzbin API throttle limit, starting downloads again")
+            logger.log(u"Done waiting for Newzbin API throttle limit, starting downloads again")
             self.downloadResult(nzb)
         except (urllib.ContentTooShortError, IOError), e:
-            logger.log("Error downloading NZB: " + str(sys.exc_info()) + " - " + ex(e))
+            logger.log(u"Error downloading NZB: " + str(sys.exc_info()) + " - " + ex(e))
             return False
 
         return True
@@ -235,7 +235,7 @@ class NewzbinProvider(generic.NZBProvider):
         try:
             f = myOpener.openit(url)
         except (urllib.ContentTooShortError, IOError), e:
-            logger.log("Error loading search results: " + str(sys.exc_info()) + " - " + ex(e))
+            logger.log(u"Error loading search results: " + str(sys.exc_info()) + " - " + ex(e))
             return None
 
         data = f.read()
@@ -257,7 +257,7 @@ class NewzbinProvider(generic.NZBProvider):
 
         searchStr += " -subpack -extras"
 
-        logger.log("Searching newzbin for string "+searchStr)
+        logger.log(u"Searching newzbin for string "+searchStr)
         
         return [searchStr]
 
@@ -280,7 +280,7 @@ class NewzbinProvider(generic.NZBProvider):
             parsedXML = parseString(data)
             items = parsedXML.getElementsByTagName('item')
         except Exception, e:
-            logger.log("Error trying to load Newzbin RSS feed: "+ex(e))
+            logger.log(u"Error trying to load Newzbin RSS feed: "+ex(e))
             return []
 
         for cur_item in items:
@@ -299,7 +299,7 @@ class NewzbinProvider(generic.NZBProvider):
                         logger.log(u"Date "+str(post_date)+" is out of retention range, skipping")
                         continue
                 except Exception, e:
-                    logger.log("Error parsing date from Newzbin RSS feed: " + str(e))
+                    logger.log(u"Error parsing date from Newzbin RSS feed: " + str(e))
                     continue
 
             item_list.append(cur_item)
@@ -335,7 +335,7 @@ class NewzbinProvider(generic.NZBProvider):
         params['q'] += 'Attr:Lang~Eng AND NOT Attr:VideoF=DVD'
 
         url = self.url + "search/?%s" % urllib.urlencode(params)
-        logger.log("Newzbin search URL: " + url)
+        logger.log(u"Newzbin search URL: " + url)
 
         data = self.getURL(url)
 
@@ -365,18 +365,18 @@ class NewzbinCache(tvcache.TVCache):
         (title, url) = self.provider._get_title_and_url(item)
 
         if title == 'Feeds Error':
-            logger.log("There's an error in the feed, probably bad auth info")
+            logger.log(u"There's an error in the feed, probably bad auth info")
             raise exceptions.AuthException("Invalid Newzbin username/password")
 
         if not title or not url:
-            logger.log("The XML returned from the "+self.provider.name+" feed is incomplete, this result is unusable")
+            logger.log(u"The XML returned from the "+self.provider.name+" feed is incomplete, this result is unusable")
             return
 
         quality = self.provider.getQuality(item)
 
-        logger.log("Found quality "+str(quality))
+        logger.log(u"Found quality "+str(quality))
 
-        logger.log("Adding item from RSS to cache: "+title)
+        logger.log(u"Adding item from RSS to cache: "+title)
 
         self._addCacheEntry(title, url, quality=quality)
 

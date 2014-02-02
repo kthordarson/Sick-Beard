@@ -153,7 +153,7 @@ class TorrentRssProvider(generic.TorrentProvider):
             fileOut.close()
             helpers.chmodAsParent(dumpName)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e))
+            logger.log(u"Unable to save the file: " + ex(e))
             return False
         logger.log(u"Saved custom_torrent html dump " + dumpName + " ", logger.MESSAGE)
         return True 

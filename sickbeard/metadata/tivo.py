@@ -145,7 +145,7 @@ class TIVOMetadata(generic.GenericMetadata):
         except tvdb_exceptions.tvdb_shownotfound, e:
             raise exceptions.ShowNotFoundException(str(e))
         except tvdb_exceptions.tvdb_error, e:
-            logger.log("Unable to connect to TVDB while creating meta files - skipping - "+str(e))
+            logger.log(u"Unable to connect to TVDB while creating meta files - skipping - "+str(e))
             return False
         
         for curEpToWrite in eps_to_write:
@@ -153,7 +153,7 @@ class TIVOMetadata(generic.GenericMetadata):
             try:
                 myEp = myShow[curEpToWrite.season][curEpToWrite.episode]
             except (tvdb_exceptions.tvdb_episodenotfound, tvdb_exceptions.tvdb_seasonnotfound):
-                logger.log("Unable to find episode " + str(curEpToWrite.season) + "x" + str(curEpToWrite.episode) + " on tvdb... has it been removed? Should I delete from db?")
+                logger.log(u"Unable to find episode " + str(curEpToWrite.season) + "x" + str(curEpToWrite.episode) + " on tvdb... has it been removed? Should I delete from db?")
                 return None
             
             if myEp["firstaired"] == None and ep_obj.season == 0:
@@ -297,7 +297,7 @@ class TIVOMetadata(generic.GenericMetadata):
         
         try:
             if not ek.ek(os.path.isdir, nfo_file_dir):
-                logger.log("Metadata dir didn't exist, creating it at "+nfo_file_dir)
+                logger.log(u"Metadata dir didn't exist, creating it at "+nfo_file_dir)
                 ek.ek(os.makedirs, nfo_file_dir)
                 helpers.chmodAsParent(nfo_file_dir)
             

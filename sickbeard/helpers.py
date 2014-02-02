@@ -175,23 +175,23 @@ def getURL(url, post_data=None, headers=[]):
     """
 Returns a byte-string retrieved from the url provider.
 """
-    logger.log(u"DEBUG helpers.py running getURL....")
+#    logger.log(u"DEBUG helpers.py running getURL....")
     try:
-        logger.log(u"DEBUG helpers.py trying to run urllib2.build_opener.....")
+#        logger.log(u"DEBUG helpers.py trying to run urllib2.build_opener.....")
         opener = urllib2.build_opener()
-        logger.log(u"DEBUG helpers.py opener build_opener ran ok... ")
+#        logger.log(u"DEBUG helpers.py opener build_opener ran ok... ")
         opener.addheaders = [('User-Agent', USER_AGENT), ('Accept-Encoding', 'gzip,deflate')]
         if headers:
             for cur_header in headers:
-                logger.log(u"DEBUG helpers.py cur_header loop: " + cur_header)
+#                logger.log(u"DEBUG helpers.py cur_header loop: " + cur_header)
                 opener.addheaders.append(cur_header)
     except Exception, e:
-        logger.log(u"DEBUG helpers.py failed in getURL ", ex(e))
+#        logger.log(u"DEBUG helpers.py failed in getURL ", ex(e))
         logger.log(traceback.format_exc())
     try:
 #        url = ''.join(url)
 #        post_data = ''.join(post_data)
-        logger.log(u"DEBUG helpers.py usock url ")
+#        logger.log(u"DEBUG helpers.py usock url ")
 #        usock = opener.open(url, post_data)
         usock = opener.open(url)
         url = usock.geturl()

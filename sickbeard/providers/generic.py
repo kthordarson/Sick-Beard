@@ -100,7 +100,7 @@ class GenericProvider:
         By default this is just a simple urlopen call but this method should be overridden
         for providers with special URL requirements (like cookies)
         """
-        logger.log(u"DEBUG generic.py running getURL ... ")
+#        logger.log(u"DEBUG generic.py running getURL ... ")
         if not headers:
             headers = []
         try:
@@ -148,7 +148,7 @@ class GenericProvider:
             fileOut.close()
             helpers.chmodAsParent(file_name)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e))
+            logger.log(u"Unable to save the file: " + ex(e))
             return False
 
         # as long as it's a valid download then consider it a successful snatch
@@ -175,11 +175,11 @@ class GenericProvider:
         return True
 
     def searchRSS(self):
-        logger.log(u"DEBUG generic.py checkAuth... ")
+#        logger.log(u"DEBUG generic.py checkAuth... ")
         self._checkAuth()
-        logger.log(u"DEBUG generic.py updateCache... ")
+#        logger.log(u"DEBUG generic.py updateCache... ")
         self.cache.updateCache()
-        logger.log(u"DEBUG generic.py findNeededEpisodes... ")
+#        logger.log(u"DEBUG generic.py findNeededEpisodes... ")
         return self.cache.findNeededEpisodes()
 
     def getQuality(self, item):
@@ -227,7 +227,7 @@ class GenericProvider:
 
         self.cache.updateCache()
         results = self.cache.searchCache(episode, manualSearch)
-        logger.log(u"Cache results: " + str(results))
+#        logger.log(u"Cache results: " + str(results))
 
         # if we got some results then use them no matter what.
         # OR
@@ -254,10 +254,10 @@ class GenericProvider:
 
             if episode.show.air_by_date:
                 if parse_result.air_date != episode.airdate:
-                    logger.log("Episode " + title + " didn't air on " + str(episode.airdate) + ", skipping it")
+                    logger.log(u"Episode " + title + " didn't air on " + str(episode.airdate) + ", skipping it")
                     continue
             elif parse_result.season_number != episode.season or episode.episode not in parse_result.episode_numbers:
-                logger.log("Episode " + title + " isn't "+str(episode.season) + "x" + str(episode.episode) + ", skipping it")
+                logger.log(u"Episode " + title + " isn't "+str(episode.season) + "x" + str(episode.episode) + ", skipping it")
                 continue
 
             quality = self.getQuality(item)
@@ -280,16 +280,16 @@ class GenericProvider:
         return results
 
     def findSeasonResults(self, show, season):
-        logger.log(u"DEBUG generic.py starting findSeasonResults")
+#        logger.log(u"DEBUG generic.py starting findSeasonResults")
         itemList = []
         results = {}
 
         for curString in self._get_season_search_strings(show, season):
-            logger.log(u"DEBUG generic.py curString loop ")
+#            logger.log(u"DEBUG generic.py curString loop ")
             itemList += self._doSearch(curString)
 
         for item in itemList:
-            logger.log(u"DEBUG generic.py itemList loop ")
+#            logger.log(u"DEBUG generic.py itemList loop ")
             (title, url) = self._get_title_and_url(item)
 
             quality = self.getQuality(item)

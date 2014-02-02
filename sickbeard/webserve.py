@@ -1642,6 +1642,9 @@ class ConfigProviders:
         sickbeard.TORRENTLEECH_USERNAME = torrentleech_username
         sickbeard.TORRENTLEECH_PASSWORD = torrentleech_password
 
+        sickbeard.deildu_USERNAME = deildu_username.strip()
+        sickbeard.deildu_PASSWORD = deildu_password.strip()
+
         sickbeard.IPTORRENTS_USERNAME = iptorrents_username.strip()
         sickbeard.IPTORRENTS_PASSWORD = iptorrents_password.strip()
 

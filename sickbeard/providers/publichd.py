@@ -210,13 +210,13 @@ class PublicHDProvider(generic.TorrentProvider):
         torrent_hash = re.findall('urn:btih:([\w]{32,40})', result.url)[0].upper()
 
         if not torrent_hash:
-           logger.log("Unable to extract torrent hash from link: " + ex(result.url))
+           logger.log(u"Unable to extract torrent hash from link: " + ex(result.url))
            return False
 
         try:
             r = requests.get('http://torcache.net/torrent/' + torrent_hash + '.torrent')
         except Exception, e:
-            logger.log("Unable to connect to Torcache: " + ex(e))
+            logger.log(u"Unable to connect to Torcache: " + ex(e))
             return False
 
         if not r.status_code == 200:
@@ -231,7 +231,7 @@ class PublicHDProvider(generic.TorrentProvider):
             fileOut.close()
             helpers.chmodAsParent(magnetFileName)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e))
+            logger.log(u"Unable to save the file: " + ex(e))
             return False
         logger.log(u"Saved magnet link to " + magnetFileName + " ", logger.MESSAGE)
         return True

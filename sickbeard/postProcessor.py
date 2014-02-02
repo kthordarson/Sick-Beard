@@ -326,7 +326,7 @@ class PostProcessor(object):
                 helpers.copyFile(cur_file_path, new_file_path)
                 helpers.chmodAsParent(new_file_path)
             except (IOError, OSError), e:
-                logger.log("Unable to copy file " + cur_file_path + " to " + new_file_path + ": " + ex(e))
+                logger.log(u"Unable to copy file " + cur_file_path + " to " + new_file_path + ": " + ex(e))
                 raise e
 
         self._combined_file_operation(file_path, new_path, new_base_name, associated_files, action=_int_copy, subtitles=subtitles)
@@ -478,10 +478,10 @@ class PostProcessor(object):
                     logger.log(u"Nothing was good, found " + repr(test_name) + " and wanted either " + repr(self.nzb_name)+", " + repr(self.folder_name) + ", or " + repr(self.file_name))
             else:
                 logger.log(u"Parse result not sufficient(all following have to be set). Will not save release name")
-                logger.log("Parse result(series_name): " + str(parse_result.series_name))
-                logger.log("Parse result(season_number): " + str(parse_result.season_number))
-                logger.log("Parse result(episode_numbers): " + str(parse_result.episode_numbers))
-                logger.log("Parse result(release_group): " + str(parse_result.release_group))
+                logger.log(u"Parse result(series_name): " + str(parse_result.series_name))
+                logger.log(u"Parse result(season_number): " + str(parse_result.season_number))
+                logger.log(u"Parse result(episode_numbers): " + str(parse_result.episode_numbers))
+                logger.log(u"Parse result(release_group): " + str(parse_result.release_group))
                 
         # for each possible interpretation of that scene name
         for cur_name in name_list:
@@ -881,7 +881,7 @@ class PostProcessor(object):
                     self._log("Found release name " + cur_release_name)
                     cur_ep.release_name = cur_release_name
                 else:
-                    logger.log("good results: " + repr(self.good_results))
+                    logger.log(u"good results: " + repr(self.good_results))
 
                 cur_ep.status = common.Quality.compositeStatus(common.DOWNLOADED, new_ep_quality)
 

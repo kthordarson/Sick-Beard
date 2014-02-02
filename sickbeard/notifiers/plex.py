@@ -120,7 +120,7 @@ class PLEXNotifier:
 
         # suppress notifications if the notifier is disabled but the notify options are checked
         if not sickbeard.USE_PLEX and not force:
-            logger.log("Notification for Plex not enabled, skipping this notification")
+            logger.log(u"Notification for Plex not enabled, skipping this notification")
             return False
 
         result = ''

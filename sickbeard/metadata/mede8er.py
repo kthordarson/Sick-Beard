@@ -156,7 +156,7 @@ class Mede8erMetadata(generic.GenericMetadata):
         show_obj: a TVShow instance to create the XML-NFO for
         """
         
-        logger.log("Mede8er: Starting Mede8er _show_data method", logger.MESSAGE)
+        logger.log(u"Mede8er: Starting Mede8er _show_data method", logger.MESSAGE)
 
         tvdb_lang = show_obj.lang
         # There's gotta be a better way of doing this but we don't wanna
@@ -181,20 +181,20 @@ class Mede8erMetadata(generic.GenericMetadata):
         try:
             myShow = t[int(show_obj.tvdbid)]
         except tvdb_exceptions.tvdb_shownotfound:
-            logger.log("Mede8er: Unable to find show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
+            logger.log(u"Mede8er: Unable to find show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
             raise
     
         except tvdb_exceptions.tvdb_error:
-            logger.log("Mede8er: TVDB is down, can't use its data to make the XML-NFO")
+            logger.log(u"Mede8er: TVDB is down, can't use its data to make the XML-NFO")
             raise
     
         # check for title and id
         try:
             if myShow["seriesname"] == None or myShow["seriesname"] == "" or myShow["id"] == None or myShow["id"] == "":
-                logger.log("Mede8er: Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
+                logger.log(u"Mede8er: Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
                 return False
         except tvdb_exceptions.tvdb_attributenotfound:
-            logger.log("Mede8er: Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
+            logger.log(u"Mede8er: Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
     
             return False
         
@@ -244,7 +244,7 @@ class Mede8erMetadata(generic.GenericMetadata):
 
         #tmpNode = etree.SubElement(tv_node, "myShow")
         #tmpNode.text = str(vars(myShow))
-        #logger.log("Printing myShow info: " +  str(vars(myShow)), logger.MESSAGE)
+        #logger.log(u"Printing myShow info: " +  str(vars(myShow)), logger.MESSAGE)
     
         #Actors = etree.SubElement(tv_node, "Actors")
         #if myShow["actors"] != None:
@@ -292,7 +292,7 @@ class Mede8erMetadata(generic.GenericMetadata):
         show_obj: a TVShow instance to create the NFO for
         """
         
-        logger.log("Mede8er: Starting Mede8er _ep_data method", logger.MESSAGE)
+        logger.log(u"Mede8er: Starting Mede8er _ep_data method", logger.MESSAGE)
 
         eps_to_write = [ep_obj] + ep_obj.relatedEps
         
@@ -311,7 +311,7 @@ class Mede8erMetadata(generic.GenericMetadata):
         except tvdb_exceptions.tvdb_shownotfound, e:
             raise exceptions.ShowNotFoundException(e.message)
         except tvdb_exceptions.tvdb_error, e:
-            logger.log("Mede8er: Unable to connect to TVDB while creating meta files - skipping - "+ex(e))
+            logger.log(u"Mede8er: Unable to connect to TVDB while creating meta files - skipping - "+ex(e))
             return False
 
         rootNode = etree.Element("movie")
@@ -326,7 +326,7 @@ class Mede8erMetadata(generic.GenericMetadata):
             try:
                 myEp = myShow[curEpToWrite.season][curEpToWrite.episode]
             except (tvdb_exceptions.tvdb_episodenotfound, tvdb_exceptions.tvdb_seasonnotfound):
-                logger.log("Mede8er: Unable to find episode " + str(curEpToWrite.season) + "x" + str(curEpToWrite.episode) + " on tvdb... has it been removed? Should I delete from db?")
+                logger.log(u"Mede8er: Unable to find episode " + str(curEpToWrite.season) + "x" + str(curEpToWrite.episode) + " on tvdb... has it been removed? Should I delete from db?")
                 return None
             
             if myEp["firstaired"] == None and ep_obj.season == 0:
@@ -342,11 +342,11 @@ class Mede8erMetadata(generic.GenericMetadata):
 
             #tmpNode = etree.SubElement(episode, "myEp_Season_Show")
             #tmpNode.text = str(vars(myEp.season.show))
-            #logger.log("Printing myEp.season info: " +  str(vars(myEp.season.show)), logger.MESSAGE)
+            #logger.log(u"Printing myEp.season info: " +  str(vars(myEp.season.show)), logger.MESSAGE)
 
             #tmpNode = etree.SubElement(episode, "myCurEp_show")
             #tmpNode.text = str(vars(curEpToWrite.show))
-            #logger.log("Printing myCurEp info: " +  str(vars(curEpToWrite.show)), logger.MESSAGE)
+            #logger.log(u"Printing myCurEp info: " +  str(vars(curEpToWrite.show)), logger.MESSAGE)
 
             episodeID = etree.SubElement(episode, "tvdbid")
             episodeID.text = str(curEpToWrite.tvdbid)
@@ -474,7 +474,7 @@ class Mede8erMetadata(generic.GenericMetadata):
 
         try:
             if not ek.ek(os.path.isdir, nfo_file_dir):
-                logger.log("Mede8er: Metadata dir didn't exist, creating it at "+nfo_file_dir)
+                logger.log(u"Mede8er: Metadata dir didn't exist, creating it at "+nfo_file_dir)
                 ek.ek(os.makedirs, nfo_file_dir)
                 helpers.chmodAsParent(nfo_file_dir)
     
@@ -515,7 +515,7 @@ class Mede8erMetadata(generic.GenericMetadata):
         
         try:
             if not ek.ek(os.path.isdir, nfo_file_dir):
-                logger.log("Mede8er: Metadata dir didn't exist, creating it at "+nfo_file_dir)
+                logger.log(u"Mede8er: Metadata dir didn't exist, creating it at "+nfo_file_dir)
                 ek.ek(os.makedirs, nfo_file_dir)
                 helpers.chmodAsParent(nfo_file_dir)
             

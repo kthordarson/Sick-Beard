@@ -152,14 +152,14 @@ class NyaaProvider(generic.TorrentProvider):
 
             if episode.show.air_by_date:
                 if parse_result.air_date != episode.airdate:
-                    logger.log("Episode "+title+" didn't air on "+str(episode.airdate)+", skipping it")
+                    logger.log(u"Episode "+title+" didn't air on "+str(episode.airdate)+", skipping it")
                     continue
             elif episode.show.anime and episode.show.absolute_numbering:
                 if episode.absolute_number not in parse_result.ab_episode_numbers:
-                    logger.log("Episode "+title+" isn't "+str(episode.absolute_number)+", skipping it")
+                    logger.log(u"Episode "+title+" isn't "+str(episode.absolute_number)+", skipping it")
                     continue
             elif parse_result.season_number != episode.season or episode.episode not in parse_result.episode_numbers:
-                logger.log("Episode "+title+" isn't "+str(episode.season)+"x"+str(episode.episode)+", skipping it")
+                logger.log(u"Episode "+title+" isn't "+str(episode.season)+"x"+str(episode.episode)+", skipping it")
                 continue
 
             quality = self.getQuality(item, episode.show.anime)

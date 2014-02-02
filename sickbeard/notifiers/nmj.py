@@ -165,7 +165,7 @@ class NMJNotifier:
         force: If True then the notification will be sent even if NMJ is disabled in the config
         """
         if not sickbeard.USE_NMJ and not force:
-            logger.log("Notification for NMJ scan update not enabled, skipping this notification")
+            logger.log(u"Notification for NMJ scan update not enabled, skipping this notification")
             return False
 
         # fill in omitted parameters

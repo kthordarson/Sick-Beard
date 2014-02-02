@@ -170,20 +170,20 @@ def searchForNeededEpisodes():
 
     # ask all providers for any episodes it finds
     for curProvider in providers.sortedProviderList():
-        logger.log(u"DEBUG search.py in searchForNeededEpisodes in ")
+#        logger.log(u"DEBUG search.py in searchForNeededEpisodes in ")
         if not curProvider.isActive():
             continue
 
         curFoundResults = {}
 
         try:
-            logger.log(u"DEBUG search.py in searchForNeededEpisodes... trying searchRSS. ")
+#            logger.log(u"DEBUG search.py in searchForNeededEpisodes... trying searchRSS. ")
             curFoundResults = curProvider.searchRSS()
         except exceptions.AuthException, e:
             logger.log(u"Authentication error: "+ex(e))
             continue
         except Exception, e:
-            logger.log(u"DEBUG search.py searchForNeededEpisodes Error while searching skipping: " + ex(e))
+#            logger.log(u"DEBUG search.py searchForNeededEpisodes Error while searching skipping: " + ex(e))
             logger.log(traceback.format_exc())
             continue
 
@@ -229,7 +229,7 @@ def pickBestResult(results, quality_list=None):
     # find the best result for the current episode
     bestResult = None
     for cur_result in results:
-        logger.log("Quality of "+cur_result.name+" is "+Quality.qualityStrings[cur_result.quality])
+        logger.log(u"Quality of "+cur_result.name+" is "+Quality.qualityStrings[cur_result.quality])
 
         if quality_list and cur_result.quality not in quality_list:
             logger.log(cur_result.name+" is a quality we know we don't want, rejecting it")
@@ -301,12 +301,12 @@ def findEpisode(episode, manualSearch=False):
     didSearch = False
 
     for curProvider in providers.sortedProviderList():
-        logger.log(u"DEBUG search.py in findEpisode.. "+curProvider.name)
+#        logger.log(u"DEBUG search.py in findEpisode.. "+curProvider.name)
         if not curProvider.isActive():
             continue
 
         try:
-            logger.log(u"DEBUG search.py in findEpisode .. sending to curProvider.findEpisode ... ")
+#            logger.log(u"DEBUG search.py in findEpisode .. sending to curProvider.findEpisode ... ")
             curFoundResults = curProvider.findEpisode(episode, manualSearch=manualSearch)
         except exceptions.AuthException, e:
             logger.log(u"Authentication error: "+ex(e))
@@ -351,17 +351,17 @@ def findSeason(show, season):
     didSearch = False
 
     for curProvider in providers.sortedProviderList():
-        logger.log(u"DEBUG search.py in findSeason curProvider: "+curProvider.name)
+#        logger.log(u"DEBUG search.py in findSeason curProvider: "+curProvider.name)
         if not curProvider.isActive():
             continue
 
         try:
-            logger.log(u"DEBUG search.py in curProvider: "+curProvider.name+" show" + show.name + " season " + str(season))
+#            logger.log(u"DEBUG search.py in curProvider: "+curProvider.name+" show" + show.name + " season " + str(season))
             curResults = curProvider.findSeasonResults(show, season)
 #            logger.log(u"DEBUG search.py in curProvider got curResults... "+curResults)
             # make a list of all the results for this provide
             for curEp in curResults:
-                logger.log(u"DEBUG search.py in curProvider in curEP loop")
+#                logger.log(u"DEBUG search.py in curProvider in curEP loop")
                 # skip non-tv crap
                 curResults[curEp] = filter(lambda x:  show_name_helpers.filterBadReleases(x.name) and show_name_helpers.isGoodResult(x.name, show), curResults[curEp])
                 if curEp in foundResults:
@@ -380,7 +380,6 @@ def findSeason(show, season):
 #            continue
 
         didSearch = True
-
     if not didSearch:
         logger.log(u"DEBUG search.py in findSeason No NZB/Torrent providers found or enabled in the sickbeard config. Please check your settings.")
 

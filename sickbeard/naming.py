@@ -130,7 +130,7 @@ def validate_name(pattern, multi=None, file_only=False, abd=False):
         logger.log(u"Unable to parse "+new_name+", not valid")
         return False
     
-    logger.log("The name "+new_name + " parsed into " + str(result))
+    logger.log(u"The name "+new_name + " parsed into " + str(result))
 
     if abd:
         if result.air_date != ep.airdate:
