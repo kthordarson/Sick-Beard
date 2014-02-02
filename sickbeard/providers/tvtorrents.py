@@ -63,7 +63,7 @@ class TvTorrentsProvider(generic.TorrentProvider):
         description_text = helpers.get_xml_text(parsedXML.find('.//channel/description'))
 
         if "User can't be found" in description_text or "Invalid Hash" in description_text:
-            logger.log(u"Incorrect authentication credentials for " + self.name + " : " + str(description_text), logger.DEBUG)
+            logger.log(u"Incorrect authentication credentials for " + self.name + " : " + str(description_text))
             raise AuthException(u"Your authentication credentials for " + self.name + " are incorrect, check your config")
 
         return True
@@ -84,12 +84,12 @@ class TvTorrentsCache(tvcache.TVCache):
         ignore_regex = "all.month|month.of|season[\s\d]*complete"
 
         rss_url = self.provider.url + 'RssServlet?digest=' + sickbeard.TVTORRENTS_DIGEST + '&hash=' + sickbeard.TVTORRENTS_HASH + '&fname=true&exclude=(' + ignore_regex + ')'
-        logger.log(self.provider.name + u" cache update URL: " + rss_url, logger.DEBUG)
+        logger.log(self.provider.name + u" cache update URL: " + rss_url)
 
         data = self.provider.getURL(rss_url)
 
         if not data:
-            logger.log(u"No data returned from " + rss_url, logger.ERROR)
+            logger.log(u"No data returned from " + rss_url)
             return None
 
         return data

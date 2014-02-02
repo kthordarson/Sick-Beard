@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # Author: Nic Wolfe <nic@wolfeden.ca>
 # URL: http://code.google.com/p/sickbeard/
 #
@@ -32,7 +33,7 @@ class AuthURLOpener(SickBeardURLopener):
     """
     URLOpener class that supports http auth without needing interactive password entry.
     If the provided username/password don't work it simply fails.
-    
+
     user: username to use for HTTP auth
     pw: password to use for HTTP auth
     """
@@ -42,7 +43,7 @@ class AuthURLOpener(SickBeardURLopener):
 
         # remember if we've tried the username/password before
         self.numTries = 0
-        
+
         # call the base class
         urllib.FancyURLopener.__init__(self)
 
@@ -56,7 +57,7 @@ class AuthURLOpener(SickBeardURLopener):
         if self.numTries == 0:
             self.numTries = 1
             return (self.username, self.password)
-        
+
         # if we've tried before then return blank which cancels the request
         else:
             return ('', '')
@@ -135,7 +136,7 @@ class ShowListUI:
     """
     This class is for tvdb-api. Instead of prompting with a UI to pick the
     desired result out of a list of shows it tries to be smart about it
-    based on what shows are in SB. 
+    based on what shows are in SB.
     """
     def __init__(self, config, log=None):
         self.config = config

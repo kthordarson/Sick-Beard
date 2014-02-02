@@ -71,14 +71,14 @@ class PushoverNotifier:
         except urllib2.URLError, e:
             # if we get an error back that doesn't have an error code then who knows what's really happening
             if not hasattr(e, 'code'):
-                logger.log("Pushover notification failed." + ex(e), logger.ERROR)
+                logger.log("Pushover notification failed." + ex(e))
                 return False
             else:
-                logger.log("Pushover notification failed. Error code: " + str(e.code), logger.WARNING)
+                logger.log("Pushover notification failed. Error code: " + str(e.code))
 
             # HTTP status 404 if the provided email address isn't a Pushover user.
             if e.code == 404:
-                logger.log("Username is wrong/not a pushover email. Pushover will send an email to it", logger.WARNING)
+                logger.log("Username is wrong/not a pushover email. Pushover will send an email to it")
                 return False
             
             # For HTTP status code 401's, it is because you are passing in either an invalid token, or the user has not added your service.
@@ -87,18 +87,18 @@ class PushoverNotifier:
                 #HTTP status 401 if the user doesn't have the service added
                 subscribeNote = self._sendPushover(msg, title, userKey )
                 if subscribeNote:
-                    logger.log("Subscription send", logger.DEBUG)
+                    logger.log("Subscription send")
                     return True
                 else:
-                    logger.log("Subscription could not be send", logger.ERROR)
+                    logger.log("Subscription could not be send")
                     return False
             
             # If you receive an HTTP status code of 400, it is because you failed to send the proper parameters
             elif e.code == 400:
-                logger.log("Wrong data sent to pushover", logger.ERROR)
+                logger.log("Wrong data sent to pushover")
                 return False
 
-        logger.log("Pushover notification successful.", logger.DEBUG)
+        logger.log("Pushover notification successful.")
         return True
 
     def notify_snatch(self, ep_name, title=notifyStrings[NOTIFY_SNATCH]):
@@ -124,14 +124,14 @@ class PushoverNotifier:
         """
 
         if not sickbeard.USE_PUSHOVER:
-            logger.log("Notification for Pushover not enabled, skipping this notification", logger.DEBUG)
+            logger.log("Notification for Pushover not enabled, skipping this notification")
             return False
 
         # if no userKey was given then use the one from the config
         if not userKey:
             userKey = sickbeard.PUSHOVER_USERKEY
 
-        logger.log("Sending notification for " + message, logger.DEBUG)
+        logger.log("Sending notification for " + message)
 
         # self._sendPushover(message, title, userKey)
         self._sendPushover(message, title)

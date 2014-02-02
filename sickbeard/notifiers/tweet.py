@@ -100,7 +100,7 @@ class TwitterNotifier:
     
         logger.log('resp[status] = '+str(resp['status']))
         if resp['status'] != '200':
-            logger.log('The request for a token with did not succeed: '+str(resp['status']), logger.ERROR)
+            logger.log('The request for a token with did not succeed: '+str(resp['status']))
             return False
         else:
             logger.log('Your Twitter Access Token key: %s' % access_token['oauth_token'])
@@ -124,7 +124,7 @@ class TwitterNotifier:
         try:
             api.PostUpdate(message.encode('utf8'))
         except Exception, e:
-            logger.log(u"Error Sending Tweet: "+ex(e), logger.ERROR)
+            logger.log(u"Error Sending Tweet: "+ex(e))
             return False
     
         return True

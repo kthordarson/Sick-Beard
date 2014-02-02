@@ -55,17 +55,17 @@ def logFailed(release):
     sql_results = myDB.select("SELECT * FROM history WHERE release=?", [release])
 
     if len(sql_results) == 0:
-        log_str += _log_helper(u"Release not found in snatch history. Recording it as bad with no size and no proivder.", logger.WARNING)
-        log_str += _log_helper(u"Future releases of the same name from providers that don't return size will be skipped.", logger.WARNING)
+        log_str += _log_helper(u"Release not found in snatch history. Recording it as bad with no size and no proivder.")
+        log_str += _log_helper(u"Future releases of the same name from providers that don't return size will be skipped.")
     elif len(sql_results) > 1:
-        log_str += _log_helper(u"Multiple logged snatches found for release", logger.WARNING)
+        log_str += _log_helper(u"Multiple logged snatches found for release")
         sizes = len(set(x["size"] for x in sql_results))
         providers = len(set(x["provider"] for x in sql_results))
         if sizes == 1:
-            log_str += _log_helper(u"However, they're all the same size. Continuing with found size.", logger.WARNING)
+            log_str += _log_helper(u"However, they're all the same size. Continuing with found size.")
             size = sql_results[0]["size"]
         else:
-            log_str += _log_helper(u"They also vary in size. Deleting the logged snatches and recording this release with no size/provider", logger.WARNING)
+            log_str += _log_helper(u"They also vary in size. Deleting the logged snatches and recording this release with no size/provider")
             for result in sql_results:
                 deleteLoggedSnatch(result["release"], result["size"], result["provider"])
 
@@ -121,7 +121,7 @@ def revertEpisodes(show_obj, season, episodes):
             try:
                 ep_obj = show_obj.getEpisode(season, cur_episode)
             except exceptions.EpisodeNotFoundException, e:
-                log_str += _log_helper(u"Unable to create episode, please set its status manually: " + exceptions.ex(e), logger.WARNING)
+                log_str += _log_helper(u"Unable to create episode, please set its status manually: " + exceptions.ex(e))
                 continue
 
             log_str += _log_helper(u"Reverting episode (%s, %s): %s" % (season, cur_episode, ep_obj.name))
@@ -130,7 +130,7 @@ def revertEpisodes(show_obj, season, episodes):
                     log_str += _log_helper(u"Found in history")
                     ep_obj.status = history_eps[cur_episode]['old_status']
                 else:
-                    log_str += _log_helper(u"WARNING: Episode not found in history. Setting it back to WANTED", logger.WARNING)
+                    log_str += _log_helper(u"WARNING: Episode not found in history. Setting it back to WANTED")
                     ep_obj.status = common.WANTED
 
                 ep_obj.saveToDB()
@@ -144,7 +144,7 @@ def revertEpisodes(show_obj, season, episodes):
                     log_str += _log_helper(u"Found in history")
                     ep_obj.status = history_eps[ep_obj]['old_status']
                 else:
-                    log_str += _log_helper(u"WARNING: Episode not found in history. Setting it back to WANTED", logger.WARNING)
+                    log_str += _log_helper(u"WARNING: Episode not found in history. Setting it back to WANTED")
                     ep_obj.status = common.WANTED
 
                 ep_obj.saveToDB()
@@ -200,7 +200,7 @@ def findRelease(showtvdbid, season, episode):
         "SELECT release FROM history WHERE showtvdbid=? AND season=? AND episode=?",
         [showtvdbid, season, episode])
 
-    logger.log(u"findRelease results: " + str([x["release"] for x in sql_results]), logger.DEBUG)
+    logger.log(u"findRelease results: " + str([x["release"] for x in sql_results]))
 
     if len(sql_results) == 0:
         logger.log(u"Release not found (%s, %s, %s)" % (showtvdbid, season, episode),

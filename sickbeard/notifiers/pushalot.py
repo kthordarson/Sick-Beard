@@ -49,9 +49,9 @@ class PushalotNotifier:
         if pushalot_authorizationtoken == None:
             pushalot_authorizationtoken = sickbeard.PUSHALOT_AUTHORIZATIONTOKEN
         
-        logger.log(u"Pushalot event: " + event, logger.DEBUG)
-        logger.log(u"Pushalot message: " + message, logger.DEBUG)
-        logger.log(u"Pushalot api: " + pushalot_authorizationtoken, logger.DEBUG)
+        logger.log(u"Pushalot event: " + event)
+        logger.log(u"Pushalot message: " + message)
+        logger.log(u"Pushalot api: " + pushalot_authorizationtoken)
         
         http_handler = HTTPSConnection("pushalot.com")
                                                 
@@ -65,19 +65,19 @@ class PushalotNotifier:
                                     headers = {'Content-type': "application/x-www-form-urlencoded"},
                                     body = urlencode(data))
         except (SSLError, HTTPException):
-            logger.log(u"Pushalot notification failed.", logger.ERROR)
+            logger.log(u"Pushalot notification failed.")
             return False
         response = http_handler.getresponse()
         request_status = response.status
 
         if request_status == 200:
-                logger.log(u"Pushalot notifications sent.", logger.DEBUG)
+                logger.log(u"Pushalot notifications sent.")
                 return True
         elif request_status == 410: 
-                logger.log(u"Pushalot auth failed: %s" % response.reason, logger.ERROR)
+                logger.log(u"Pushalot auth failed: %s" % response.reason)
                 return False
         else:
-                logger.log(u"Pushalot notification failed.", logger.ERROR)
+                logger.log(u"Pushalot notification failed.")
                 return False
                 
 notifier = PushalotNotifier

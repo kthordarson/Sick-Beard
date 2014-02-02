@@ -42,7 +42,7 @@ class MainSanityCheck(db.DBSanityCheck):
 
         for cur_duplicate in sqlResults:
 
-            logger.log(u"Duplicate show detected! tvdb_id: " + str(cur_duplicate["tvdb_id"]) + u" count: " + str(cur_duplicate["count"]), logger.DEBUG)
+            logger.log(u"Duplicate show detected! tvdb_id: " + str(cur_duplicate["tvdb_id"]) + u" count: " + str(cur_duplicate["count"]))
 
             cur_dupe_results = self.connection.select("SELECT show_id, tvdb_id FROM tv_shows WHERE tvdb_id = ? LIMIT ?",
                                            [cur_duplicate["tvdb_id"], int(cur_duplicate["count"])-1]
@@ -61,7 +61,7 @@ class MainSanityCheck(db.DBSanityCheck):
 
         for cur_duplicate in sqlResults:
 
-            logger.log(u"Duplicate episode detected! showid: " + str(cur_duplicate["showid"]) + u" season: "+str(cur_duplicate["season"]) + u" episode: "+str(cur_duplicate["episode"]) + u" count: " + str(cur_duplicate["count"]), logger.DEBUG)
+            logger.log(u"Duplicate episode detected! showid: " + str(cur_duplicate["showid"]) + u" season: "+str(cur_duplicate["season"]) + u" episode: "+str(cur_duplicate["episode"]) + u" count: " + str(cur_duplicate["count"]))
 
             cur_dupe_results = self.connection.select("SELECT episode_id FROM tv_episodes WHERE showid = ? AND season = ? and episode = ? ORDER BY episode_id DESC LIMIT ?",
                                            [cur_duplicate["showid"], cur_duplicate["season"], cur_duplicate["episode"], int(cur_duplicate["count"])-1]
@@ -79,7 +79,7 @@ class MainSanityCheck(db.DBSanityCheck):
         sqlResults = self.connection.select("SELECT episode_id, showid, tv_shows.tvdb_id FROM tv_episodes LEFT JOIN tv_shows ON tv_episodes.showid=tv_shows.tvdb_id WHERE tv_shows.tvdb_id is NULL")
 
         for cur_orphan in sqlResults:
-            logger.log(u"Orphan episode detected! episode_id: " + str(cur_orphan["episode_id"]) + " showid: " + str(cur_orphan["showid"]), logger.DEBUG)
+            logger.log(u"Orphan episode detected! episode_id: " + str(cur_orphan["episode_id"]) + " showid: " + str(cur_orphan["showid"]))
             logger.log(u"Deleting orphan episode with episode_id: "+str(cur_orphan["episode_id"]))
             self.connection.action("DELETE FROM tv_episodes WHERE episode_id = ?", [cur_orphan["episode_id"]])
 
@@ -155,7 +155,7 @@ class AddSizeAndSceneNameFields(InitialSchema):
             download_results = self.connection.select("SELECT resource FROM history WHERE provider = -1 AND showid = ? AND season = ? AND episode = ? AND date > ?",
                                                     [cur_result["showid"], cur_result["season"], cur_result["episode"], cur_result["date"]])
             if not download_results:
-                logger.log(u"Found a snatch in the history for "+cur_result["resource"]+" but couldn't find the associated download, skipping it", logger.DEBUG)
+                logger.log(u"Found a snatch in the history for "+cur_result["resource"]+" but couldn't find the associated download, skipping it")
                 continue
 
             nzb_name = cur_result["resource"]
@@ -169,7 +169,7 @@ class AddSizeAndSceneNameFields(InitialSchema):
             ep_results = self.connection.select("SELECT episode_id, status FROM tv_episodes WHERE showid = ? AND season = ? AND episode = ? AND location != ''",
                                                 [cur_result["showid"], cur_result["season"], cur_result["episode"]])
             if not ep_results:
-                logger.log(u"The episode "+nzb_name+" was found in history but doesn't exist on disk anymore, skipping", logger.DEBUG)
+                logger.log(u"The episode "+nzb_name+" was found in history but doesn't exist on disk anymore, skipping")
                 continue
 
             # get the status/quality of the existing ep and make sure it's what we expect
@@ -182,7 +182,7 @@ class AddSizeAndSceneNameFields(InitialSchema):
 
             # make sure this is actually a real release name and not a season pack or something
             for cur_name in (nzb_name, file_name):
-                logger.log(u"Checking if "+cur_name+" is actually a good release name", logger.DEBUG)
+                logger.log(u"Checking if "+cur_name+" is actually a good release name")
                 try:
                     np = NameParser(False)
                     parse_result = np.parse(cur_name)
@@ -216,7 +216,7 @@ class AddSizeAndSceneNameFields(InitialSchema):
             if not parse_result.release_group:
                 continue
 
-            logger.log(u"Name "+ep_file_name+" gave release group of "+parse_result.release_group+", seems valid", logger.DEBUG)
+            logger.log(u"Name "+ep_file_name+" gave release group of "+parse_result.release_group+", seems valid")
             self.connection.action("UPDATE tv_episodes SET release_name = ? WHERE episode_id = ?", [ep_file_name, cur_result["episode_id"]])
 
         self.incDBVersion()
@@ -384,7 +384,7 @@ class Add1080pAndRawHDQualities(AddIMDbInfo):
         self.incDBVersion()
 
         # cleanup and reduce db if any previous data was removed
-        logger.log(u"Performing a vacuum on the database.", logger.DEBUG)
+        logger.log(u"Performing a vacuum on the database.")
         self.connection.action("VACUUM")
 
 class AddProperNamingSupport(Add1080pAndRawHDQualities):

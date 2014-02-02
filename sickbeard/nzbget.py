@@ -38,7 +38,7 @@ def sendNZB(nzb):
     nzbgetXMLrpc = "http://%(username)s:%(password)s@%(host)s/xmlrpc"
 
     if sickbeard.NZBGET_HOST == None:
-        logger.log(u"No NZBget host found in configuration. Please configure it.", logger.ERROR)
+        logger.log(u"No NZBget host found in configuration. Please configure it.")
         return False
 
     url = nzbgetXMLrpc % {"host": sickbeard.NZBGET_HOST, "username": sickbeard.NZBGET_USERNAME, "password": sickbeard.NZBGET_PASSWORD}
@@ -46,19 +46,19 @@ def sendNZB(nzb):
     nzbGetRPC = xmlrpclib.ServerProxy(url)
     try:
         if nzbGetRPC.writelog("INFO", "Sickbeard connected to drop of %s any moment now." % (nzb.name + ".nzb")):
-            logger.log(u"Successful connected to NZBget", logger.DEBUG)
+            logger.log(u"Successful connected to NZBget")
         else:
-            logger.log(u"Successful connected to NZBget, but unable to send a message" % (nzb.name + ".nzb"), logger.ERROR)
+            logger.log(u"Successful connected to NZBget, but unable to send a message" % (nzb.name + ".nzb"))
 
     except httplib.socket.error:
-        logger.log(u"Please check your NZBget host and port (if it is running). NZBget is not responding to this combination", logger.ERROR)
+        logger.log(u"Please check your NZBget host and port (if it is running). NZBget is not responding to this combination")
         return False
 
     except xmlrpclib.ProtocolError, e:
         if (e.errmsg == "Unauthorized"):
-            logger.log(u"NZBget username or password is incorrect.", logger.ERROR)
+            logger.log(u"NZBget username or password is incorrect.")
         else:
-            logger.log(u"Protocol Error: " + e.errmsg, logger.ERROR)
+            logger.log(u"Protocol Error: " + e.errmsg)
         return False
 
     # if it aired recently make it high priority
@@ -81,7 +81,7 @@ def sendNZB(nzb):
     nzbcontent64 = standard_b64encode(data)
 
     logger.log(u"Sending NZB to NZBget")
-    logger.log(u"URL: " + url, logger.DEBUG)
+    logger.log(u"URL: " + url)
 
     try:
         # Find out if nzbget supports priority (Version 9.0+), old versions beginning with a 0.x will use the old command
@@ -91,11 +91,11 @@ def sendNZB(nzb):
             nzbget_result = nzbGetRPC.append(nzb.name + ".nzb", sickbeard.NZBGET_CATEGORY, nzbgetprio, False, nzbcontent64)
         
         if nzbget_result:
-            logger.log(u"NZB sent to NZBget successfully", logger.DEBUG)
+            logger.log(u"NZB sent to NZBget successfully")
             return True
         else:
-            logger.log(u"NZBget could not add %s to the queue" % (nzb.name + ".nzb"), logger.ERROR)
+            logger.log(u"NZBget could not add %s to the queue" % (nzb.name + ".nzb"))
             return False
     except:
-        logger.log(u"Connect Error to NZBget: could not add %s to the queue" % (nzb.name + ".nzb"), logger.ERROR)
+        logger.log(u"Connect Error to NZBget: could not add %s to the queue" % (nzb.name + ".nzb"))
         return False

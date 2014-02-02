@@ -30,12 +30,12 @@ def fixStupidEncodings(x, silent=False):
         try:
             return x.decode(sickbeard.SYS_ENCODING)
         except UnicodeDecodeError:
-            logger.log(u"Unable to decode value: "+repr(x), logger.ERROR)
+            logger.log(u"Unable to decode value: "+repr(x))
             return None
     elif type(x) == unicode:
         return x
     else:
-        logger.log(u"Unknown value passed in, ignoring it: "+str(type(x))+" ("+repr(x)+":"+repr(type(x))+")", logger.DEBUG if silent else logger.ERROR)
+        logger.log(u"Unknown value passed in, ignoring it: "+str(type(x))+" ("+repr(x)+":"+repr(type(x))+")" if silent else logger.ERROR)
         return None
 
     return None
@@ -50,7 +50,7 @@ def callPeopleStupid(x):
     try:
         return x.encode(sickbeard.SYS_ENCODING)
     except UnicodeEncodeError:
-        logger.log(u"YOUR COMPUTER SUCKS! Your data is being corrupted by a bad locale/encoding setting. Report this error on the forums or IRC please: "+repr(x)+", "+sickbeard.SYS_ENCODING, logger.ERROR)
+        logger.log(u"YOUR COMPUTER SUCKS! Your data is being corrupted by a bad locale/encoding setting. Report this error on the forums or IRC please: "+repr(x)+", "+sickbeard.SYS_ENCODING)
         return x.encode(sickbeard.SYS_ENCODING, 'ignore')
 
 def ek(func, *args, **kwargs):

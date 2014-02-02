@@ -50,7 +50,7 @@ def filterBadReleases(name):
         fp = NameParser()
         parse_result = fp.parse(name)
     except InvalidNameException:
-        logger.log(u"Unable to parse the filename " + name + " into a valid episode", logger.WARNING)
+        logger.log(u"Unable to parse the filename " + name + " into a valid episode")
         return False
 
 #    # use the extra info and the scene group to filter against
@@ -70,7 +70,7 @@ def filterBadReleases(name):
     # if any of the bad strings are in the name then say no
     for x in resultFilters + sickbeard.IGNORE_WORDS.split(','):
         if re.search('(^|[\W_])' + x + '($|[\W_])', name, re.I):
-            logger.log(u"Invalid scene release: "+name+" contains "+x+", ignoring it", logger.DEBUG)
+            logger.log(u"Invalid scene release: "+name+" contains "+x+", ignoring it")
             return False
 
     return True
@@ -196,12 +196,12 @@ def isGoodResult(name, show, log=True):
             escaped_name += "(?:\W+" + str(show.startyear) + ")?"
         curRegex = '^' + escaped_name + '\W+(?:(?:S\d[\dE._ -])|(?:\d\d?x)|(?:\d{4}\W\d\d\W\d\d)|(?:(?:part|pt)[\._ -]?(\d|[ivx]))|Season\W+\d+\W+|E\d+\W+)'
         if log:
-            logger.log(u"Checking if show " + name + " matches " + curRegex, logger.DEBUG)
+            logger.log(u"Checking if show " + name + " matches " + curRegex)
 
         match = re.search(curRegex, name, re.I)
 
         if match:
-            logger.log(u"Matched " + curRegex + " to " + name, logger.DEBUG)
+            logger.log(u"Matched " + curRegex + " to " + name)
             return True
 
     if log:

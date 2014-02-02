@@ -122,14 +122,14 @@ class ThePirateBayProvider(generic.TorrentProvider):
         filesList = re.findall('<td.+>(.*?)</td>',data) 
         
         if not filesList: 
-            logger.log(u"Unable to get the torrent file list for " + title, logger.ERROR)
+            logger.log(u"Unable to get the torrent file list for " + title)
         
         videoFiles = filter(lambda x: x.rpartition(".")[2].lower() in mediaExtensions, filesList)
 
         #Filtering SingleEpisode/MultiSeason Torrent
         if len(videoFiles) < ep_number or len(videoFiles) > float(ep_number * 1.1 ): 
-            logger.log(u"Result " + title + " have " + str(ep_number) + " episode and episodes retrived in torrent are " + str(len(videoFiles)), logger.DEBUG)
-            logger.log(u"Result " + title + " Seem to be a Single Episode or MultiSeason torrent, skipping result...", logger.DEBUG)
+            logger.log(u"Result " + title + " have " + str(ep_number) + " episode and episodes retrived in torrent are " + str(len(videoFiles)))
+            logger.log(u"Result " + title + " Seem to be a Single Episode or MultiSeason torrent, skipping result...")
             return None
         
         if Quality.sceneQuality(title) != Quality.UNKNOWN:
@@ -143,7 +143,7 @@ class ThePirateBayProvider(generic.TorrentProvider):
             quality = Quality.assumeQuality(os.path.basename(fileName))            
 
         if quality == Quality.UNKNOWN:
-            logger.log(u"Unable to obtain a Season Quality for " + title, logger.DEBUG)
+            logger.log(u"Unable to obtain a Season Quality for " + title)
             return None
 
         try:
@@ -152,7 +152,7 @@ class ThePirateBayProvider(generic.TorrentProvider):
         except InvalidNameException:
             return None
         
-        logger.log(u"Season quality for " + title + " is " + Quality.qualityStrings[quality], logger.DEBUG)
+        logger.log(u"Season quality for " + title + " is " + Quality.qualityStrings[quality])
         
         if parse_result.series_name and parse_result.season_number: 
             title = parse_result.series_name + ' S%02d' % int(parse_result.season_number) + ' ' + self._reverseQuality(quality)
@@ -228,7 +228,7 @@ class ThePirateBayProvider(generic.TorrentProvider):
                 else:
                     searchURL = self.proxy._buildURL(self.url + 'tv/latest/')
 
-                logger.log(u"Search string: " + searchURL, logger.DEBUG)
+                logger.log(u"Search string: " + searchURL)
 
                 data = self.getURL(searchURL)
                 if not data:
@@ -252,7 +252,7 @@ class ThePirateBayProvider(generic.TorrentProvider):
 
                     #Accept Torrent only from Good People for every Episode Search
                     if sickbeard.THEPIRATEBAY_TRUSTED and re.search('(VIP|Trusted|Helper)',torrent.group(0))== None:
-                        logger.log(u"ThePirateBay Provider found result " + torrent.group('title') + " but that doesn't seem like a trusted result so I'm ignoring it", logger.DEBUG)
+                        logger.log(u"ThePirateBay Provider found result " + torrent.group('title') + " but that doesn't seem like a trusted result so I'm ignoring it")
                         continue
 
                     #Check number video files = episode in season and find the real Quality for full season torrent analyzing files in torrent 
@@ -298,7 +298,7 @@ class ThePirateBayProvider(generic.TorrentProvider):
         try:
             result = helpers.getURL(url, headers=headers)
         except (urllib2.HTTPError, IOError), e:
-            logger.log(u"Error loading " + self.name + " URL: " + str(sys.exc_info()) + " - " + ex(e), logger.ERROR)
+            logger.log(u"Error loading " + self.name + " URL: " + str(sys.exc_info()) + " - " + ex(e))
             return None
 
         return result
@@ -311,13 +311,13 @@ class ThePirateBayProvider(generic.TorrentProvider):
         torrent_hash = re.findall('urn:btih:([\w]{32,40})', result.url)[0].upper()
         
         if not torrent_hash:
-           logger.log("Unable to extract torrent hash from link: " + ex(result.url), logger.ERROR) 
+           logger.log("Unable to extract torrent hash from link: " + ex(result.url)) 
            return False
            
         try:
             r = requests.get('http://torcache.net/torrent/' + torrent_hash + '.torrent')
         except Exception, e:
-            logger.log("Unable to connect to Torcache: " + ex(e), logger.ERROR)
+            logger.log("Unable to connect to Torcache: " + ex(e))
             return False
                          
         if not r.status_code == 200:
@@ -332,7 +332,7 @@ class ThePirateBayProvider(generic.TorrentProvider):
             fileOut.close()
             helpers.chmodAsParent(magnetFileName)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e), logger.ERROR)
+            logger.log("Unable to save the file: " + ex(e))
             return False
         logger.log(u"Saved magnet link to " + magnetFileName + " ", logger.MESSAGE)
         return True
@@ -374,7 +374,7 @@ class ThePirateBayCache(tvcache.TVCache):
         if not title or not url:
             return
 
-        logger.log(u"Adding item to cache: " + title, logger.DEBUG)
+        logger.log(u"Adding item to cache: " + title)
 
         self._addCacheEntry(title, url)
 

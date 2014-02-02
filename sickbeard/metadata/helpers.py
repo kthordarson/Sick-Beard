@@ -65,14 +65,14 @@ def getTVDBIDFromNFO(dir):
             raise exceptions.NoNFOException("Unable to look up the show on TVDB, not using the NFO")
 
     except (exceptions.NoNFOException, SyntaxError, ValueError), e:
-        logger.log(u"There was an error parsing your existing tvshow.nfo file: " + ex(e), logger.ERROR)
-        logger.log(u"Attempting to rename it to tvshow.nfo.old", logger.DEBUG)
+        logger.log(u"There was an error parsing your existing tvshow.nfo file: " + ex(e))
+        logger.log(u"Attempting to rename it to tvshow.nfo.old")
 
         try:
             xmlFileObj.close()
             ek.ek(os.rename, xmlFile, xmlFile + ".old")
         except Exception, e:
-            logger.log(u"Failed to rename your tvshow.nfo file - you need to delete it or fix it: " + ex(e), logger.ERROR)
+            logger.log(u"Failed to rename your tvshow.nfo file - you need to delete it or fix it: " + ex(e))
         raise exceptions.NoNFOException("Invalid info in tvshow.nfo")
 
     return tvdb_id
@@ -90,12 +90,12 @@ def getShowImage(url, imgNum=None):
     else:
         tempURL = url
 
-    logger.log(u"Getting show image at "+tempURL, logger.DEBUG)
+    logger.log(u"Getting show image at "+tempURL)
 
     image_data = helpers.getURL(tempURL)
 
     if image_data is None:
-        logger.log(u"There was an error trying to retrieve the image, aborting", logger.ERROR)
+        logger.log(u"There was an error trying to retrieve the image, aborting")
         return None
 
     return image_data

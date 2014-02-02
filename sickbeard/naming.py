@@ -84,11 +84,11 @@ def check_valid_naming(pattern=None, multi=None):
     if pattern == None:
         pattern = sickbeard.NAMING_PATTERN
         
-    logger.log(u"Checking whether the pattern "+pattern+" is valid for a single episode", logger.DEBUG)
+    logger.log(u"Checking whether the pattern "+pattern+" is valid for a single episode")
     valid = validate_name(pattern, None)
 
     if multi != None:
-        logger.log(u"Checking whether the pattern "+pattern+" is valid for a multi episode", logger.DEBUG)
+        logger.log(u"Checking whether the pattern "+pattern+" is valid for a multi episode")
         valid = valid and validate_name(pattern, multi)
 
     return valid
@@ -102,7 +102,7 @@ def check_valid_abd_naming(pattern=None):
     if pattern == None:
         pattern = sickbeard.NAMING_PATTERN
         
-    logger.log(u"Checking whether the pattern "+pattern+" is valid for an air-by-date episode", logger.DEBUG)
+    logger.log(u"Checking whether the pattern "+pattern+" is valid for an air-by-date episode")
     valid = validate_name(pattern, abd=True)
 
     return valid
@@ -119,29 +119,29 @@ def validate_name(pattern, multi=None, file_only=False, abd=False):
         new_name = ek.ek(os.path.join, new_path, new_name)
 
     if not new_name:
-        logger.log(u"Unable to create a name out of "+pattern, logger.DEBUG)
+        logger.log(u"Unable to create a name out of "+pattern)
         return False
 
-    logger.log(u"Trying to parse "+new_name, logger.DEBUG)
+    logger.log(u"Trying to parse "+new_name)
 
     try:
         result = parser.parse(new_name)
     except InvalidNameException:
-        logger.log(u"Unable to parse "+new_name+", not valid", logger.DEBUG)
+        logger.log(u"Unable to parse "+new_name+", not valid")
         return False
     
-    logger.log("The name "+new_name + " parsed into " + str(result), logger.DEBUG)
+    logger.log("The name "+new_name + " parsed into " + str(result))
 
     if abd:
         if result.air_date != ep.airdate:
-            logger.log(u"Air date incorrect in parsed episode, pattern isn't valid", logger.DEBUG)
+            logger.log(u"Air date incorrect in parsed episode, pattern isn't valid")
             return False
     else:
         if result.season_number != ep.season:
-            logger.log(u"Season incorrect in parsed episode, pattern isn't valid", logger.DEBUG)
+            logger.log(u"Season incorrect in parsed episode, pattern isn't valid")
             return False
         if result.episode_numbers != [x.episode for x in [ep] + ep.relatedEps]:
-            logger.log(u"Episode incorrect in parsed episode, pattern isn't valid", logger.DEBUG)
+            logger.log(u"Episode incorrect in parsed episode, pattern isn't valid")
             return False
 
     return True

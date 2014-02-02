@@ -35,17 +35,17 @@ class TraktChecker():
         if sickbeard.TRAKT_USE_WATCHLIST:
             self.todoWanted = []  #its about to all get re-added
             if len(sickbeard.ROOT_DIRS.split('|')) < 2:
-                logger.log(u"No default root directory", logger.ERROR)
+                logger.log(u"No default root directory")
                 return
             self.updateShows()
             self.updateEpisodes()
 
 
     def updateShows(self):
-        logger.log(u"Starting trakt show watchlist check", logger.DEBUG)
+        logger.log(u"Starting trakt show watchlist check")
         watchlist = TraktCall("user/watchlist/shows.json/%API%/" + sickbeard.TRAKT_USERNAME, sickbeard.TRAKT_API, sickbeard.TRAKT_USERNAME, sickbeard.TRAKT_PASSWORD)
         if watchlist is None:
-            logger.log(u"Could not connect to trakt service, aborting watchlist update", logger.ERROR)
+            logger.log(u"Could not connect to trakt service, aborting watchlist update")
             return
         for show in watchlist:
             if int(sickbeard.TRAKT_METHOD_ADD) != 2:
@@ -66,10 +66,10 @@ class TraktChecker():
         """
         Sets episodes to wanted that are in trakt watchlist
         """
-        logger.log(u"Starting trakt episode watchlist check", logger.DEBUG)
+        logger.log(u"Starting trakt episode watchlist check")
         watchlist = TraktCall("user/watchlist/episodes.json/%API%/" + sickbeard.TRAKT_USERNAME, sickbeard.TRAKT_API, sickbeard.TRAKT_USERNAME, sickbeard.TRAKT_PASSWORD)
         if watchlist is None:
-            logger.log(u"Could not connect to trakt service, aborting watchlist update", logger.ERROR)
+            logger.log(u"Could not connect to trakt service, aborting watchlist update")
             return
         for show in watchlist:
             self.addDefaultShow(show["tvdb_id"], show["title"], SKIPPED)
@@ -95,7 +95,7 @@ class TraktChecker():
         showPath = ek.ek(os.path.join, location, helpers.sanitizeFileName(name))
         dir_exists = helpers.makeDir(showPath)
         if not dir_exists:
-            logger.log(u"Unable to create the folder " + showPath + ", can't add the show", logger.ERROR)
+            logger.log(u"Unable to create the folder " + showPath + ", can't add the show")
             return
         else:
             helpers.chmodAsParent(showPath)

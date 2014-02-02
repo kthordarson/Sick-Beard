@@ -116,8 +116,8 @@ class KATProvider(generic.TorrentProvider):
             
             #Filtering SingleEpisode/MultiSeason Torrent
             if len(videoFiles) < ep_number or len(videoFiles) > float(ep_number * 1.1 ): 
-                logger.log(u"Result " + title + " have " + str(ep_number) + " episode and episodes retrived in torrent are " + str(len(videoFiles)), logger.DEBUG)
-                logger.log(u"Result " + title + " Seem to be a Single Episode or MultiSeason torrent, skipping result...", logger.DEBUG)
+                logger.log(u"Result " + title + " have " + str(ep_number) + " episode and episodes retrived in torrent are " + str(len(videoFiles)))
+                logger.log(u"Result " + title + " Seem to be a Single Episode or MultiSeason torrent, skipping result...")
                 return None
 
             if Quality.sceneQuality(title) != Quality.UNKNOWN:
@@ -131,7 +131,7 @@ class KATProvider(generic.TorrentProvider):
                 quality = Quality.assumeQuality(os.path.basename(fileName))            
     
             if quality == Quality.UNKNOWN:
-                logger.log(u"Unable to obtain a Season Quality for " + title, logger.DEBUG)
+                logger.log(u"Unable to obtain a Season Quality for " + title)
                 return None
     
             try:
@@ -140,7 +140,7 @@ class KATProvider(generic.TorrentProvider):
             except InvalidNameException:
                 return None
             
-            logger.log(u"Season quality for "+title+" is "+Quality.qualityStrings[quality], logger.DEBUG)
+            logger.log(u"Season quality for "+title+" is "+Quality.qualityStrings[quality])
             
             if parse_result.series_name and parse_result.season_number: 
                 title = parse_result.series_name+' S%02d' % int(parse_result.season_number)+' '+self._reverseQuality(quality)
@@ -148,7 +148,7 @@ class KATProvider(generic.TorrentProvider):
             return title
             
         except Exception, e:
-            logger.log(u"Failed parsing " + self.name + " Traceback: "  + traceback.format_exc(), logger.ERROR)
+            logger.log(u"Failed parsing " + self.name + " Traceback: "  + traceback.format_exc())
                 
 
     def _get_season_search_strings(self, show, season=None):
@@ -217,10 +217,10 @@ class KATProvider(generic.TorrentProvider):
                 
                 if mode != 'RSS':
                     searchURL = self.searchurl %(urllib.quote(unidecode(search_string)))    
-                    logger.log(u"Search string: " + searchURL, logger.DEBUG)
+                    logger.log(u"Search string: " + searchURL)
                 else:
                     searchURL = self.url + 'tv/?field=time_add&sorder=desc'
-                    logger.log(u"KAT cache update URL: "+ searchURL, logger.DEBUG)
+                    logger.log(u"KAT cache update URL: "+ searchURL)
                     
                 html = self.getURL(searchURL)
                 if not html:
@@ -234,7 +234,7 @@ class KATProvider(generic.TorrentProvider):
 
                     #Continue only if one Release is found
                     if len(torrent_rows)<2:
-                        logger.log(u"The Data returned from " + self.name + " do not contains any torrent", logger.WARNING)
+                        logger.log(u"The Data returned from " + self.name + " do not contains any torrent")
                         continue
                     
                     for tr in torrent_rows[1:]:
@@ -271,7 +271,7 @@ class KATProvider(generic.TorrentProvider):
                         items[mode].append(item)
 
                 except Exception, e:
-                    logger.log(u"Failed to parsing " + self.name + " Traceback: "  + traceback.format_exc(), logger.ERROR)
+                    logger.log(u"Failed to parsing " + self.name + " Traceback: "  + traceback.format_exc())
                     
             #For each search mode sort all the items by seeders
             items[mode].sort(key=lambda tup: tup[3], reverse=True)        
@@ -294,11 +294,11 @@ class KATProvider(generic.TorrentProvider):
         try:
             r = requests.get(url)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-            logger.log(u"Error loading "+self.name+" URL: " + str(sys.exc_info()) + " - " + ex(e), logger.ERROR)
+            logger.log(u"Error loading "+self.name+" URL: " + str(sys.exc_info()) + " - " + ex(e))
             return None
         
         if r.status_code != 200:
-            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(r.status_code) + ': ' + clients.http_error_code[r.status_code], logger.WARNING)
+            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(r.status_code) + ': ' + clients.http_error_code[r.status_code])
             return None
             
         return r.content
@@ -311,13 +311,13 @@ class KATProvider(generic.TorrentProvider):
         torrent_hash = re.findall('urn:btih:([\w]{32,40})', result.url)[0].upper()
         
         if not torrent_hash:
-           logger.log("Unable to extract torrent hash from link: " + ex(result.url), logger.ERROR) 
+           logger.log("Unable to extract torrent hash from link: " + ex(result.url)) 
            return False
            
         try:
             r = requests.get('http://torcache.net/torrent/' + torrent_hash + '.torrent')
         except Exception, e:
-            logger.log("Unable to connect to Torcache: " + ex(e), logger.ERROR)
+            logger.log("Unable to connect to Torcache: " + ex(e))
             return False
                          
         if not r.status_code == 200:
@@ -332,7 +332,7 @@ class KATProvider(generic.TorrentProvider):
             fileOut.close()
             helpers.chmodAsParent(magnetFileName)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e), logger.ERROR)
+            logger.log("Unable to save the file: " + ex(e))
             return False
         logger.log(u"Saved magnet link to " + magnetFileName + " ", logger.MESSAGE)
         return True
@@ -374,7 +374,7 @@ class KATCache(tvcache.TVCache):
         if not title or not url:
             return
 
-        logger.log(u"Adding item to cache: " + title, logger.DEBUG)
+        logger.log(u"Adding item to cache: " + title)
 
         self._addCacheEntry(title, url)
     

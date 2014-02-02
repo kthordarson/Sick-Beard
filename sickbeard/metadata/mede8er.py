@@ -90,7 +90,7 @@ class Mede8erMetadata(generic.GenericMetadata):
             metadata_dir_name = ek.ek(os.path.join, ek.ek(os.path.dirname, ep_obj.location), '')
             xml_file_path = ek.ek(os.path.join, metadata_dir_name, xml_file_name)
         else:
-            logger.log(u"Mede8er: Episode location doesn't exist: "+str(ep_obj.location), logger.DEBUG)
+            logger.log(u"Mede8er: Episode location doesn't exist: "+str(ep_obj.location))
             return ''
         
         return xml_file_path
@@ -141,10 +141,10 @@ class Mede8erMetadata(generic.GenericMetadata):
                 break
 
         if not season_dir:
-            logger.log(u"Mede8er: Unable to find a season dir for season "+str(season), logger.DEBUG)
+            logger.log(u"Mede8er: Unable to find a season dir for season "+str(season))
             return None
 
-        logger.log(u"Mede8er: Using "+str(season_dir)+"/folder.jpg as season dir for season "+str(season), logger.DEBUG)
+        logger.log(u"Mede8er: Using "+str(season_dir)+"/folder.jpg as season dir for season "+str(season))
 
         return ek.ek(os.path.join, show_obj.location, season_dir, 'folder.jpg')
 
@@ -181,20 +181,20 @@ class Mede8erMetadata(generic.GenericMetadata):
         try:
             myShow = t[int(show_obj.tvdbid)]
         except tvdb_exceptions.tvdb_shownotfound:
-            logger.log("Mede8er: Unable to find show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it", logger.ERROR)
+            logger.log("Mede8er: Unable to find show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
             raise
     
         except tvdb_exceptions.tvdb_error:
-            logger.log("Mede8er: TVDB is down, can't use its data to make the XML-NFO", logger.ERROR)
+            logger.log("Mede8er: TVDB is down, can't use its data to make the XML-NFO")
             raise
     
         # check for title and id
         try:
             if myShow["seriesname"] == None or myShow["seriesname"] == "" or myShow["id"] == None or myShow["id"] == "":
-                logger.log("Mede8er: Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it", logger.ERROR)
+                logger.log("Mede8er: Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
                 return False
         except tvdb_exceptions.tvdb_attributenotfound:
-            logger.log("Mede8er: Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it", logger.ERROR)
+            logger.log("Mede8er: Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
     
             return False
         
@@ -311,7 +311,7 @@ class Mede8erMetadata(generic.GenericMetadata):
         except tvdb_exceptions.tvdb_shownotfound, e:
             raise exceptions.ShowNotFoundException(e.message)
         except tvdb_exceptions.tvdb_error, e:
-            logger.log("Mede8er: Unable to connect to TVDB while creating meta files - skipping - "+ex(e), logger.ERROR)
+            logger.log("Mede8er: Unable to connect to TVDB while creating meta files - skipping - "+ex(e))
             return False
 
         rootNode = etree.Element("movie")
@@ -474,7 +474,7 @@ class Mede8erMetadata(generic.GenericMetadata):
 
         try:
             if not ek.ek(os.path.isdir, nfo_file_dir):
-                logger.log("Mede8er: Metadata dir didn't exist, creating it at "+nfo_file_dir, logger.DEBUG)
+                logger.log("Mede8er: Metadata dir didn't exist, creating it at "+nfo_file_dir)
                 ek.ek(os.makedirs, nfo_file_dir)
                 helpers.chmodAsParent(nfo_file_dir)
     
@@ -486,7 +486,7 @@ class Mede8erMetadata(generic.GenericMetadata):
             nfo_file.close()
             helpers.chmodAsParent(nfo_file_path)
         except IOError, e:
-            logger.log(u"Mede8er: Unable to write file to "+nfo_file_path+" - are you sure the folder is writable? "+ex(e), logger.ERROR)
+            logger.log(u"Mede8er: Unable to write file to "+nfo_file_path+" - are you sure the folder is writable? "+ex(e))
             return False
         
         return True
@@ -515,7 +515,7 @@ class Mede8erMetadata(generic.GenericMetadata):
         
         try:
             if not ek.ek(os.path.isdir, nfo_file_dir):
-                logger.log("Mede8er: Metadata dir didn't exist, creating it at "+nfo_file_dir, logger.DEBUG)
+                logger.log("Mede8er: Metadata dir didn't exist, creating it at "+nfo_file_dir)
                 ek.ek(os.makedirs, nfo_file_dir)
                 helpers.chmodAsParent(nfo_file_dir)
             
@@ -527,7 +527,7 @@ class Mede8erMetadata(generic.GenericMetadata):
             nfo_file.close()
             helpers.chmodAsParent(nfo_file_path)
         except IOError, e:
-            logger.log(u"Mede8er: Unable to write file to "+nfo_file_path+" - are you sure the folder is writable? "+ex(e), logger.ERROR)
+            logger.log(u"Mede8er: Unable to write file to "+nfo_file_path+" - are you sure the folder is writable? "+ex(e))
             return False
         
         return True

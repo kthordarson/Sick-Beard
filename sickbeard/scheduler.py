@@ -67,11 +67,11 @@ class Scheduler:
                 self.lastRun = currentTime
                 try:
                     if not self.silent:
-                        logger.log(u"Starting new thread: "+self.threadName, logger.DEBUG)
+                        logger.log(u"Starting new thread: "+self.threadName)
                     self.action.run()
                 except Exception, e:
-                    logger.log(u"Exception generated in thread "+self.threadName+": " + ex(e), logger.ERROR)
-                    logger.log(repr(traceback.format_exc()), logger.DEBUG)
+                    logger.log(u"Exception generated in thread "+self.threadName+": " + ex(e))
+                    logger.log(repr(traceback.format_exc()))
 
             if self.abort:
                 self.abort = False

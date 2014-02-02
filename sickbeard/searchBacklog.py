@@ -65,7 +65,7 @@ class BacklogSearcher:
             return None
 
     def am_running(self):
-        logger.log(u"amWaiting: "+str(self.amWaiting)+", amActive: "+str(self.amActive), logger.DEBUG)
+        logger.log(u"amWaiting: "+str(self.amWaiting)+", amActive: "+str(self.amActive))
         return (not self.amWaiting) and self.amActive
 
     def searchBacklog(self, which_shows=None):
@@ -76,7 +76,7 @@ class BacklogSearcher:
             show_list = sickbeard.showList
 
         if self.amActive == True:
-            logger.log(u"Backlog is still running, not starting it again", logger.DEBUG)
+            logger.log(u"Backlog is still running, not starting it again")
             return
 
         self._get_lastBacklog()
@@ -103,7 +103,7 @@ class BacklogSearcher:
         for cur_id in [x.tvdbid for x in air_by_date_shows]:
             air_by_date_segments += self._get_air_by_date_segments(cur_id, fromDate) 
 
-        logger.log(u"Air-by-date segments: "+str(air_by_date_segments), logger.DEBUG)
+        logger.log(u"Air-by-date segments: "+str(air_by_date_segments))
 
         #totalSeasons = float(len(numSeasonResults) + len(air_by_date_segments))
         #numSeasonsDone = 0.0
@@ -126,7 +126,7 @@ class BacklogSearcher:
                 backlog_queue_item = search_queue.BacklogQueueItem(curShow, cur_segment)
 
                 if not backlog_queue_item.wantSeason:
-                    logger.log(u"Nothing in season "+str(cur_segment)+" needs to be downloaded, skipping this season", logger.DEBUG)
+                    logger.log(u"Nothing in season "+str(cur_segment)+" needs to be downloaded, skipping this season")
                 else:
                     sickbeard.searchQueueScheduler.action.add_item(backlog_queue_item)  #@UndefinedVariable
 
@@ -140,7 +140,7 @@ class BacklogSearcher:
 
     def _get_lastBacklog(self):
 
-        logger.log(u"Retrieving the last check time from the DB", logger.DEBUG)
+        logger.log(u"Retrieving the last check time from the DB")
 
         myDB = db.DBConnection()
         sqlResults = myDB.select("SELECT * FROM info")
@@ -181,7 +181,7 @@ class BacklogSearcher:
 
     def _set_lastBacklog(self, when):
 
-        logger.log(u"Setting the last backlog in the DB to " + str(when), logger.DEBUG)
+        logger.log(u"Setting the last backlog in the DB to " + str(when))
 
         myDB = db.DBConnection()
         sqlResults = myDB.select("SELECT * FROM info")

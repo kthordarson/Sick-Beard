@@ -74,7 +74,7 @@ class NZBsProvider(generic.NZBProvider):
 
 		searchURL = self.url + "rss.php?" + urllib.urlencode(params)
 
-		logger.log(u"Search string: " + searchURL, logger.DEBUG)
+		logger.log(u"Search string: " + searchURL)
 
 		data = self.getURL(searchURL)
 
@@ -88,7 +88,7 @@ class NZBsProvider(generic.NZBProvider):
 			parsedXML = parseString(data)
 			items = parsedXML.getElementsByTagName('item')
 		except Exception, e:
-			logger.log(u"Error trying to load NZBs.org RSS feed: "+ex(e), logger.ERROR)
+			logger.log(u"Error trying to load NZBs.org RSS feed: "+ex(e))
 			return []
 
 		results = []
@@ -97,7 +97,7 @@ class NZBsProvider(generic.NZBProvider):
 			(title, url) = self._get_title_and_url(curItem)
 
 			if not title or not url:
-				logger.log(u"The XML returned from the NZBs.org RSS feed is incomplete, this result is unusable: "+data, logger.ERROR)
+				logger.log(u"The XML returned from the NZBs.org RSS feed is incomplete, this result is unusable: "+data)
 				continue
 
 			if "&i=" not in url and "&h=" not in url:
@@ -151,7 +151,7 @@ class NZBsCache(tvcache.TVCache):
 
 		url += urllib.urlencode(urlArgs)
 
-		logger.log(u"NZBs cache update URL: "+ url, logger.DEBUG)
+		logger.log(u"NZBs cache update URL: "+ url)
 
 		data = self.provider.getURL(url)
 

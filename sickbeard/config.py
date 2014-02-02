@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # Author: Nic Wolfe <nic@wolfeden.ca>
 # URL: http://code.google.com/p/sickbeard/
 #
@@ -171,14 +172,14 @@ def change_SEARCH_FREQUENCY(freq):
 
 
 def change_VERSION_NOTIFY(version_notify):
-   
+
     oldSetting = sickbeard.VERSION_NOTIFY
 
     sickbeard.VERSION_NOTIFY = version_notify
 
     if version_notify == False:
         sickbeard.NEWEST_VERSION_STRING = None;
-        
+
     if oldSetting == False and version_notify == True:
         sickbeard.versionCheckScheduler.action.run() #@UndefinedVariable
 
@@ -221,7 +222,7 @@ def check_setting_int(config, cfg_name, item_name, def_val):
         except:
             config[cfg_name] = {}
             config[cfg_name][item_name] = my_val
-    logger.log(item_name + " -> " + str(my_val), logger.DEBUG)
+    logger.log(item_name + " -> " + str(my_val))
     return my_val
 
 
@@ -239,7 +240,7 @@ def check_setting_float(config, cfg_name, item_name, def_val):
             config[cfg_name] = {}
             config[cfg_name][item_name] = my_val
 
-    logger.log(item_name + " -> " + str(my_val), logger.DEBUG)
+    logger.log(item_name + " -> " + str(my_val))
     return my_val
 
 
@@ -253,7 +254,7 @@ def check_setting_str(config, cfg_name, item_name, def_val, log=True):
         encryption_version = sickbeard.ENCRYPTION_VERSION
     else:
         encryption_version = 0
-        
+
     try:
         my_val = helpers.decrypt(config[cfg_name][item_name], encryption_version)
     except:
@@ -265,9 +266,9 @@ def check_setting_str(config, cfg_name, item_name, def_val, log=True):
             config[cfg_name][item_name] = helpers.encrypt(my_val, encryption_version)
 
     if log:
-        logger.log(item_name + " -> " + my_val, logger.DEBUG)
+        logger.log(item_name + " -> " + my_val)
     else:
-        logger.log(item_name + " -> ******", logger.DEBUG)
+        logger.log(item_name + " -> ******")
     return my_val
 
 class ConfigMigrator():
@@ -277,7 +278,7 @@ class ConfigMigrator():
         Initializes a config migrator that can take the config from the version indicated in the config
         file up to the version required by SB
         """
-        
+
         self.config_obj = config_obj
 
         # check the version of the config
@@ -286,32 +287,32 @@ class ConfigMigrator():
         self.migration_names = {1: 'Custom naming',
                                 2: 'Sync backup number with version number',
                                 3: 'Rename omgwtfnzb variables'
-                                } 
+                                }
 
 
     def migrate_config(self):
         """
         Calls each successive migration until the config is the same version as SB expects
         """
-        
+
         sickbeard.CONFIG_VERSION = self.config_version
-        
+
         while self.config_version < self.expected_config_version:
 
             next_version = self.config_version + 1
-            
+
             if next_version in self.migration_names:
                 migration_name = ': ' + self.migration_names[next_version]
             else:
                 migration_name = ''
-            
+
             logger.log(u"Backing up config before upgrade")
             if not helpers.backupVersionedFile(sickbeard.CONFIG_FILE, self.config_version):
                 logger.log(u"Config backup failed, abort upgrading config")
-                sys.exit("Config backup failed, abort upgrading config") 
+                sys.exit("Config backup failed, abort upgrading config")
             else:
-                logger.log(u"Proceeding with upgrade")  
-            
+                logger.log(u"Proceeding with upgrade")
+
             # do the migration, expect a method named _migrate_v<num>
             logger.log(u"Migrating config up to version " + str(next_version) + migration_name)
             getattr(self, '_migrate_v' + str(next_version))()
@@ -322,7 +323,7 @@ class ConfigMigrator():
             logger.log(u"Saving config file to disk")
             sickbeard.save_config()
 
-    # Migration v1: Custom naming 
+    # Migration v1: Custom naming
     def _migrate_v1(self):
         """
         Reads in the old naming settings from your config and generates a new config template from them.
@@ -360,7 +361,7 @@ class ConfigMigrator():
                     sickbeard.NAMING_PATTERN = new_season_format + os.sep + sickbeard.NAMING_PATTERN
 
                 except (TypeError, ValueError):
-                    logger.log(u"Can't change " + old_season_format + " to new season format", logger.ERROR)
+                    logger.log(u"Can't change " + old_season_format + " to new season format")
 
         # if no shows had it on then don't flatten any shows and don't put season folders in the config
         else:
@@ -432,7 +433,7 @@ class ConfigMigrator():
     # Migration v2: Dummy migration to sync backup number with config version number
     def _migrate_v2(self):
         return
- 
+
     # Migration v2: Rename  omgwtfnzb variables
     def _migrate_v3(self):
         """
@@ -440,4 +441,4 @@ class ConfigMigrator():
         """
         # get the old settings from the file and store them in the new variable names
         sickbeard.OMGWTFNZBS_USERNAME = check_setting_str(self.config_obj, 'omgwtfnzbs', 'omgwtfnzbs_uid', '')
-        sickbeard.OMGWTFNZBS_APIKEY = check_setting_str(self.config_obj, 'omgwtfnzbs', 'omgwtfnzbs_key', '')     
+        sickbeard.OMGWTFNZBS_APIKEY = check_setting_str(self.config_obj, 'omgwtfnzbs', 'omgwtfnzbs_key', '')

@@ -49,34 +49,34 @@ class FailedProcessor(object):
 
         releaseName = show_name_helpers.determineReleaseName(self.dir_name, self.nzb_name)
         if releaseName is None:
-            self._log(u"Warning: unable to find a valid release name.", logger.WARNING)
+            self._log(u"Warning: unable to find a valid release name.")
             raise exceptions.FailedProcessingFailed()
 
         parser = NameParser(False)
         try:
             parsed = parser.parse(releaseName)
         except InvalidNameException:
-            self._log(u"Error: release name is invalid: " + releaseName, logger.WARNING)
+            self._log(u"Error: release name is invalid: " + releaseName)
             raise exceptions.FailedProcessingFailed()
 
-        logger.log(u"name_parser info: ", logger.DEBUG)
-        logger.log(u" - " + str(parsed.series_name), logger.DEBUG)
-        logger.log(u" - " + str(parsed.season_number), logger.DEBUG)
-        logger.log(u" - " + str(parsed.episode_numbers), logger.DEBUG)
-        logger.log(u" - " + str(parsed.extra_info), logger.DEBUG)
-        logger.log(u" - " + str(parsed.release_group), logger.DEBUG)
-        logger.log(u" - " + str(parsed.air_date), logger.DEBUG)
+        logger.log(u"name_parser info: ")
+        logger.log(u" - " + str(parsed.series_name))
+        logger.log(u" - " + str(parsed.season_number))
+        logger.log(u" - " + str(parsed.episode_numbers))
+        logger.log(u" - " + str(parsed.extra_info))
+        logger.log(u" - " + str(parsed.release_group))
+        logger.log(u" - " + str(parsed.air_date))
 
         show_id = self._get_show_id(parsed.series_name)
         if show_id is None:
-            self._log(u"Warning: couldn't find show ID", logger.WARNING)
+            self._log(u"Warning: couldn't find show ID")
             raise exceptions.FailedProcessingFailed()
 
-        self._log(u"Found show_id: " + str(show_id), logger.DEBUG)
+        self._log(u"Found show_id: " + str(show_id))
 
         self._show_obj = helpers.findCertainShow(sickbeard.showList, show_id)
         if self._show_obj is None:
-            self._log(u"Could not create show object. Either the show hasn't been added to SickBeard, or it's still loading (if SB was restarted recently)", logger.WARNING)
+            self._log(u"Could not create show object. Either the show hasn't been added to SickBeard, or it's still loading (if SB was restarted recently)")
             raise exceptions.FailedProcessingFailed()
 
         # Revert before fail, as fail alters the history
@@ -100,7 +100,7 @@ class FailedProcessor(object):
 
         show_names = show_name_helpers.sceneToNormalShowNames(series_name)
 
-        logger.log(u"show_names: " + str(show_names), logger.DEBUG)
+        logger.log(u"show_names: " + str(show_names))
 
         for show_name in show_names:
             exception = scene_exceptions.get_scene_exception_by_name(show_name)

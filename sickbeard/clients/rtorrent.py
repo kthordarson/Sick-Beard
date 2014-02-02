@@ -48,8 +48,8 @@ class rTorrentAPI(GenericClient):
         return _add_torrent_file(self, result)
 
     def _add_torrent_file(self, result):
-        print result.name
-        print result.url
+#        print result.name
+#        print result.url
         filedata = None
 
         if not self.auth:
@@ -66,7 +66,7 @@ class rTorrentAPI(GenericClient):
         try:
             # Send torrent to rTorrent
             torrent = self.auth.load_torrent(result.name + '.torrent', result.content)
-            print torrent
+#            print torrent
 
             if not torrent:
                 return False

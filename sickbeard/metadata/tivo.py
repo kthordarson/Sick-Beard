@@ -104,7 +104,7 @@ class TIVOMetadata(generic.GenericMetadata):
             metadata_dir_name = ek.ek(os.path.join, ek.ek(os.path.dirname, ep_obj.location), '.meta')
             metadata_file_path = ek.ek(os.path.join, metadata_dir_name, metadata_file_name)
         else:
-            logger.log(u"Episode location doesn't exist: "+str(ep_obj.location), logger.DEBUG)
+            logger.log(u"Episode location doesn't exist: "+str(ep_obj.location))
             return ''
         return metadata_file_path
 
@@ -145,7 +145,7 @@ class TIVOMetadata(generic.GenericMetadata):
         except tvdb_exceptions.tvdb_shownotfound, e:
             raise exceptions.ShowNotFoundException(str(e))
         except tvdb_exceptions.tvdb_error, e:
-            logger.log("Unable to connect to TVDB while creating meta files - skipping - "+str(e), logger.ERROR)
+            logger.log("Unable to connect to TVDB while creating meta files - skipping - "+str(e))
             return False
         
         for curEpToWrite in eps_to_write:
@@ -297,7 +297,7 @@ class TIVOMetadata(generic.GenericMetadata):
         
         try:
             if not ek.ek(os.path.isdir, nfo_file_dir):
-                logger.log("Metadata dir didn't exist, creating it at "+nfo_file_dir, logger.DEBUG)
+                logger.log("Metadata dir didn't exist, creating it at "+nfo_file_dir)
                 ek.ek(os.makedirs, nfo_file_dir)
                 helpers.chmodAsParent(nfo_file_dir)
             
@@ -310,7 +310,7 @@ class TIVOMetadata(generic.GenericMetadata):
             nfo_file.close()
             helpers.chmodAsParent(nfo_file_path)
         except IOError, e:
-            logger.log(u"Unable to write file to "+nfo_file_path+" - are you sure the folder is writable? "+str(e).decode('utf-8'), logger.ERROR)
+            logger.log(u"Unable to write file to "+nfo_file_path+" - are you sure the folder is writable? "+str(e).decode('utf-8'))
             return False
         
         return True

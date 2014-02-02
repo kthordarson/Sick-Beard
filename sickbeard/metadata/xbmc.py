@@ -84,21 +84,21 @@ class XBMCMetadata(generic.GenericMetadata):
         try:
             myShow = t[int(show_ID)]
         except tvdb_exceptions.tvdb_shownotfound:
-            logger.log(u"Unable to find show with id " + str(show_ID) + " on tvdb, skipping it", logger.ERROR)
+            logger.log(u"Unable to find show with id " + str(show_ID) + " on tvdb, skipping it")
             raise
     
         except tvdb_exceptions.tvdb_error:
-            logger.log(u"TVDB is down, can't use its data to add this show", logger.ERROR)
+            logger.log(u"TVDB is down, can't use its data to add this show")
             raise
     
         # check for title and id
         try:
             if myShow["seriesname"] == None or myShow["seriesname"] == "" or myShow["id"] == None or myShow["id"] == "":
-                logger.log(u"Incomplete info for show with id " + str(show_ID) + " on tvdb, skipping it", logger.ERROR)
+                logger.log(u"Incomplete info for show with id " + str(show_ID) + " on tvdb, skipping it")
     
                 return False
         except tvdb_exceptions.tvdb_attributenotfound:
-            logger.log(u"Incomplete info for show with id " + str(show_ID) + " on tvdb, skipping it", logger.ERROR)
+            logger.log(u"Incomplete info for show with id " + str(show_ID) + " on tvdb, skipping it")
     
             return False
     
@@ -191,7 +191,7 @@ class XBMCMetadata(generic.GenericMetadata):
         except tvdb_exceptions.tvdb_shownotfound, e:
             raise exceptions.ShowNotFoundException(e.message)
         except tvdb_exceptions.tvdb_error, e:
-            logger.log(u"Unable to connect to TVDB while creating meta files - skipping - "+ex(e), logger.ERROR)
+            logger.log(u"Unable to connect to TVDB while creating meta files - skipping - "+ex(e))
             return
 
         if len(eps_to_write) > 1:
@@ -216,10 +216,10 @@ class XBMCMetadata(generic.GenericMetadata):
                 myEp["firstaired"] = str(datetime.date.fromordinal(1))
 
             if not myEp["episodename"]:
-                logger.log(u"Not generating nfo because the ep has no title", logger.DEBUG)
+                logger.log(u"Not generating nfo because the ep has no title")
                 return None
 
-            logger.log(u"Creating metadata for episode "+str(ep_obj.season)+"x"+str(ep_obj.episode), logger.DEBUG)
+            logger.log(u"Creating metadata for episode "+str(ep_obj.season)+"x"+str(ep_obj.episode))
 
             if len(eps_to_write) > 1:
                 episode = etree.SubElement( rootNode, "episodedetails" )

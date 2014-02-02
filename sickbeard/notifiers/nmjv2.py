@@ -105,7 +105,7 @@ class NMJv2Notifier:
             url_scandir = "http://" + host + ":8008/metadata_database?arg0=update_scandir&arg1="+ sickbeard.NMJv2_DATABASE +"&arg2=&arg3=update_all"
             logger.log(u"NMJ scan update command send to host: %s" % (host))
             url_updatedb = "http://" + host + ":8008/metadata_database?arg0=scanner_start&arg1="+ sickbeard.NMJv2_DATABASE +"&arg2=background&arg3="
-            logger.log(u"Try to mount network drive via url: %s" % (host), logger.DEBUG)
+            logger.log(u"Try to mount network drive via url: %s" % (host))
             prereq = urllib2.Request(url_scandir)
             req = urllib2.Request(url_updatedb)
             handle1 = urllib2.urlopen(prereq)
@@ -120,13 +120,13 @@ class NMJv2Notifier:
             et = etree.fromstring(response1)
             result1 = et.findtext("returnValue")
         except SyntaxError, e:
-             logger.log(u"Unable to parse XML returned from the Popcorn Hour: update_scandir, %s" % (e), logger.ERROR)
+             logger.log(u"Unable to parse XML returned from the Popcorn Hour: update_scandir, %s" % (e))
              return False
         try:            
             et = etree.fromstring(response2)
             result2 = et.findtext("returnValue")
         except SyntaxError, e:
-            logger.log(u"Unable to parse XML returned from the Popcorn Hour: scanner_start, %s" % (e), logger.ERROR)
+            logger.log(u"Unable to parse XML returned from the Popcorn Hour: scanner_start, %s" % (e))
             return False
                 
         # if the result was a number then consider that an error
@@ -161,14 +161,14 @@ class NMJv2Notifier:
         force: If True then the notification will be sent even if NMJ is disabled in the config
         """
         if not sickbeard.USE_NMJv2 and not force:
-            logger.log("Notification for NMJ scan update not enabled, skipping this notification", logger.DEBUG)
+            logger.log("Notification for NMJ scan update not enabled, skipping this notification")
             return False
 
         # fill in omitted parameters
         if not host:
             host = sickbeard.NMJv2_HOST
 
-        logger.log(u"Sending scan command for NMJ ", logger.DEBUG)
+        logger.log(u"Sending scan command for NMJ ")
 
         return self._sendNMJ(host)
 

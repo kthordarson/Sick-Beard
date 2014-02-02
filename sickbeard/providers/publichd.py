@@ -128,10 +128,10 @@ class PublicHDProvider(generic.TorrentProvider):
 
                 if mode == 'RSS':
                     searchURL = self.url + 'index.php?page=torrents&active=1&category=%s' %(';'.join(self.categories[mode]))
-                    logger.log(u"PublicHD cache update URL: "+ searchURL, logger.DEBUG)
+                    logger.log(u"PublicHD cache update URL: "+ searchURL)
                 else:
                     searchURL = self.searchurl %(urllib.quote(unidecode(search_string)), ';'.join(self.categories[mode]))
-                    logger.log(u"Search string: " + searchURL, logger.DEBUG)
+                    logger.log(u"Search string: " + searchURL)
 
                 html = self.getURL(searchURL)
                 if not html:
@@ -145,7 +145,7 @@ class PublicHDProvider(generic.TorrentProvider):
 
                     #Continue only if one Release is found
                     if len(torrent_rows)<2:
-                        logger.log(u"The Data returned from " + self.name + " do not contains any torrent", logger.DEBUG)
+                        logger.log(u"The Data returned from " + self.name + " do not contains any torrent")
                         continue
 
                     for tr in torrent_rows[1:]:
@@ -170,7 +170,7 @@ class PublicHDProvider(generic.TorrentProvider):
                         items[mode].append(item)
 
                 except Exception, e:
-                    logger.log(u"Failed to parsing " + self.name + " Traceback: "  + traceback.format_exc(), logger.ERROR)
+                    logger.log(u"Failed to parsing " + self.name + " Traceback: "  + traceback.format_exc())
 
             #For each search mode sort all the items by seeders
             items[mode].sort(key=lambda tup: tup[3], reverse=True)
@@ -193,11 +193,11 @@ class PublicHDProvider(generic.TorrentProvider):
         try:
             r = requests.get(url)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-            logger.log(u"Error loading "+self.name+" URL: " + str(sys.exc_info()) + " - " + ex(e), logger.ERROR)
+            logger.log(u"Error loading "+self.name+" URL: " + str(sys.exc_info()) + " - " + ex(e))
             return None
 
         if r.status_code != 200:
-            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(r.status_code) + ': ' + clients.http_error_code[r.status_code], logger.WARNING)
+            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(r.status_code) + ': ' + clients.http_error_code[r.status_code])
             return None
 
         return r.content
@@ -210,13 +210,13 @@ class PublicHDProvider(generic.TorrentProvider):
         torrent_hash = re.findall('urn:btih:([\w]{32,40})', result.url)[0].upper()
 
         if not torrent_hash:
-           logger.log("Unable to extract torrent hash from link: " + ex(result.url), logger.ERROR)
+           logger.log("Unable to extract torrent hash from link: " + ex(result.url))
            return False
 
         try:
             r = requests.get('http://torcache.net/torrent/' + torrent_hash + '.torrent')
         except Exception, e:
-            logger.log("Unable to connect to Torcache: " + ex(e), logger.ERROR)
+            logger.log("Unable to connect to Torcache: " + ex(e))
             return False
 
         if not r.status_code == 200:
@@ -231,7 +231,7 @@ class PublicHDProvider(generic.TorrentProvider):
             fileOut.close()
             helpers.chmodAsParent(magnetFileName)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e), logger.ERROR)
+            logger.log("Unable to save the file: " + ex(e))
             return False
         logger.log(u"Saved magnet link to " + magnetFileName + " ", logger.MESSAGE)
         return True
@@ -273,7 +273,7 @@ class PublicHDCache(tvcache.TVCache):
         if not title or not url:
             return
 
-        logger.log(u"Adding item to cache: " + title, logger.DEBUG)
+        logger.log(u"Adding item to cache: " + title)
 
         self._addCacheEntry(title, url)
 

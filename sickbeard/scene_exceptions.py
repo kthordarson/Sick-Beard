@@ -53,7 +53,7 @@ def get_scene_exception_by_name(show_name):
         cur_tvdb_id = int(cur_exception["tvdb_id"])
 
         if show_name.lower() in (cur_exception_name.lower(), helpers.sanitizeSceneName(cur_exception_name).lower().replace('.', ' ')):
-            logger.log(u"Scene exception lookup got tvdb id "+str(cur_tvdb_id)+u", using that", logger.DEBUG)
+            logger.log(u"Scene exception lookup got tvdb id "+str(cur_tvdb_id)+u", using that")
             return cur_tvdb_id
 
     return None
@@ -75,7 +75,7 @@ def retrieve_exceptions():
 
     if url_data is None:
         # When urlData is None, trouble connecting to github
-        logger.log(u"Check scene exceptions update failed. Unable to get URL: " + url, logger.ERROR)
+        logger.log(u"Check scene exceptions update failed. Unable to get URL: " + url)
         return
 
     else:

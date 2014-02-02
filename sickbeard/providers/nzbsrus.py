@@ -67,20 +67,20 @@ class NZBsRUSProvider(generic.NZBProvider):
             params['age'] = 500
 
         searchURL = self.url + 'api.php?' + urllib.urlencode(params)
-        logger.log(u"NZBS'R'US search url: " + searchURL, logger.DEBUG)
+        logger.log(u"NZBS'R'US search url: " + searchURL)
 
         data = self.getURL(searchURL)
         if not data:
             return []
 
         if not data.startswith('<?xml'):  # Error will be a single line of text
-            logger.log(u"NZBs'R'US error: " + data, logger.ERROR)
+            logger.log(u"NZBs'R'US error: " + data)
             return []
 
         root = etree.fromstring(data)
         if root is None:
-            logger.log(u"Error trying to parse NZBS'R'US XML data.", logger.ERROR)
-            logger.log(u"RSS data: " + data, logger.DEBUG)
+            logger.log(u"Error trying to parse NZBS'R'US XML data.")
+            logger.log(u"RSS data: " + data)
             return []
         return root.findall('./results/result')
 
@@ -111,7 +111,7 @@ class NZBsRUSCache(tvcache.TVCache):
                    'h': sickbeard.NZBSRUS_HASH}
 
         url += urllib.urlencode(urlArgs)
-        logger.log(u"NZBs'R'US cache update URL: " + url, logger.DEBUG)
+        logger.log(u"NZBs'R'US cache update URL: " + url)
 
         data = self.provider.getURL(url)
         return data

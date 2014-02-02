@@ -76,13 +76,13 @@ class IPTorrentsProvider(generic.TorrentProvider):
         try:
             response = self.session.post(self.urls['login'], data=login_params, timeout=30)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-            logger.log(u'Unable to connect to ' + self.name + ' provider: ' + ex(e), logger.ERROR)
+            logger.log(u'Unable to connect to ' + self.name + ' provider: ' + ex(e))
             return False
         
         if re.search('tries left', response.text) \
         or re.search('<title>IPT</title>', response.text) \
         or response.status_code == 401:
-            logger.log(u'Invalid username or password for ' + self.name + ', Check your settings!', logger.ERROR)       
+            logger.log(u'Invalid username or password for ' + self.name + ', Check your settings!')       
             return False
         
         return True
@@ -152,7 +152,7 @@ class IPTorrentsProvider(generic.TorrentProvider):
                 searchURL = self.urls['search'] % (self.categorie, freeleech, unidecode(search_string))
                 searchURL += ';o=seeders' if mode != 'RSS' else ''
                 
-                logger.log(u"" + self.name + " search page URL: " + searchURL, logger.DEBUG)
+                logger.log(u"" + self.name + " search page URL: " + searchURL)
         
                 data = self.getURL(searchURL)
                 if not data:
@@ -162,11 +162,11 @@ class IPTorrentsProvider(generic.TorrentProvider):
                     html = BeautifulSoup(data, features=["html5lib", "permissive"])
 
                     if not html:
-                        logger.log(u"Invalid HTML data: " + str(data) , logger.DEBUG)
+                        logger.log(u"Invalid HTML data: " + str(data) )
                         continue
                     
                     if html.find(text='No Torrents Found!'):
-                        logger.log(u"No results found for: " + search_string + " (" + searchURL + ")", logger.DEBUG)
+                        logger.log(u"No results found for: " + search_string + " (" + searchURL + ")")
                         continue
                     
                     torrent_table = html.find('table', attrs = {'class' : 'torrents'})
@@ -174,7 +174,7 @@ class IPTorrentsProvider(generic.TorrentProvider):
 
                     #Continue only if one Release is found                    
                     if len(torrents)<2:
-                        logger.log(u"The Data returned from " + self.name + " do not contains any torrent", logger.WARNING)
+                        logger.log(u"The Data returned from " + self.name + " do not contains any torrent")
                         continue
 
                     for result in torrents[1:]:
@@ -199,11 +199,11 @@ class IPTorrentsProvider(generic.TorrentProvider):
                             continue
 
                         item = torrent_name, torrent_download_url
-                        logger.log(u"Found result: " + torrent_name + " (" + torrent_details_url + ")", logger.DEBUG)
+                        logger.log(u"Found result: " + torrent_name + " (" + torrent_details_url + ")")
                         items[mode].append(item)
 
                 except Exception, e:
-                    logger.log(u"Failed parsing " + self.name + " Traceback: "  + traceback.format_exc(), logger.ERROR)
+                    logger.log(u"Failed parsing " + self.name + " Traceback: "  + traceback.format_exc())
 
             results += items[mode]  
                 
@@ -229,11 +229,11 @@ class IPTorrentsProvider(generic.TorrentProvider):
         try:
             response = self.session.get(url)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-            logger.log(u"Error loading " + self.name + " URL: " + ex(e), logger.ERROR)
+            logger.log(u"Error loading " + self.name + " URL: " + ex(e))
             return None
 
         if response.status_code != 200:
-            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(response.status_code) + ': ' + clients.http_error_code[response.status_code], logger.WARNING)
+            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(response.status_code) + ': ' + clients.http_error_code[response.status_code])
             return None
 
         return response.content
@@ -274,7 +274,7 @@ class IPTorrentsCache(tvcache.TVCache):
         if not title or not url:
             return
 
-        logger.log(u"Adding item to cache: " + title, logger.DEBUG)
+        logger.log(u"Adding item to cache: " + title)
 
         self._addCacheEntry(title, url)            
 

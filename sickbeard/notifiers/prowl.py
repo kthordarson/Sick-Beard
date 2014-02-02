@@ -62,11 +62,11 @@ class ProwlNotifier:
             
         title = "Sick Beard"
         
-        logger.log(u"Prowl title: " + title, logger.DEBUG)
-        logger.log(u"Prowl event: " + event, logger.DEBUG)
-        logger.log(u"Prowl message: " + message, logger.DEBUG)
-        logger.log(u"Prowl api: " + prowl_api, logger.DEBUG)
-        logger.log(u"Prowl priority: " + prowl_priority, logger.DEBUG)
+        logger.log(u"Prowl title: " + title)
+        logger.log(u"Prowl event: " + event)
+        logger.log(u"Prowl message: " + message)
+        logger.log(u"Prowl api: " + prowl_api)
+        logger.log(u"Prowl priority: " + prowl_priority)
         
         http_handler = HTTPSConnection("api.prowlapp.com")
                                                 
@@ -82,19 +82,19 @@ class ProwlNotifier:
                                     headers = {'Content-type': "application/x-www-form-urlencoded"},
                                     body = urlencode(data))
         except (SSLError, HTTPException):
-            logger.log(u"Prowl notification failed.", logger.ERROR)
+            logger.log(u"Prowl notification failed.")
             return False
         response = http_handler.getresponse()
         request_status = response.status
 
         if request_status == 200:
-                logger.log(u"Prowl notifications sent.", logger.DEBUG)
+                logger.log(u"Prowl notifications sent.")
                 return True
         elif request_status == 401: 
-                logger.log(u"Prowl auth failed: %s" % response.reason, logger.ERROR)
+                logger.log(u"Prowl auth failed: %s" % response.reason)
                 return False
         else:
-                logger.log(u"Prowl notification failed.", logger.ERROR)
+                logger.log(u"Prowl notification failed.")
                 return False
                 
 notifier = ProwlNotifier

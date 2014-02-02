@@ -90,6 +90,7 @@ def indentXML(elem, level=0):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
+
 def replaceExtension(filename, newExt):
     '''
     >>> replaceExtension('foo.avi', 'mkv')
@@ -109,6 +110,7 @@ def replaceExtension(filename, newExt):
     else:
         return sepFile[0] + "." + newExt
 
+
 def isMediaFile(filename):
     # ignore samples
     if re.search('(^|[\W_])(sample\d*)[\W_]', filename, re.I):
@@ -119,30 +121,33 @@ def isMediaFile(filename):
         return False
 
     sepFile = filename.rpartition(".")
-    
+
     if re.search('extras?$', sepFile[0], re.I):
         return False
-        
+
     if sepFile[2].lower() in mediaExtensions:
         return True
     else:
         return False
 
+
 def isRarFile(filename):
     archive_regex = '(?P<file>^(?P<base>(?:(?!\.part\d+\.rar$).)*)\.(?:(?:part0*1\.)?rar)$)'
-    
+
     if re.search(archive_regex, filename):
         return True
-    
+
     return False
+
 
 def isBeingWritten(filepath):
 # Return True if file was modified within 60 seconds. it might still be being written to.
     ctime = max(ek.ek(os.path.getctime, filepath), ek.ek(os.path.getmtime, filepath))
     if ctime > time.time() - 60:
         return True
-    
+
     return False
+
 
 def sanitizeFileName(name):
     '''
@@ -155,14 +160,14 @@ def sanitizeFileName(name):
     >>> sanitizeFileName('.a.b..')
     'a.b'
     '''
-    
+
     # remove bad chars from the filename
     name = re.sub(r'[\\/\*]', '-', name)
     name = re.sub(r'[:"<>|?]', '', name)
-    
+
     # remove leading/trailing periods and spaces
     name = name.strip(' .')
-    
+
     return name
 
 
@@ -170,14 +175,25 @@ def getURL(url, post_data=None, headers=[]):
     """
 Returns a byte-string retrieved from the url provider.
 """
-
-    opener = urllib2.build_opener()
-    opener.addheaders = [('User-Agent', USER_AGENT), ('Accept-Encoding', 'gzip,deflate')]
-    for cur_header in headers:
-        opener.addheaders.append(cur_header)
-
+    logger.log(u"DEBUG helpers.py running getURL....")
     try:
-        usock = opener.open(url, post_data)
+        logger.log(u"DEBUG helpers.py trying to run urllib2.build_opener.....")
+        opener = urllib2.build_opener()
+        logger.log(u"DEBUG helpers.py opener build_opener ran ok... ")
+        opener.addheaders = [('User-Agent', USER_AGENT), ('Accept-Encoding', 'gzip,deflate')]
+        if headers:
+            for cur_header in headers:
+                logger.log(u"DEBUG helpers.py cur_header loop: " + cur_header)
+                opener.addheaders.append(cur_header)
+    except Exception, e:
+        logger.log(u"DEBUG helpers.py failed in getURL ", ex(e))
+        logger.log(traceback.format_exc())
+    try:
+#        url = ''.join(url)
+#        post_data = ''.join(post_data)
+        logger.log(u"DEBUG helpers.py usock url ")
+#        usock = opener.open(url, post_data)
+        usock = opener.open(url)
         url = usock.geturl()
         encoding = usock.info().get("Content-Encoding")
 
@@ -195,27 +211,27 @@ Returns a byte-string retrieved from the url provider.
         usock.close()
 
     except urllib2.HTTPError, e:
-        logger.log(u"HTTP error " + str(e.code) + " while loading URL " + url, logger.WARNING)
+        logger.log(u"HTTP error " + str(e.code) + " while loading URL " + url)
         return None
 
     except urllib2.URLError, e:
-        logger.log(u"URL error " + str(e.reason) + " while loading URL " + url, logger.WARNING)
+        logger.log(u"URL error " + str(e.reason) + " while loading URL " + url)
         return None
 
     except BadStatusLine:
-        logger.log(u"BadStatusLine error while loading URL " + url, logger.WARNING)
+        logger.log(u"BadStatusLine error while loading URL " + url)
         return None
 
     except socket.timeout:
-        logger.log(u"Timed out while loading URL " + url, logger.WARNING)
+        logger.log(u"Timed out while loading URL " + url)
         return None
 
     except ValueError:
-        logger.log(u"Unknown error while loading URL " + url, logger.WARNING)
+        logger.log(u"Unknown error while loading URL " + url)
         return None
 
     except Exception:
-        logger.log(u"Unknown exception while loading URL " + url + ": " + traceback.format_exc(), logger.WARNING)
+        logger.log(u"Unknown exception while loading URL " + url + ": " + traceback.format_exc())
         return None
 
     return result
@@ -241,35 +257,36 @@ def download_file(url, filename):
 
     except urllib2.HTTPError, e:
         _remove_file_failed(filename)
-        logger.log(u"HTTP error " + str(e.code) + " while loading URL " + url, logger.WARNING)
+        logger.log(u"HTTP error " + str(e.code) + " while loading URL " + url)
         return False
 
     except urllib2.URLError, e:
         _remove_file_failed(filename)
-        logger.log(u"URL error " + str(e.reason) + " while loading URL " + url, logger.WARNING)
+        logger.log(u"URL error " + str(e.reason) + " while loading URL " + url)
         return False
 
     except BadStatusLine:
         _remove_file_failed(filename)
-        logger.log(u"BadStatusLine error while loading URL " + url, logger.WARNING)
+        logger.log(u"BadStatusLine error while loading URL " + url)
         return False
 
     except socket.timeout:
         _remove_file_failed(filename)
-        logger.log(u"Timed out while loading URL " + url, logger.WARNING)
+        logger.log(u"Timed out while loading URL " + url)
         return False
 
     except ValueError:
         _remove_file_failed(filename)
-        logger.log(u"Unknown error while loading URL " + url, logger.WARNING)
+        logger.log(u"Unknown error while loading URL " + url)
         return False
 
     except Exception:
         _remove_file_failed(filename)
-        logger.log(u"Unknown exception while loading URL " + url + ": " + traceback.format_exc(), logger.WARNING)
+        logger.log(u"Unknown exception while loading URL " + url + ": " + traceback.format_exc())
         return False
-    
+
     return True
+
 
 def findCertainShow(showList, tvdbid):
     results = filter(lambda x: x.tvdbid == tvdbid, showList)
@@ -279,6 +296,7 @@ def findCertainShow(showList, tvdbid):
         raise MultipleShowObjectsException()
     else:
         return results[0]
+
 
 def findCertainTVRageShow(showList, tvrid):
 
@@ -294,6 +312,7 @@ def findCertainTVRageShow(showList, tvrid):
     else:
         return results[0]
 
+
 def makeDir(path):
     if not ek.ek(os.path.isdir, path):
         try:
@@ -306,15 +325,15 @@ def makeDir(path):
 
 def makeShowNFO(showID, showDir):
 
-    logger.log(u"Making NFO for show " + str(showID) + " in dir " + showDir, logger.DEBUG)
+    logger.log(u"Making NFO for show " + str(showID) + " in dir " + showDir)
 
     if not makeDir(showDir):
-        logger.log(u"Unable to create show dir, can't make NFO", logger.ERROR)
+        logger.log(u"Unable to create show dir, can't make NFO")
         return False
 
     showObj = findCertainShow(sickbeard.showList, showID)
     if not showObj:
-        logger.log(u"This should never have happened, post a bug about this!", logger.ERROR)
+        logger.log(u"This should never have happened, post a bug about this!")
         raise Exception("BAD STUFF HAPPENED")
 
     tvdb_lang = showObj.lang
@@ -330,21 +349,21 @@ def makeShowNFO(showID, showDir):
     try:
         myShow = t[int(showID)]
     except tvdb_exceptions.tvdb_shownotfound:
-        logger.log(u"Unable to find show with id " + str(showID) + " on tvdb, skipping it", logger.ERROR)
+        logger.log(u"Unable to find show with id " + str(showID) + " on tvdb, skipping it")
         raise
 
     except tvdb_exceptions.tvdb_error:
-        logger.log(u"TVDB is down, can't use its data to add this show", logger.ERROR)
+        logger.log(u"TVDB is down, can't use its data to add this show")
         raise
 
     # check for title and id
     try:
         if myShow["seriesname"] == None or myShow["seriesname"] == "" or myShow["id"] == None or myShow["id"] == "":
-            logger.log(u"Incomplete info for show with id " + str(showID) + " on tvdb, skipping it", logger.ERROR)
+            logger.log(u"Incomplete info for show with id " + str(showID) + " on tvdb, skipping it")
 
             return False
     except tvdb_exceptions.tvdb_attributenotfound:
-        logger.log(u"Incomplete info for show with id " + str(showID) + " on tvdb, skipping it", logger.ERROR)
+        logger.log(u"Incomplete info for show with id " + str(showID) + " on tvdb, skipping it")
 
         return False
 
@@ -353,7 +372,7 @@ def makeShowNFO(showID, showDir):
     indentXML(tvNode)
     nfo = etree.ElementTree(tvNode)
 
-    logger.log(u"Writing NFO to " + os.path.join(showDir, "tvshow.nfo"), logger.DEBUG)
+    logger.log(u"Writing NFO to " + os.path.join(showDir, "tvshow.nfo"))
     nfo_filename = os.path.join(showDir, "tvshow.nfo").encode('utf-8')
     nfo_fh = open(nfo_filename, 'w')
     nfo.write(nfo_fh, encoding="utf-8" )
@@ -463,14 +482,14 @@ def searchDBForShow(regShowName):
             # if we didn't get exactly one result then try again with the year stripped off if possible
             match = re.match(yearRegex, showName)
             if match and match.group(1):
-                logger.log(u"Unable to match original name but trying to manually strip and specify show year", logger.DEBUG)
+                logger.log(u"Unable to match original name but trying to manually strip and specify show year")
                 sqlResults = myDB.select("SELECT * FROM tv_shows WHERE (show_name LIKE ? OR tvr_name LIKE ?) AND startyear = ?", [match.group(1) + '%', match.group(1) + '%', match.group(3)])
 
             if len(sqlResults) == 0:
-                logger.log(u"Unable to match a record in the DB for " + showName, logger.DEBUG)
+                logger.log(u"Unable to match a record in the DB for " + showName)
                 continue
             elif len(sqlResults) > 1:
-                logger.log(u"Multiple results for " + showName + " in the DB, unable to match show name", logger.DEBUG)
+                logger.log(u"Multiple results for " + showName + " in the DB, unable to match show name")
                 continue
             else:
                 return (int(sqlResults[0]["tvdb_id"]), sqlResults[0]["show_name"])
@@ -495,6 +514,7 @@ def sizeof_fmt(num):
         if num < 1024.0:
             return "%3.1f %s" % (num, x)
         num /= 1024.0
+
 
 def listMediaFiles(path):
 
@@ -541,7 +561,7 @@ def hardlinkFile(srcFile, destFile):
         ek.ek(link, srcFile, destFile)
         fixSetGroupID(destFile)
     except:
-        logger.log(u"Failed to create hardlink of " + srcFile + " at " + destFile + ". Copying instead", logger.ERROR)
+        logger.log(u"Failed to create hardlink of " + srcFile + " at " + destFile + ". Copying instead")
         copyFile(srcFile, destFile)
         ek.ek(os.unlink, srcFile)
 
@@ -558,7 +578,7 @@ def moveAndSymlinkFile(srcFile, destFile):
         fixSetGroupID(destFile)
         ek.ek(symlink, destFile, srcFile)
     except:
-        logger.log(u"Failed to create symlink of " + srcFile + " at " + destFile + ". Copying instead", logger.ERROR)
+        logger.log(u"Failed to create symlink of " + srcFile + " at " + destFile + ". Copying instead")
         copyFile(srcFile, destFile)
         ek.ek(os.unlink, srcFile)
 
@@ -568,16 +588,16 @@ def make_dirs(path):
     parents
     """
 
-    logger.log(u"Checking if the path " + path + " already exists", logger.DEBUG)
+    logger.log(u"Checking if the path " + path + " already exists")
 
     if not ek.ek(os.path.isdir, path):
         # Windows, create all missing folders
         if os.name == 'nt' or os.name == 'ce':
             try:
-                logger.log(u"Folder " + path + " didn't exist, creating it", logger.DEBUG)
+                logger.log(u"Folder " + path + " didn't exist, creating it")
                 ek.ek(os.makedirs, path)
             except (OSError, IOError), e:
-                logger.log(u"Failed creating " + path + " : " + ex(e), logger.ERROR)
+                logger.log(u"Failed creating " + path + " : " + ex(e))
                 return False
 
         # not Windows, create all missing folders and set permissions
@@ -594,14 +614,14 @@ def make_dirs(path):
                     continue
 
                 try:
-                    logger.log(u"Folder " + sofar + " didn't exist, creating it", logger.DEBUG)
+                    logger.log(u"Folder " + sofar + " didn't exist, creating it")
                     ek.ek(os.mkdir, sofar)
                     # use normpath to remove end separator, otherwise checks permissions against itself
                     chmodAsParent(ek.ek(os.path.normpath, sofar))
                     # do the library update for synoindex
                     notifiers.synoindex_notifier.addFolder(sofar)
                 except (OSError, IOError), e:
-                    logger.log(u"Failed creating " + sofar + " : " + ex(e), logger.ERROR)
+                    logger.log(u"Failed creating " + sofar + " : " + ex(e))
                     return False
 
     return True
@@ -626,18 +646,18 @@ def rename_ep_file(cur_path, new_path, old_path_length=0):
         # approach from the left
         cur_file_ext  = cur_path[old_path_length:]
         cur_file_name = cur_path[:old_path_length]
-        
+
     if cur_file_ext[1:] in subtitleExtensions:
         #Extract subtitle language from filename
         sublang = os.path.splitext(cur_file_name)[1][1:]
-        
+
         #Check if the language extracted from filename is a valid language
         try:
             language = subliminal.language.Language(sublang, strict=True)
-            cur_file_ext = '.'+sublang+cur_file_ext 
+            cur_file_ext = '.'+sublang+cur_file_ext
         except ValueError:
             pass
-        
+
     # put the extension on the incoming file
     new_path += cur_file_ext
 
@@ -648,7 +668,7 @@ def rename_ep_file(cur_path, new_path, old_path_length=0):
         logger.log(u"Renaming file from " + cur_path + " to " + new_path)
         ek.ek(os.rename, cur_path, new_path)
     except (OSError, IOError), e:
-        logger.log(u"Failed renaming " + cur_path + " to " + new_path + ": " + ex(e), logger.ERROR)
+        logger.log(u"Failed renaming " + cur_path + " to " + new_path + ": " + ex(e))
         return False
 
     # clean up any old folders that are empty
@@ -684,7 +704,7 @@ def delete_empty_folders(check_empty_dir, keep_dir=None):
                 # do the library update for synoindex
                 notifiers.synoindex_notifier.deleteFolder(check_empty_dir)
             except OSError, e:
-                logger.log(u"Unable to delete " + check_empty_dir + ": " + repr(e) + " / " + str(e), logger.WARNING)
+                logger.log(u"Unable to delete " + check_empty_dir + ": " + repr(e) + " / " + str(e))
                 break
             check_empty_dir = ek.ek(os.path.dirname, check_empty_dir)
         else:
@@ -695,14 +715,14 @@ def chmodAsParent(childPath):
         return
 
     parentPath = ek.ek(os.path.dirname, childPath)
-    
+
     if not parentPath:
-        logger.log(u"No parent path provided in " + childPath + ", unable to get permissions from it", logger.DEBUG)
+        logger.log(u"No parent path provided in " + childPath + ", unable to get permissions from it")
         return
-    
+
     parentPathStat = ek.ek(os.stat, parentPath)
     parentMode = stat.S_IMODE(parentPathStat[stat.ST_MODE])
-    
+
     childPathStat = ek.ek(os.stat, childPath)
     childPath_mode = stat.S_IMODE(childPathStat[stat.ST_MODE])
 
@@ -718,14 +738,14 @@ def chmodAsParent(childPath):
     user_id = os.geteuid() #only available on UNIX
 
     if user_id !=0 and user_id != childPath_owner:
-        logger.log(u"Not running as root or owner of " + childPath + ", not trying to set permissions", logger.DEBUG)
+        logger.log(u"Not running as root or owner of " + childPath + ", not trying to set permissions")
         return
 
     try:
         ek.ek(os.chmod, childPath, childMode)
-        logger.log(u"Setting permissions for %s to %o as parent directory has %o" % (childPath, childMode, parentMode), logger.DEBUG)
+        logger.log(u"Setting permissions for %s to %o as parent directory has %o" % (childPath, childMode, parentMode))
     except OSError:
-        logger.log(u"Failed to set permission for %s to %o" % (childPath, childMode), logger.ERROR)
+        logger.log(u"Failed to set permission for %s to %o" % (childPath, childMode))
 
 def fileBitFilter(mode):
     for bit in [stat.S_IXUSR, stat.S_IXGRP, stat.S_IXOTH, stat.S_ISUID, stat.S_ISGID]:
@@ -754,21 +774,21 @@ def fixSetGroupID(childPath):
         user_id = os.geteuid() #only available on UNIX
 
         if user_id !=0 and user_id != childPath_owner:
-            logger.log(u"Not running as root or owner of " + childPath + ", not trying to set the set-group-ID", logger.DEBUG)
+            logger.log(u"Not running as root or owner of " + childPath + ", not trying to set the set-group-ID")
             return
 
         try:
             ek.ek(os.chown, childPath, -1, parentGID)  #@UndefinedVariable - only available on UNIX
-            logger.log(u"Respecting the set-group-ID bit on the parent directory for %s" % (childPath), logger.DEBUG)
+            logger.log(u"Respecting the set-group-ID bit on the parent directory for %s" % (childPath))
         except OSError:
-            logger.log(u"Failed to respect the set-group-ID bit on the parent directory for %s (setting group ID %i)" % (childPath, parentGID), logger.ERROR)
+            logger.log(u"Failed to respect the set-group-ID bit on the parent directory for %s (setting group ID %i)" % (childPath, parentGID))
 
 def sanitizeSceneName (name, ezrss=False):
     """
     Takes a show name and returns the "scenified" version of it.
-    
+
     ezrss: If true the scenified version will follow EZRSS's cracksmoker rules as best as possible
-    
+
     Returns: A string containing the scene version of the show name given.
     """
 
@@ -799,7 +819,7 @@ def create_https_certificates(ssl_cert, ssl_key):
         from OpenSSL import crypto  #@UnresolvedImport
         from lib.certgen import createKeyPair, createCertRequest, createCertificate, TYPE_RSA, serial #@UnresolvedImport
     except:
-        logger.log(u"pyopenssl module missing, please install for https access", logger.WARNING)
+        logger.log(u"pyopenssl module missing, please install for https access")
         return False
 
     # Create the CA Certificate
@@ -817,7 +837,7 @@ def create_https_certificates(ssl_cert, ssl_key):
         open(ssl_key, 'w').write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
         open(ssl_cert, 'w').write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
     except:
-        logger.log(u"Error creating SSL key and certificate", logger.ERROR)
+        logger.log(u"Error creating SSL key and certificate")
         return False
 
     return True
@@ -839,7 +859,7 @@ def parse_json(data):
     try:
         parsedJSON = json.loads(data)
     except ValueError:
-        logger.log(u"Error trying to decode json data:" + data, logger.ERROR)
+        logger.log(u"Error trying to decode json data:" + data)
         return None
 
     return parsedJSON
@@ -861,7 +881,7 @@ def parse_xml(data, del_xmlns=False):
     try:
         parsedXML = etree.fromstring(data)
     except Exception, e:
-        logger.log(u"Error trying to parse xml data: " + data + " to Elementtree, Error: " + ex(e), logger.DEBUG)
+        logger.log(u"Error trying to parse xml data: " + data + " to Elementtree, Error: " + ex(e))
         parsedXML = None
 
     return parsedXML
@@ -892,7 +912,7 @@ def get_xml_text(element, mini_dom=False):
 
     return text.strip()
 
- 
+
 def backupVersionedFile(old_file, version):
     numTries = 0
 
@@ -900,22 +920,22 @@ def backupVersionedFile(old_file, version):
 
     while not ek.ek(os.path.isfile, new_file):
         if not ek.ek(os.path.isfile, old_file):
-            logger.log(u"Not creating backup, " + old_file + " doesn't exist", logger.DEBUG)
+            logger.log(u"Not creating backup, " + old_file + " doesn't exist")
             break
 
         try:
-            logger.log(u"Trying to back up " + old_file + " to " + new_file, logger.DEBUG)
+            logger.log(u"Trying to back up " + old_file + " to " + new_file)
             shutil.copy(old_file, new_file)
-            logger.log(u"Backup done", logger.DEBUG)
+            logger.log(u"Backup done")
             break
         except Exception, e:
-            logger.log(u"Error while trying to back up " + old_file + " to " + new_file + " : " + ex(e), logger.WARNING)
+            logger.log(u"Error while trying to back up " + old_file + " to " + new_file + " : " + ex(e))
             numTries += 1
             time.sleep(1)
-            logger.log(u"Trying again.", logger.DEBUG)
+            logger.log(u"Trying again.")
 
         if numTries >= 10:
-            logger.log(u"Unable to back up " + old_file + " to " + new_file + " please do it manually.", logger.ERROR)
+            logger.log(u"Unable to back up " + old_file + " to " + new_file + " please do it manually.")
             return False
 
     return True
@@ -928,7 +948,7 @@ def tryInt(s, s_default = 0):
 
 # generates a md5 hash of a file
 def md5_for_file(filename, block_size=2**16):
-    try:    
+    try:
         with open(filename,'rb') as f:
             md5 = hashlib.md5()
             while True:
@@ -940,22 +960,22 @@ def md5_for_file(filename, block_size=2**16):
             return md5.hexdigest()
     except Exception:
         return None
-    
+
 def get_lan_ip():
     """
-    Simple function to get LAN localhost_ip 
+    Simple function to get LAN localhost_ip
     http://stackoverflow.com/questions/11735821/python-get-localhost-ip
     """
 
     if os.name != "nt":
         import fcntl
         import struct
-    
+
         def get_interface_ip(ifname):
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s',
                                     ifname[:15]))[20:24])
-    
+
     ip = socket.gethostbyname(socket.gethostname())
     if ip.startswith("127.") and os.name != "nt":
         interfaces = [
@@ -972,7 +992,7 @@ def get_lan_ip():
         for ifname in interfaces:
             try:
                 ip = get_interface_ip(ifname)
-                print ifname, ip 
+                print ifname, ip
                 break
             except IOError:
                 pass
@@ -994,7 +1014,7 @@ def check_url(url):
         return conn.getresponse().status in good_codes
     except StandardError:
         return None
-        
+
 
 """
 Encryption
@@ -1005,7 +1025,7 @@ By Pedro Jose Pereira Vieito <pvieito@gmail.com> (@pvieito)
 * The keys should be unique for each device
 
 To add a new encryption_version:
-  1) Code your new encryption_version        
+  1) Code your new encryption_version
   2) Update the last encryption_version available in webserve.py
   3) Remember to maintain old encryption versions and key generators for retrocompatibility
 """
@@ -1015,7 +1035,7 @@ unique_key1 = hex(uuid.getnode()**2) # Used in encryption v1
 
 # Encryption Functions
 def encrypt(data, encryption_version=0, decrypt=False):
-    
+
     # Version 1: Simple XOR encryption (this is not very secure, but works)
     if encryption_version == 1:
     	if decrypt:
@@ -1025,6 +1045,6 @@ def encrypt(data, encryption_version=0, decrypt=False):
     # Version 0: Plain text
     else:
         return data
-        
+
 def decrypt(data, encryption_version=0):
 	return encrypt(data, encryption_version, decrypt=True)

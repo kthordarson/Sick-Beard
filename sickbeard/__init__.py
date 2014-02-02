@@ -30,7 +30,7 @@ from threading import Lock
 
 # apparently py2exe won't build these unless they're imported somewhere
 from sickbeard import providers, metadata
-from providers import ezrss, tvtorrents, btn, newznab, womble, thepiratebay, torrentleech, kat, publichd, iptorrents, omgwtfnzbs, scc, torrentday, hdbits
+from providers import ezrss, tvtorrents, btn, newznab, womble, thepiratebay, torrentleech, kat, publichd, iptorrents, omgwtfnzbs, scc, torrentday, hdbits, deildu
 from sickbeard.config import CheckSection, check_setting_int, check_setting_str, ConfigMigrator
 
 
@@ -204,9 +204,9 @@ KAT_VERIFIED = False
 
 PUBLICHD = None
 
-SCC = False         
-SCC_USERNAME = None 
-SCC_PASSWORD = None 
+SCC = False
+SCC_USERNAME = None
+SCC_PASSWORD = None
 
 TORRENTDAY = None
 TORRENTDAY_USERNAME = None
@@ -239,6 +239,10 @@ OMGWTFNZBS = False
 OMGWTFNZBS_USERNAME = None
 OMGWTFNZBS_APIKEY = None
 
+deildu = False
+deildu_USERNAME = None
+deildu_PASSWORD = None
+
 NEWZBIN = False
 NEWZBIN_USERNAME = None
 NEWZBIN_PASSWORD = None
@@ -249,7 +253,7 @@ SAB_APIKEY = None
 SAB_CATEGORY = None
 SAB_HOST = ''
 
-NZBGET_USERNAME = None 
+NZBGET_USERNAME = None
 NZBGET_PASSWORD = None
 NZBGET_CATEGORY = None
 NZBGET_HOST = None
@@ -456,7 +460,7 @@ def initialize(consoleLogging=True):
                 USE_SYNOLOGYNOTIFIER, SYNOLOGYNOTIFIER_NOTIFY_ONSNATCH, SYNOLOGYNOTIFIER_NOTIFY_ONDOWNLOAD, SYNOLOGYNOTIFIER_NOTIFY_ONSUBTITLEDOWNLOAD, \
                 USE_EMAIL, EMAIL_HOST, EMAIL_PORT, EMAIL_TLS, EMAIL_USER, EMAIL_PASSWORD, EMAIL_FROM, EMAIL_NOTIFY_ONSNATCH, EMAIL_NOTIFY_ONDOWNLOAD, EMAIL_NOTIFY_ONSUBTITLEDOWNLOAD, EMAIL_LIST, \
                 USE_BANNER, USE_LISTVIEW, METADATA_XBMC, METADATA_XBMC_V12, METADATA_MEDIABROWSER, METADATA_PS3, METADATA_SYNOLOGY, METADATA_MEDE8ER, metadata_provider_dict, \
-                NEWZBIN, NEWZBIN_USERNAME, NEWZBIN_PASSWORD, GIT_PATH, MOVE_ASSOCIATED_FILES, \
+                deildu, deildu_USERNAME, deildu_PASSWORD, NEWZBIN, NEWZBIN_USERNAME, NEWZBIN_PASSWORD, GIT_PATH, MOVE_ASSOCIATED_FILES, \
                 GUI_NAME, HOME_LAYOUT, HISTORY_LAYOUT, DISPLAY_SHOW_SPECIALS, COMING_EPS_LAYOUT, COMING_EPS_SORT, COMING_EPS_DISPLAY_PAUSED, COMING_EPS_MISSED_RANGE, METADATA_WDTV, METADATA_TIVO, IGNORE_WORDS,  CALENDAR_UNPROTECTED, CREATE_MISSING_SHOW_DIRS, \
                 ADD_SHOWS_WO_DIR, USE_SUBTITLES, SUBTITLES_LANGUAGES, SUBTITLES_DIR, SUBTITLES_SERVICES_LIST, SUBTITLES_SERVICES_ENABLED, SUBTITLES_HISTORY, subtitlesFinderScheduler, \
                 USE_FAILED_DOWNLOADS, DELETE_FAILED, ANON_REDIRECT, LOCALHOST_IP
@@ -467,6 +471,7 @@ def initialize(consoleLogging=True):
         CheckSection(CFG, 'General')
         CheckSection(CFG, 'Blackhole')
         CheckSection(CFG, 'Newzbin')
+        CheckSection(CFG, 'deildu')
         CheckSection(CFG, 'SABnzbd')
         CheckSection(CFG, 'NZBget')
         CheckSection(CFG, 'XBMC')
@@ -486,13 +491,13 @@ def initialize(consoleLogging=True):
         ACTUAL_LOG_DIR = check_setting_str(CFG, 'General', 'log_dir', 'Logs')
         # put the log dir inside the data dir, unless an absolute path
         LOG_DIR = os.path.normpath(os.path.join(DATA_DIR, ACTUAL_LOG_DIR))
-        
+
         if not helpers.makeDir(LOG_DIR):
-            logger.log(u"!!! No log folder, logging to screen only!", logger.ERROR)
-        
+            logger.log(u"!!! No log folder, logging to screen only!")
+
         SOCKET_TIMEOUT = check_setting_int(CFG, 'General', 'socket_timeout', 30)
         socket.setdefaulttimeout(SOCKET_TIMEOUT)
-        
+
         try:
             WEB_PORT = check_setting_int(CFG, 'General', 'web_port', 8081)
         except:
@@ -509,14 +514,14 @@ def initialize(consoleLogging=True):
         WEB_USERNAME = check_setting_str(CFG, 'General', 'web_username', '')
         WEB_PASSWORD = check_setting_str(CFG, 'General', 'web_password', '')
         LAUNCH_BROWSER = bool(check_setting_int(CFG, 'General', 'launch_browser', 1))
-        
-        
+
+
         LOCALHOST_IP = check_setting_str(CFG, 'General', 'localhost_ip', '')
         ANON_REDIRECT = check_setting_str(CFG, 'General', 'anon_redirect', 'http://derefer.me/?')
-        # attempt to help prevent users from breaking links by using a bad url 
+        # attempt to help prevent users from breaking links by using a bad url
         if not ANON_REDIRECT.endswith('?'):
             ANON_REDIRECT = ''
-            
+
 
         UPDATE_SHOWS_ON_START = bool(check_setting_int(CFG, 'General', 'update_shows_on_start', 0))
         SORT_ARTICLE = bool(check_setting_int(CFG, 'General', 'sort_article', 0))
@@ -541,7 +546,7 @@ def initialize(consoleLogging=True):
             CACHE_DIR = ACTUAL_CACHE_DIR
 
         if not helpers.makeDir(CACHE_DIR):
-            logger.log(u"!!! Creating local cache dir failed, using system default", logger.ERROR)
+            logger.log(u"!!! Creating local cache dir failed, using system default")
             CACHE_DIR = None
 
         ROOT_DIRS = check_setting_str(CFG, 'General', 'root_dirs', '')
@@ -666,7 +671,7 @@ def initialize(consoleLogging=True):
         HDBITS_USERNAME = check_setting_str(CFG, 'HDBITS', 'hdbits_username', '')
         HDBITS_PASSKEY = check_setting_str(CFG, 'HDBITS', 'hdbits_passkey', '')
         HDBITS_OPTIONS = check_setting_str(CFG, 'HDBITS', 'hdbits_options', '')
-        
+
         NZBS = bool(check_setting_int(CFG, 'NZBs', 'nzbs', 0))
         NZBS_UID = check_setting_str(CFG, 'NZBs', 'nzbs_uid', '')
         NZBS_HASH = check_setting_str(CFG, 'NZBs', 'nzbs_hash', '')
@@ -674,6 +679,10 @@ def initialize(consoleLogging=True):
         NEWZBIN = bool(check_setting_int(CFG, 'Newzbin', 'newzbin', 0))
         NEWZBIN_USERNAME = check_setting_str(CFG, 'Newzbin', 'newzbin_username', '')
         NEWZBIN_PASSWORD = check_setting_str(CFG, 'Newzbin', 'newzbin_password', '')
+
+        deildu = bool(check_setting_int(CFG, 'deildu', 'deildu', 0))
+        deildu_USERNAME = check_setting_str(CFG, 'deildu', 'deildu_username', '')
+        deildu_PASSWORD = check_setting_str(CFG, 'deildu', 'deildu_password', '')
 
         WOMBLE = bool(check_setting_int(CFG, 'Womble', 'womble', 0))
 
@@ -687,7 +696,7 @@ def initialize(consoleLogging=True):
         SAB_CATEGORY = check_setting_str(CFG, 'SABnzbd', 'sab_category', 'tv')
         SAB_HOST = check_setting_str(CFG, 'SABnzbd', 'sab_host', '')
 
-        NZBGET_USERNAME = check_setting_str(CFG, 'NZBget', 'nzbget_username', 'nzbget') 
+        NZBGET_USERNAME = check_setting_str(CFG, 'NZBget', 'nzbget_username', 'nzbget')
         NZBGET_PASSWORD = check_setting_str(CFG, 'NZBget', 'nzbget_password', 'tegbzn6789')
         NZBGET_CATEGORY = check_setting_str(CFG, 'NZBget', 'nzbget_category', 'tv')
         NZBGET_HOST = check_setting_str(CFG, 'NZBget', 'nzbget_host', '')
@@ -838,7 +847,7 @@ def initialize(consoleLogging=True):
         GIT_PATH = check_setting_str(CFG, 'General', 'git_path', '')
 
         IGNORE_WORDS = check_setting_str(CFG, 'General', 'ignore_words', IGNORE_WORDS)
-        
+
         CALENDAR_UNPROTECTED = bool(check_setting_int(CFG, 'General', 'calendar_unprotected', 0))
 
         EXTRA_SCRIPTS = [x for x in check_setting_str(CFG, 'General', 'extra_scripts', '').split('|') if x]
@@ -857,7 +866,7 @@ def initialize(consoleLogging=True):
             if METADATA_TYPE == 'xbmc':
                 old_metadata_class = metadata.xbmc.metadata_class
             elif METADATA_TYPE == 'xbmcfrodo':
-                old_metadata_class = metadata.xbmcfrodo.metadata_class                 
+                old_metadata_class = metadata.xbmcfrodo.metadata_class
             elif METADATA_TYPE == 'mediabrowser':
                 old_metadata_class = metadata.mediabrowser.metadata_class
             elif METADATA_TYPE == 'ps3':
@@ -925,7 +934,7 @@ def initialize(consoleLogging=True):
 
         torrentRssData = check_setting_str(CFG, 'TorrentRss', 'torrentrss_data', '')
         torrentRssProviderList = providers.getTorrentRssProviderList(torrentRssData)
-        
+
         providerList = providers.makeProviderList()
 
         # start up all the threads
@@ -988,15 +997,15 @@ def initialize(consoleLogging=True):
                                                      runImmediately=True)
         if not PROCESS_AUTOMATICALLY:
             autoPostProcesserScheduler.silent = True
-            
+
         traktWatchListCheckerSchedular = scheduler.Scheduler(traktWatchListChecker.TraktChecker(),
                                                      cycleTime=datetime.timedelta(hours=1),
                                                      threadName="TRAKTWATCHLIST",
                                                      runImmediately=True)
-        
+
         if not USE_TRAKT:
             traktWatchListCheckerSchedular.silent = True
-        
+
         backlogSearchScheduler = searchBacklog.BacklogSearchScheduler(searchBacklog.BacklogSearcher(),
                                                                       cycleTime=datetime.timedelta(minutes=get_backlog_cycle_time()),
                                                                       threadName="BACKLOG",
@@ -1197,7 +1206,7 @@ def saveAndShutdown(restart=False):
                 # c:\dir\to\updater.exe 12345 c:\dir\to\sickbeard.exe
                 popen_list = [os.path.join(PROG_DIR, 'updater.exe'), str(PID), sys.executable]
             else:
-                logger.log(u"Unknown SB launch method, please file a bug report about this", logger.ERROR)
+                logger.log(u"Unknown SB launch method, please file a bug report about this")
                 popen_list = [sys.executable, os.path.join(PROG_DIR, 'updater.py'), str(PID), sys.executable, MY_FULLNAME ]
 
         if popen_list:
@@ -1216,7 +1225,7 @@ def invoke_command(to_call, *args, **kwargs):
     def delegate():
         to_call(*args, **kwargs)
     invoked_command = delegate
-    logger.log(u"Placed invoked command: "+repr(invoked_command)+" for "+repr(to_call)+" with "+repr(args)+" and "+repr(kwargs), logger.DEBUG)
+    logger.log(u"Placed invoked command: "+repr(invoked_command)+" for "+repr(to_call)+" with "+repr(args)+" and "+repr(kwargs))
 
 def invoke_restart(soft=True):
     invoke_command(restart, soft=soft)
@@ -1244,7 +1253,7 @@ def save_config():
 
     new_config = ConfigObj()
     new_config.filename = CONFIG_FILE
-    
+
     # For passwords you must include the word `password` in the item_name and add `helpers.encrypt(ITEM_NAME, ENCRYPTION_VERSION)` in save_config()
     new_config['General'] = {}
     new_config['General']['config_version'] = CONFIG_VERSION
@@ -1290,7 +1299,7 @@ def save_config():
     new_config['General']['use_banner'] = int(USE_BANNER)
     new_config['General']['use_listview'] = int(USE_LISTVIEW)
     new_config['General']['metadata_xbmc'] = metadata_provider_dict['XBMC'].get_config()
-    new_config['General']['metadata_xbmc_v12'] = metadata_provider_dict['XBMC v12+'].get_config() 
+    new_config['General']['metadata_xbmc_v12'] = metadata_provider_dict['XBMC v12+'].get_config()
     new_config['General']['metadata_mediabrowser'] = metadata_provider_dict['MediaBrowser'].get_config()
     new_config['General']['metadata_ps3'] = metadata_provider_dict['Sony PS3'].get_config()
     new_config['General']['metadata_wdtv'] = metadata_provider_dict['WDTV'].get_config()
@@ -1387,6 +1396,11 @@ def save_config():
     new_config['NZBs']['nzbs_uid'] = NZBS_UID
     new_config['NZBs']['nzbs_hash'] = NZBS_HASH
 
+    new_config['deildu'] = {}
+    new_config['deildu']['deildu'] = int(deildu)
+    new_config['deildu']['deildu_username'] = deildu_USERNAME
+    new_config['deildu']['deildu_password'] = helpers.encrypt(deildu_PASSWORD, ENCRYPTION_VERSION)
+
     new_config['Newzbin'] = {}
     new_config['Newzbin']['newzbin'] = int(NEWZBIN)
     new_config['Newzbin']['newzbin_username'] = NEWZBIN_USERNAME
@@ -1409,7 +1423,7 @@ def save_config():
 
     new_config['NZBget'] = {}
 
-    new_config['NZBget']['nzbget_username'] = NZBGET_USERNAME    
+    new_config['NZBget']['nzbget_username'] = NZBGET_USERNAME
     new_config['NZBget']['nzbget_password'] = helpers.encrypt(NZBGET_PASSWORD, ENCRYPTION_VERSION)
     new_config['NZBget']['nzbget_category'] = NZBGET_CATEGORY
     new_config['NZBget']['nzbget_host'] = NZBGET_HOST
@@ -1606,7 +1620,7 @@ def launchBrowser(startPort=None):
         try:
             webbrowser.open(browserURL, 1, 1)
         except:
-            logger.log(u"Unable to launch a browser", logger.ERROR)
+            logger.log(u"Unable to launch a browser")
 
 def getEpList(epIDs, showid=None):
 

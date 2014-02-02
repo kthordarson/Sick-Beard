@@ -73,14 +73,14 @@ class OmgwtfnzbsProvider(generic.NZBProvider):
                 description_text = parsedJSON.get('notice')
 
                 if 'information is incorrect' in parsedJSON.get('notice'):
-                    logger.log(u"Incorrect authentication credentials for " + self.name + " : " + str(description_text), logger.DEBUG)
+                    logger.log(u"Incorrect authentication credentials for " + self.name + " : " + str(description_text))
                     raise AuthException("Your authentication credentials for " + self.name + " are incorrect, check your config.")
 
                 elif '0 results matched your terms' in parsedJSON.get('notice'):
                     return True
 
                 else:
-                    logger.log(u"Unknown error given from " + self.name + " : " + str(description_text), logger.DEBUG)
+                    logger.log(u"Unknown error given from " + self.name + " : " + str(description_text))
                     return False
 
             return True
@@ -109,18 +109,18 @@ class OmgwtfnzbsProvider(generic.NZBProvider):
             params['retention'] = retention
 
         search_url = 'https://api.omgwtfnzbs.org/json/?' + urllib.urlencode(params)
-        logger.log(u"Search url: " + search_url, logger.DEBUG)
+        logger.log(u"Search url: " + search_url)
 
         data = self.getURL(search_url)
 
         if not data:
-            logger.log(u"No data returned from " + search_url, logger.ERROR)
+            logger.log(u"No data returned from " + search_url)
             return []
 
         parsedJSON = helpers.parse_json(data)
 
         if parsedJSON is None:
-            logger.log(u"Error trying to load " + self.name + " JSON data", logger.ERROR)
+            logger.log(u"Error trying to load " + self.name + " JSON data")
             return []
 
         if self._checkAuthFromData(parsedJSON, is_XML=False):
@@ -169,12 +169,12 @@ class OmgwtfnzbsCache(tvcache.TVCache):
 
         rss_url = 'https://rss.omgwtfnzbs.org/rss-download.php?' + urllib.urlencode(params)
 
-        logger.log(self.provider.name + u" cache update URL: " + rss_url, logger.DEBUG)
+        logger.log(self.provider.name + u" cache update URL: " + rss_url)
 
         data = self.provider.getURL(rss_url)
 
         if not data:
-            logger.log(u"No data returned from " + rss_url, logger.ERROR)
+            logger.log(u"No data returned from " + rss_url)
             return None
 
         return data

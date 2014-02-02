@@ -32,39 +32,39 @@ class GenericClient(object):
             self.last_time = time.time()
             self._get_auth()
         
-        logger.log(self.name + u': Requested a ' + method.upper() + ' connection to url '+ self.url + ' with Params= ' + str(params) + ' Data=' + str(data if data else 'None')[0:99] + ('...' if len(data if data else 'None') > 200 else ''), logger.DEBUG)
+        logger.log(self.name + u': Requested a ' + method.upper() + ' connection to url '+ self.url + ' with Params= ' + str(params) + ' Data=' + str(data if data else 'None')[0:99] + ('...' if len(data if data else 'None') > 200 else ''))
         
         if not self.auth:
-            logger.log(self.name + u': Authentication Failed' , logger.ERROR)
+            logger.log(self.name + u': Authentication Failed' )
             return False
         
         try:
             self.response = self.session.__getattribute__(method)(self.url, params=params, data=data, files=files, timeout=10, verify=False)
         except requests.exceptions.ConnectionError, e:
-            logger.log(self.name + u': Unable to connect ' + ex(e), logger.ERROR)
+            logger.log(self.name + u': Unable to connect ' + ex(e))
             return False
         except (requests.exceptions.MissingSchema, requests.exceptions.InvalidURL):
-            logger.log(self.name + u': Invalid Host', logger.ERROR)
+            logger.log(self.name + u': Invalid Host')
             return False
         except requests.exceptions.HTTPError, e:
-            logger.log(self.name + u': Invalid HTTP Request ' + ex(e), logger.ERROR)
+            logger.log(self.name + u': Invalid HTTP Request ' + ex(e))
             return False
         except requests.exceptions.Timeout, e:
-            logger.log(self.name + u': Connection Timeout ' + ex(e), logger.ERROR)
+            logger.log(self.name + u': Connection Timeout ' + ex(e))
             return False
         except Exception, e:
-            logger.log(self.name + u': Unknown exception raised when send torrent to ' + self.name + ': ' + ex(e), logger.ERROR)
+            logger.log(self.name + u': Unknown exception raised when send torrent to ' + self.name + ': ' + ex(e))
             return False
 
         if self.response.status_code == 401:
-            logger.log(self.name + u': Invalid Username or Password, check your config', logger.ERROR)    
+            logger.log(self.name + u': Invalid Username or Password, check your config')    
             return False
         
         if self.response.status_code in http_error_code.keys():
-            logger.log(self.name + u': ' + http_error_code[self.response.status_code], logger.DEBUG)
+            logger.log(self.name + u': ' + http_error_code[self.response.status_code])
             return False
         
-        logger.log(self.name + u': Response to '+ method.upper() + ' request is ' + self.response.text, logger.DEBUG)
+        logger.log(self.name + u': Response to '+ method.upper() + ' request is ' + self.response.text)
         
         return True
 
@@ -139,10 +139,10 @@ class GenericClient(object):
         
         r_code = False
 
-        logger.log(u'Calling ' + self.name + ' Client', logger.DEBUG)
+        logger.log(u'Calling ' + self.name + ' Client')
 
         if not self._get_auth():
-            logger.log(self.name + u': Authentication Failed' , logger.ERROR)
+            logger.log(self.name + u': Authentication Failed' )
             return r_code
         
         try:
@@ -158,23 +158,23 @@ class GenericClient(object):
                 return False
                 
             if not self._set_torrent_pause(result):
-                logger.log(self.name + u': Unable to set the pause for Torrent', logger.ERROR)
+                logger.log(self.name + u': Unable to set the pause for Torrent')
             
             if not self._set_torrent_label(result):
-                logger.log(self.name + u': Unable to set the label for Torrent', logger.ERROR)
+                logger.log(self.name + u': Unable to set the label for Torrent')
             
             if not self._set_torrent_ratio(result):
-                logger.log(self.name + u': Unable to set the ratio for Torrent', logger.ERROR)
+                logger.log(self.name + u': Unable to set the ratio for Torrent')
                 
             if not self._set_torrent_path(result):
-                logger.log(self.name + u': Unable to set the path for Torrent', logger.ERROR)
+                logger.log(self.name + u': Unable to set the path for Torrent')
 
             if result.priority != 0 and not self._set_torrent_priority(result):
-                logger.log(self.name + u': Unable to set priority for Torrent', logger.ERROR)
+                logger.log(self.name + u': Unable to set priority for Torrent')
 
         except Exception, e:
-            logger.log(self.name + u': Failed Sending Torrent ', logger.ERROR)
-            logger.log(self.name + u': Exception raised when sending torrent: ' + ex(e), logger.DEBUG)
+            logger.log(self.name + u': Failed Sending Torrent ')
+            logger.log(self.name + u': Exception raised when sending torrent: ' + ex(e))
             return r_code
         
         return r_code

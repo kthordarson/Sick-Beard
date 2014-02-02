@@ -105,7 +105,7 @@ class ShowQueue(generic_queue.GenericQueue):
             raise exceptions.CantRefreshException("This show is already being refreshed, not refreshing again.")
 
         if (self.isBeingUpdated(show) or self.isInUpdateQueue(show)) and not force:
-            logger.log(u"A refresh was attempted but there is already an update queued or in progress. Since updates do a refres at the end anyway I'm skipping this request.", logger.DEBUG)
+            logger.log(u"A refresh was attempted but there is already an update queued or in progress. Since updates do a refres at the end anyway I'm skipping this request.")
             return
 
         queueItemObj = QueueItemRefresh(show)
@@ -240,18 +240,18 @@ class QueueItemAdd(ShowQueueItem):
 
                 # this usually only happens if they have an NFO in their show dir which gave us a TVDB ID that has no proper english version of the show
                 if not s['seriesname']:
-                    logger.log(u"Show in " + self.showDir + " has no name on TVDB, probably the wrong language used to search with.", logger.ERROR)
+                    logger.log(u"Show in " + self.showDir + " has no name on TVDB, probably the wrong language used to search with.")
                     ui.notifications.error("Unable to add show", "Show in " + self.showDir + " has no name on TVDB, probably the wrong language. Delete .nfo and add manually in the correct language.")
                     self._finishEarly()
                     return
                 # if the show has no episodes/seasons
                 if not s:
-                    logger.log(u"Show " + str(s['seriesname']) + " is on TVDB but contains no season/episode data.", logger.ERROR)
+                    logger.log(u"Show " + str(s['seriesname']) + " is on TVDB but contains no season/episode data.")
                     ui.notifications.error("Unable to add show", "Show " + str(s['seriesname']) + " is on TVDB but contains no season/episode data.")
                     self._finishEarly()
                     return
             except tvdb_exceptions.tvdb_exception, e:
-                logger.log(u"Error contacting TVDB: " + ex(e), logger.ERROR)
+                logger.log(u"Error contacting TVDB: " + ex(e))
                 ui.notifications.error("Unable to add show", "Unable to look up the show in " + self.showDir + " on TVDB, not using the NFO. Delete .nfo and add manually in the correct language.")
                 self._finishEarly()
                 return
@@ -276,7 +276,7 @@ class QueueItemAdd(ShowQueueItem):
                 self.show.air_by_date = 1
 
         except tvdb_exceptions.tvdb_exception, e:
-            logger.log(u"Unable to add show due to an error with TVDB: " + ex(e), logger.ERROR)
+            logger.log(u"Unable to add show due to an error with TVDB: " + ex(e))
             if self.show:
                 ui.notifications.error("Unable to add " + str(self.show.name) + " due to an error with TVDB")
             else:
@@ -285,34 +285,34 @@ class QueueItemAdd(ShowQueueItem):
             return
 
         except exceptions.MultipleShowObjectsException:
-            logger.log(u"The show in " + self.showDir + " is already in your show list, skipping", logger.ERROR)
+            logger.log(u"The show in " + self.showDir + " is already in your show list, skipping")
             ui.notifications.error('Show skipped', "The show in " + self.showDir + " is already in your show list")
             self._finishEarly()
             return
 
         except Exception, e:
-            logger.log(u"Error trying to add show: "+ex(e), logger.ERROR)
-            logger.log(traceback.format_exc(), logger.DEBUG)
+            logger.log(u"Error trying to add show: "+ex(e))
+            logger.log(traceback.format_exc())
             self._finishEarly()
             raise
 
-        logger.log(u"Retrieving show info from IMDb", logger.DEBUG)
+        logger.log(u"Retrieving show info from IMDb")
         try:
             self.show.loadIMDbInfo()
         except imdb_exceptions.IMDbError, e:
             #todo Insert UI notification
-            logger.log(u" Something wrong on IMDb api: " + ex(e), logger.WARNING)
+            logger.log(u" Something wrong on IMDb api: " + ex(e))
         except imdb_exceptions.IMDbParserError, e:
-            logger.log(u" IMDb_api parser error: " + ex(e), logger.WARNING)
+            logger.log(u" IMDb_api parser error: " + ex(e))
         except Exception, e:
-            logger.log(u"Error loading IMDb info: " + ex(e), logger.ERROR)
-            logger.log(traceback.format_exc(), logger.DEBUG)
+            logger.log(u"Error loading IMDb info: " + ex(e))
+            logger.log(traceback.format_exc())
 
         try:
             self.show.saveToDB()
         except Exception, e:
-            logger.log(u"Error saving the show to the database: " + ex(e), logger.ERROR)
-            logger.log(traceback.format_exc(), logger.DEBUG)
+            logger.log(u"Error saving the show to the database: " + ex(e))
+            logger.log(traceback.format_exc())
             self._finishEarly()
             raise
         
@@ -322,19 +322,19 @@ class QueueItemAdd(ShowQueueItem):
         try:
             self.show.loadEpisodesFromTVDB()
         except Exception, e:
-            logger.log(u"Error with TVDB, not creating episode list: " + ex(e), logger.ERROR)
-            logger.log(traceback.format_exc(), logger.DEBUG)
+            logger.log(u"Error with TVDB, not creating episode list: " + ex(e))
+            logger.log(traceback.format_exc())
 
         try:
             self.show.setTVRID()
         except Exception, e:
-            logger.log(u"Error with TVRage, not setting tvrid" + ex(e), logger.ERROR)
+            logger.log(u"Error with TVRage, not setting tvrid" + ex(e))
 
         try:
             self.show.loadEpisodesFromDir()
         except Exception, e:
-            logger.log(u"Error searching dir for episodes: " + ex(e), logger.ERROR)
-            logger.log(traceback.format_exc(), logger.DEBUG)
+            logger.log(u"Error searching dir for episodes: " + ex(e))
+            logger.log(traceback.format_exc())
 
         # if they gave a custom status then change all the eps to it
         if self.default_status != SKIPPED:
@@ -397,7 +397,7 @@ class QueueItemRename(ShowQueueItem):
         try:
             show_loc = self.show.location
         except exceptions.ShowDirNotFoundException:
-            logger.log(u"Can't perform rename on " + self.show.name + " when the show dir is missing.", logger.WARNING)
+            logger.log(u"Can't perform rename on " + self.show.name + " when the show dir is missing.")
             return
 
         ep_obj_rename_list = []
@@ -450,54 +450,54 @@ class QueueItemUpdate(ShowQueueItem):
 
         logger.log(u"Beginning update of " + self.show.name)
 
-        logger.log(u"Retrieving show info from TVDB", logger.DEBUG)
+        logger.log(u"Retrieving show info from TVDB")
         try:
             self.show.loadFromTVDB(cache=not self.force)
         except tvdb_exceptions.tvdb_error, e:
-            logger.log(u"Unable to contact TVDB, aborting: " + ex(e), logger.WARNING)
+            logger.log(u"Unable to contact TVDB, aborting: " + ex(e))
             return
         except tvdb_exceptions.tvdb_attributenotfound, e:
-            logger.log(u"Data retrieved from TVDB was incomplete, aborting: " + ex(e), logger.ERROR)
+            logger.log(u"Data retrieved from TVDB was incomplete, aborting: " + ex(e))
             return
 
-        logger.log(u"Retrieving show info from IMDb", logger.DEBUG)
+        logger.log(u"Retrieving show info from IMDb")
         try:
             self.show.loadIMDbInfo()
         except imdb_exceptions.IMDbError, e:
-            logger.log(u" Something wrong on IMDb api: " + ex(e), logger.WARNING)
+            logger.log(u" Something wrong on IMDb api: " + ex(e))
         except imdb_exceptions.IMDbParserError, e:
-            logger.log(u" IMDb api parser error: " + ex(e), logger.WARNING)
+            logger.log(u" IMDb api parser error: " + ex(e))
         except Exception, e:
-            logger.log(u"Error loading IMDb info: " + ex(e), logger.ERROR)
-            logger.log(traceback.format_exc(), logger.DEBUG)
+            logger.log(u"Error loading IMDb info: " + ex(e))
+            logger.log(traceback.format_exc())
         
         try:
             self.show.saveToDB()
         except Exception, e:
-            logger.log(u"Error saving the episode to the database: " + ex(e), logger.ERROR)
-            logger.log(traceback.format_exc(), logger.DEBUG)
+            logger.log(u"Error saving the episode to the database: " + ex(e))
+            logger.log(traceback.format_exc())
         
         # get episode list from DB
-        logger.log(u"Loading all episodes from the database", logger.DEBUG)
+        logger.log(u"Loading all episodes from the database")
         DBEpList = self.show.loadEpisodesFromDB()
 
         # get episode list from TVDB
-        logger.log(u"Loading all episodes from theTVDB", logger.DEBUG)
+        logger.log(u"Loading all episodes from theTVDB")
         try:
             TVDBEpList = self.show.loadEpisodesFromTVDB(cache=not self.force)
         except tvdb_exceptions.tvdb_exception, e:
-            logger.log(u"Unable to get info from TVDB, the show info will not be refreshed: " + ex(e), logger.ERROR)
+            logger.log(u"Unable to get info from TVDB, the show info will not be refreshed: " + ex(e))
             TVDBEpList = None
 
         if TVDBEpList == None:
-            logger.log(u"No data returned from TVDB, unable to update this show", logger.ERROR)
+            logger.log(u"No data returned from TVDB, unable to update this show")
 
         else:
 
             # for each ep we found on TVDB delete it from the DB list
             for curSeason in TVDBEpList:
                 for curEpisode in TVDBEpList[curSeason]:
-                    logger.log(u"Removing " + str(curSeason) + "x" + str(curEpisode) + " from the DB list", logger.DEBUG)
+                    logger.log(u"Removing " + str(curSeason) + "x" + str(curEpisode) + " from the DB list")
                     if curSeason in DBEpList and curEpisode in DBEpList[curSeason]:
                         del DBEpList[curSeason][curEpisode]
 
@@ -513,7 +513,7 @@ class QueueItemUpdate(ShowQueueItem):
 
         # now that we've updated the DB from TVDB see if there's anything we can add from TVRage
         with self.show.lock:
-            logger.log(u"Attempting to supplement show info with info from TVRage", logger.DEBUG)
+            logger.log(u"Attempting to supplement show info with info from TVRage")
             self.show.loadLatestFromTVRage()
             if self.show.tvrid == 0:
                 self.show.setTVRID()

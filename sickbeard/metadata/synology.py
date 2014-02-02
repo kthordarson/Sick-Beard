@@ -94,7 +94,7 @@ class SynologyMetadata(generic.GenericMetadata):
             metadata_dir_name = ek.ek(os.path.join, ek.ek(os.path.dirname, ep_obj.location), '')
             xml_file_path = ek.ek(os.path.join, metadata_dir_name, xml_file_name)
         else:
-            logger.log(u"Episode location doesn't exist: "+str(ep_obj.location), logger.DEBUG)
+            logger.log(u"Episode location doesn't exist: "+str(ep_obj.location))
             return ''
         
         return xml_file_path
@@ -145,10 +145,10 @@ class SynologyMetadata(generic.GenericMetadata):
                 break
 
         if not season_dir:
-            logger.log(u"Unable to find a season dir for season "+str(season), logger.DEBUG)
+            logger.log(u"Unable to find a season dir for season "+str(season))
             return None
 
-        logger.log(u"Using "+str(season_dir)+"/folder.jpg as season dir for season "+str(season), logger.DEBUG)
+        logger.log(u"Using "+str(season_dir)+"/folder.jpg as season dir for season "+str(season))
 
         return ek.ek(os.path.join, show_obj.location, season_dir, 'folder.jpg')
 
@@ -177,20 +177,20 @@ class SynologyMetadata(generic.GenericMetadata):
         try:
             myShow = t[int(show_obj.tvdbid)]
         except tvdb_exceptions.tvdb_shownotfound:
-            logger.log("Unable to find show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it", logger.ERROR)
+            logger.log("Unable to find show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
             raise
     
         except tvdb_exceptions.tvdb_error:
-            logger.log("TVDB is down, can't use its data to make the NFO", logger.ERROR)
+            logger.log("TVDB is down, can't use its data to make the NFO")
             raise
     
         # check for title and id
         try:
             if myShow["seriesname"] == None or myShow["seriesname"] == "" or myShow["id"] == None or myShow["id"] == "":
-                logger.log("Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it", logger.ERROR)
+                logger.log("Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
                 return False
         except tvdb_exceptions.tvdb_attributenotfound:
-            logger.log("Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it", logger.ERROR)
+            logger.log("Incomplete info for show with id " + str(show_obj.tvdbid) + " on tvdb, skipping it")
     
             return False
         
@@ -283,7 +283,7 @@ class SynologyMetadata(generic.GenericMetadata):
         except tvdb_exceptions.tvdb_shownotfound, e:
             raise exceptions.ShowNotFoundException(e.message)
         except tvdb_exceptions.tvdb_error, e:
-            logger.log("Unable to connect to TVDB while creating meta files - skipping - "+ex(e), logger.ERROR)
+            logger.log("Unable to connect to TVDB while creating meta files - skipping - "+ex(e))
             return False
 
         rootNode = etree.Element("Item")

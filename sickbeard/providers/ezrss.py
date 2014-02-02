@@ -62,7 +62,7 @@ class EZRSSProvider(generic.TorrentProvider):
         results = {}
 
         if show.air_by_date:
-            logger.log(self.name + u" doesn't support air-by-date backlog because of limitations on their RSS search.", logger.WARNING)
+            logger.log(self.name + u" doesn't support air-by-date backlog because of limitations on their RSS search.")
             return results
 
         results = generic.TorrentProvider.findSeasonResults(self, show, season)
@@ -109,18 +109,18 @@ class EZRSSProvider(generic.TorrentProvider):
 
         search_url = self.url + 'search/index.php?' + urllib.urlencode(params)
 
-        logger.log(u"Search string: " + search_url, logger.DEBUG)
+        logger.log(u"Search string: " + search_url)
 
         data = self.getURL(search_url)
 
         if not data:
-            logger.log(u"No data returned from " + search_url, logger.ERROR)
+            logger.log(u"No data returned from " + search_url)
             return []
 
         parsedXML = helpers.parse_xml(data)
 
         if parsedXML is None:
-            logger.log(u"Error trying to load " + self.name + " RSS feed", logger.ERROR)
+            logger.log(u"Error trying to load " + self.name + " RSS feed")
             return []
 
         items = parsedXML.findall('.//item')
@@ -132,10 +132,10 @@ class EZRSSProvider(generic.TorrentProvider):
             (title, url) = self._get_title_and_url(curItem)
 
             if title and url:
-                logger.log(u"Adding item from RSS to results: " + title, logger.DEBUG)
+                logger.log(u"Adding item from RSS to results: " + title)
                 results.append(curItem)
             else:
-                logger.log(u"The XML returned from the " + self.name + " RSS feed is incomplete, this result is unusable", logger.ERROR)
+                logger.log(u"The XML returned from the " + self.name + " RSS feed is incomplete, this result is unusable")
 
         return results
 
@@ -148,13 +148,13 @@ class EZRSSProvider(generic.TorrentProvider):
             new_title = self._extract_name_from_filename(filename)
             if new_title:
                 title = new_title
-                logger.log(u"Extracted the name " + title + " from the torrent link", logger.DEBUG)
+                logger.log(u"Extracted the name " + title + " from the torrent link")
 
         return (title, url)
 
     def _extract_name_from_filename(self, filename):
         name_regex = '(.*?)\.?(\[.*]|\d+\.TPB)\.torrent$'
-        logger.log(u"Comparing " + name_regex + " against " + filename, logger.DEBUG)
+        logger.log(u"Comparing " + name_regex + " against " + filename)
         match = re.match(name_regex, filename, re.I)
         if match:
             return match.group(1)
@@ -173,12 +173,12 @@ class EZRSSCache(tvcache.TVCache):
     def _getRSSData(self):
 
         rss_url = self.provider.url + 'feed/'
-        logger.log(self.provider.name + " cache update URL: " + rss_url, logger.DEBUG)
+        logger.log(self.provider.name + " cache update URL: " + rss_url)
 
         data = self.provider.getURL(rss_url)
 
         if not data:
-            logger.log(u"No data returned from " + rss_url, logger.ERROR)
+            logger.log(u"No data returned from " + rss_url)
             return None
 
         return data
@@ -188,12 +188,12 @@ class EZRSSCache(tvcache.TVCache):
         (title, url) = self.provider._get_title_and_url(item)
 
         if title and url:
-            logger.log(u"Adding item from RSS to cache: " + title, logger.DEBUG)
+            logger.log(u"Adding item from RSS to cache: " + title)
             url = self._translateLinkURL(url)
             self._addCacheEntry(title, url)
 
         else:
-            logger.log(u"The XML returned from the " + self.provider.name + " feed is incomplete, this result is unusable", logger.ERROR)
+            logger.log(u"The XML returned from the " + self.provider.name + " feed is incomplete, this result is unusable")
             return
 
 provider = EZRSSProvider()

@@ -61,7 +61,7 @@ class HDBitsProvider(generic.TorrentProvider):
 
         if 'status' in parsedJSON and 'message' in parsedJSON:
             if parsedJSON.get('status') == 5:
-                logger.log(u"Incorrect authentication credentials for " + self.name + " : " + parsedJSON['message'], logger.DEBUG)
+                logger.log(u"Incorrect authentication credentials for " + self.name + " : " + parsedJSON['message'])
                 raise AuthException("Your authentication credentials for " + self.name + " are incorrect, check your config.")
 
         return True
@@ -72,7 +72,7 @@ class HDBitsProvider(generic.TorrentProvider):
 
         self.cache.updateCache()
         results = self.cache.searchCache(episode, manualSearch)
-        logger.log(u"Cache results: " + str(results), logger.DEBUG)
+        logger.log(u"Cache results: " + str(results))
 
         # if we got some results then use them no matter what.
         # OR
@@ -83,13 +83,13 @@ class HDBitsProvider(generic.TorrentProvider):
         data = self.getURL(self.search_url, post_data=self._make_post_data_JSON(show=episode.show, episode=episode))
 
         if not data:
-            logger.log(u"No data returned from " + self.search_url, logger.ERROR)
+            logger.log(u"No data returned from " + self.search_url)
             return []
 
         parsedJSON = helpers.parse_json(data)
 
         if parsedJSON is None:
-            logger.log(u"Error trying to load " + self.name + " JSON data", logger.ERROR)
+            logger.log(u"Error trying to load " + self.name + " JSON data")
             return []
 
         if self._checkAuthFromData(parsedJSON):
@@ -98,7 +98,7 @@ class HDBitsProvider(generic.TorrentProvider):
             if parsedJSON and 'data' in parsedJSON:
                 items = parsedJSON['data']
             else:
-                logger.log(u"Resulting JSON from " + self.name + " isn't correct, not parsing it", logger.ERROR)
+                logger.log(u"Resulting JSON from " + self.name + " isn't correct, not parsing it")
                 items = []
 
             for item in items:
@@ -110,24 +110,24 @@ class HDBitsProvider(generic.TorrentProvider):
                     myParser = NameParser()
                     parse_result = myParser.parse(title)
                 except InvalidNameException:
-                    logger.log(u"Unable to parse the filename " + title + " into a valid episode", logger.WARNING)
+                    logger.log(u"Unable to parse the filename " + title + " into a valid episode")
                     continue
 
                 if episode.show.air_by_date:
                     if parse_result.air_date != episode.airdate:
-                        logger.log(u"Episode " + title + " didn't air on " + str(episode.airdate) + ", skipping it", logger.DEBUG)
+                        logger.log(u"Episode " + title + " didn't air on " + str(episode.airdate) + ", skipping it")
                         continue
                 elif parse_result.season_number != episode.season or episode.episode not in parse_result.episode_numbers:
-                    logger.log(u"Episode " + title + " isn't " + str(episode.season) + "x" + str(episode.episode) + ", skipping it", logger.DEBUG)
+                    logger.log(u"Episode " + title + " isn't " + str(episode.season) + "x" + str(episode.episode) + ", skipping it")
                     continue
 
                 quality = self.getQuality(item)
 
                 if not episode.show.wantEpisode(episode.season, episode.episode, quality, manualSearch):
-                    logger.log(u"Ignoring result " + title + " because we don't want an episode that is " + Quality.qualityStrings[quality], logger.DEBUG)
+                    logger.log(u"Ignoring result " + title + " because we don't want an episode that is " + Quality.qualityStrings[quality])
                     continue
 
-                logger.log(u"Found result " + title + " at " + url, logger.DEBUG)
+                logger.log(u"Found result " + title + " at " + url)
 
                 result = self.getResult([episode])
                 result.url = url
@@ -199,14 +199,14 @@ class HDBitsCache(tvcache.TVCache):
             parsedJSON = helpers.parse_json(data)
 
             if parsedJSON is None:
-                logger.log(u"Error trying to load " + self.provider.name + " JSON feed", logger.ERROR)
+                logger.log(u"Error trying to load " + self.provider.name + " JSON feed")
                 return []
 
             if self._checkAuth(parsedJSON):
                 if parsedJSON and 'data' in parsedJSON:
                     items = parsedJSON['data']
                 else:
-                    logger.log(u"Resulting JSON from " + self.provider.name + " isn't correct, not parsing it", logger.ERROR)
+                    logger.log(u"Resulting JSON from " + self.provider.name + " isn't correct, not parsing it")
                     return []
 
                 for item in items:
@@ -226,10 +226,10 @@ class HDBitsCache(tvcache.TVCache):
         (title, url) = self.provider._get_title_and_url(item)
 
         if title and url:
-            logger.log(u"Adding item to results: " + title, logger.DEBUG)
+            logger.log(u"Adding item to results: " + title)
             self._addCacheEntry(title, url)
         else:
-            logger.log(u"The data returned from the " + self.provider.name + " is incomplete, this result is unusable", logger.ERROR)
+            logger.log(u"The data returned from the " + self.provider.name + " is incomplete, this result is unusable")
             return
 
     def _checkAuth(self, data):

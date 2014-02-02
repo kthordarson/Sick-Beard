@@ -67,7 +67,7 @@ class DelugeAPI(GenericClient):
                 return None
             hosts = self.response.json()['result']
             if len(hosts) == 0:
-                logger.log(self.name + u': WebUI does not contain daemons', logger.ERROR)
+                logger.log(self.name + u': WebUI does not contain daemons')
                 return None
             
             post_data = json.dumps({"method": "web.connect",
@@ -91,7 +91,7 @@ class DelugeAPI(GenericClient):
 
             connected = self.response.json()['result']
             if not connected:
-                logger.log(self.name + u': WebUI could not connect to daemon', logger.ERROR)
+                logger.log(self.name + u': WebUI could not connect to daemon')
                 return None
         
         return self.auth
@@ -134,13 +134,13 @@ class DelugeAPI(GenericClient):
                 
             if labels != None:
                 if label not in labels:
-                    logger.log(self.name + ': ' + label +u" label does not exist in Deluge we must add it", logger.DEBUG)
+                    logger.log(self.name + ': ' + label +u" label does not exist in Deluge we must add it")
                     post_data = json.dumps({"method": 'label.add',
                                             "params": [label],
                                             "id": 4
                                              })
                     self._request(method='post', data=post_data)
-                    logger.log(self.name + ': ' + label +u" label added to Deluge", logger.DEBUG)
+                    logger.log(self.name + ': ' + label +u" label added to Deluge")
                                 
                 # add label to torrent    
                 post_data = json.dumps({ "method": 'label.set_torrent',
@@ -148,9 +148,9 @@ class DelugeAPI(GenericClient):
                                          "id": 5
                                              })
                 self._request(method='post', data=post_data)
-                logger.log(self.name + ': ' + label +u" label added to torrent", logger.DEBUG)
+                logger.log(self.name + ': ' + label +u" label added to torrent")
             else:
-                logger.log(self.name + ': ' + u"label plugin not detected", logger.DEBUG)
+                logger.log(self.name + ': ' + u"label plugin not detected")
                 return False
         
         return not self.response.json()['error']

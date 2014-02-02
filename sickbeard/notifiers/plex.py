@@ -58,7 +58,7 @@ class PLEXNotifier:
             password = sickbeard.PLEX_PASSWORD
 
         if not host:
-            logger.log(u"No Plex host specified, check your settings", logger.DEBUG)
+            logger.log(u"No Plex host specified, check your settings")
             return False
 
         for key in command:
@@ -66,7 +66,7 @@ class PLEXNotifier:
                 command[key] = command[key].encode('utf-8')
 
         enc_command = urllib.urlencode(command)
-        logger.log(u"Plex encoded API command: " + enc_command, logger.DEBUG)
+        logger.log(u"Plex encoded API command: " + enc_command)
 
         url = 'http://%s/xbmcCmds/xbmcHttp/?%s' % (host, enc_command)
         try:
@@ -76,21 +76,21 @@ class PLEXNotifier:
                 base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
                 authheader = "Basic %s" % base64string
                 req.add_header("Authorization", authheader)
-                logger.log(u"Contacting Plex (with auth header) via url: " + url, logger.DEBUG)
+                logger.log(u"Contacting Plex (with auth header) via url: " + url)
             else:
-                logger.log(u"Contacting Plex via url: " + url, logger.DEBUG)
+                logger.log(u"Contacting Plex via url: " + url)
 
             response = urllib2.urlopen(req)
 
             result = response.read().decode(sickbeard.SYS_ENCODING)
             response.close()
 
-            logger.log(u"Plex HTTP response: " + result.replace('\n', ''), logger.DEBUG)
+            logger.log(u"Plex HTTP response: " + result.replace('\n', ''))
             # could return result response = re.compile('<html><li>(.+\w)</html>').findall(result)
             return 'OK'
 
         except (urllib2.URLError, IOError), e:
-            logger.log(u"Warning: Couldn't contact Plex at " + fixStupidEncodings(url) + " " + ex(e), logger.WARNING)
+            logger.log(u"Warning: Couldn't contact Plex at " + fixStupidEncodings(url) + " " + ex(e))
             return False
 
     def _notify_pmc(self, message, title="Sick Beard", host=None, username=None, password=None, force=False):
@@ -120,7 +120,7 @@ class PLEXNotifier:
 
         # suppress notifications if the notifier is disabled but the notify options are checked
         if not sickbeard.USE_PLEX and not force:
-            logger.log("Notification for Plex not enabled, skipping this notification", logger.DEBUG)
+            logger.log("Notification for Plex not enabled, skipping this notification")
             return False
 
         result = ''
@@ -165,7 +165,7 @@ class PLEXNotifier:
 
         if sickbeard.USE_PLEX and sickbeard.PLEX_UPDATE_LIBRARY:
             if not sickbeard.PLEX_SERVER_HOST:
-                logger.log(u"No Plex Server host specified, check your settings", logger.DEBUG)
+                logger.log(u"No Plex Server host specified, check your settings")
                 return False
 
             logger.log(u"Updating library for the Plex Media Server host: " + sickbeard.PLEX_SERVER_HOST, logger.MESSAGE)
@@ -174,7 +174,7 @@ class PLEXNotifier:
             try:
                 xml_sections = minidom.parse(urllib.urlopen(url))
             except IOError, e:
-                logger.log(u"Error while trying to contact Plex Media Server: " + ex(e), logger.ERROR)
+                logger.log(u"Error while trying to contact Plex Media Server: " + ex(e))
                 return False
 
             sections = xml_sections.getElementsByTagName('Directory')
@@ -188,7 +188,7 @@ class PLEXNotifier:
                     try:
                         urllib.urlopen(url)
                     except Exception, e:
-                        logger.log(u"Error updating library section for Plex Media Server: " + ex(e), logger.ERROR)
+                        logger.log(u"Error updating library section for Plex Media Server: " + ex(e))
                         return False
 
             return True

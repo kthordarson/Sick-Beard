@@ -77,7 +77,7 @@ class SearchQueue(generic_queue.GenericQueue):
         elif isinstance(item, FailedQueueItem) and not self.is_in_queue(item.show, item.segment):
             generic_queue.GenericQueue.add_item(self, item)
         else:
-            logger.log(u"Not adding item, it's already in the queue", logger.DEBUG)
+            logger.log(u"Not adding item, it's already in the queue")
 
 class ManualSearchQueueItem(generic_queue.QueueItem):
     def __init__(self, ep_obj):
@@ -159,7 +159,7 @@ class RSSSearchQueueItem(generic_queue.QueueItem):
                 return None
 
             if show == None:
-                logger.log(u"Unable to find the show with ID " + str(sqlEp["showid"]) + " in your show list! DB value was " + str(sqlEp), logger.ERROR)
+                logger.log(u"Unable to find the show with ID " + str(sqlEp["showid"]) + " in your show list! DB value was " + str(sqlEp))
                 return None
 
             ep = show.getEpisode(sqlEp["season"], sqlEp["episode"])

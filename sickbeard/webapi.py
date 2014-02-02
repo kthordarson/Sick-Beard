@@ -86,9 +86,9 @@ class Api:
 
         # do we have acces ?
         if access:
-            logger.log(accessMsg, logger.DEBUG)
+            logger.log(accessMsg)
         else:
-            logger.log(accessMsg, logger.WARNING)
+            logger.log(accessMsg)
             return outputCallbackDict['default'](_responds(RESULT_DENIED, msg=accessMsg))
 
         # set the original call_dispatcher as the local _call_dispatcher
@@ -109,7 +109,7 @@ class Api:
             except cherrypy.HTTPRedirect: # seams like cherrypy uses exceptions for redirecting apparently this can happen when requesting images but it is ok so lets re raise it
                 raise
             except Exception, e: # real internal error oohhh nooo :(
-                logger.log(u"API :: " + ex(e), logger.ERROR)
+                logger.log(u"API :: " + ex(e))
                 errorData = {"error_msg": ex(e),
                              "args": args,
                              "kwargs": kwargs}
@@ -172,7 +172,7 @@ class Api:
             if callback != None:
                 out = callback + '(' + out + ');' # wrap with JSONP call if requested
         except Exception, e: # if we fail to generate the output fake an error
-            logger.log(u"API :: " + traceback.format_exc(), logger.DEBUG)
+            logger.log(u"API :: " + traceback.format_exc())
             out = '{"result":"' + result_type_map[RESULT_ERROR] + '", "message": "error while composing output: "' + ex(e) + '"}'
         return out
 
@@ -207,9 +207,9 @@ def call_dispatcher(args, kwargs):
         or calls the TVDBShorthandWrapper when the first args element is a number
         or returns an error that there is no such cmd
     """
-    logger.log(u"API :: all args: '" + str(args) + "'", logger.DEBUG)
-    logger.log(u"API :: all kwargs: '" + str(kwargs) + "'", logger.DEBUG)
-    #logger.log(u"API :: dateFormat: '" + str(dateFormat) + "'", logger.DEBUG)
+    logger.log(u"API :: all args: '" + str(args) + "'")
+    logger.log(u"API :: all kwargs: '" + str(kwargs) + "'")
+    #logger.log(u"API :: dateFormat: '" + str(dateFormat) + "'")
 
     cmds = None
     if args:
@@ -230,7 +230,7 @@ def call_dispatcher(args, kwargs):
             if len(cmd.split("_")) > 1: # was a index used for this cmd ?
                 cmd, cmdIndex = cmd.split("_") # this gives us the clear cmd and the index
 
-            logger.log(u"API :: " + cmd + ": curKwargs " + str(curKwargs), logger.DEBUG)
+            logger.log(u"API :: " + cmd + ": curKwargs " + str(curKwargs))
             if not (multiCmds and cmd in ('show.getposter', 'show.getbanner')): # skip these cmd while chaining
                 try:
                     if cmd in _functionMaper:
@@ -440,7 +440,7 @@ class ApiCall(object):
         elif type == "ignore":
             pass
         else:
-            logger.log(u"API :: Invalid param type set " + str(type) + " can not check or convert ignoring it", logger.ERROR)
+            logger.log(u"API :: Invalid param type set " + str(type) + " can not check or convert ignoring it")
 
         if error:
             # this is a real ApiError !!
@@ -1532,7 +1532,7 @@ class CMD_SickBeardSearchTVDB(ApiCall):
                 try:
                     seriesXML = etree.ElementTree(etree.XML(urlData))
                 except Exception, e:
-                    logger.log(u"API :: Unable to parse XML for some reason: " + ex(e) + " from XML: " + urlData, logger.ERROR)
+                    logger.log(u"API :: Unable to parse XML for some reason: " + ex(e) + " from XML: " + urlData)
                     return _responds(RESULT_FAILURE, msg="Unable to read result from tvdb")
 
                 series = seriesXML.getiterator('Series')
@@ -1559,11 +1559,11 @@ class CMD_SickBeardSearchTVDB(ApiCall):
             try:
                 myShow = t[int(self.tvdbid)]
             except (tvdb_exceptions.tvdb_shownotfound, tvdb_exceptions.tvdb_error):
-                logger.log(u"API :: Unable to find show with id " + str(self.tvdbid), logger.WARNING)
+                logger.log(u"API :: Unable to find show with id " + str(self.tvdbid))
                 return _responds(RESULT_SUCCESS, {"results": [], "langid": lang_id})
 
             if not myShow.data['seriesname']:
-                logger.log(u"API :: Found show with tvdbid " + str(self.tvdbid) + ", however it contained no show name", logger.DEBUG)
+                logger.log(u"API :: Found show with tvdbid " + str(self.tvdbid) + ", however it contained no show name")
                 return _responds(RESULT_FAILURE, msg="Show contains no name, invalid result")
 
             showOut = [{"tvdbid": self.tvdbid,
@@ -1913,7 +1913,7 @@ class CMD_ShowAddNew(ApiCall):
         else:
             dir_exists = helpers.makeDir(showPath)
             if not dir_exists:
-                logger.log(u"API :: Unable to create the folder " + showPath + ", can't add the show", logger.ERROR)
+                logger.log(u"API :: Unable to create the folder " + showPath + ", can't add the show")
                 return _responds(RESULT_FAILURE, {"path": showPath}, "Unable to create the folder " + showPath + ", can't add the show")
             else:
                 helpers.chmodAsParent(showPath)
@@ -2381,7 +2381,7 @@ class CMD_ShowUpdate(ApiCall):
             sickbeard.showQueueScheduler.action.updateShow(showObj, True) #@UndefinedVariable
             return _responds(RESULT_SUCCESS, msg=str(showObj.name) + " has queued to be updated")
         except exceptions.CantUpdateException, e:
-            logger.log(u"API:: Unable to update " + str(showObj.name) + ". " + str(ex(e)), logger.ERROR)
+            logger.log(u"API:: Unable to update " + str(showObj.name) + ". " + str(ex(e)))
             return _responds(RESULT_FAILURE, msg="Unable to update " + str(showObj.name))
 
 

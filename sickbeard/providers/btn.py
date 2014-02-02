@@ -64,7 +64,7 @@ class BTNProvider(generic.TorrentProvider):
             return self._checkAuth()
 
         if 'api-error' in parsedJSON:
-                    logger.log(u"Incorrect authentication credentials for " + self.name + " : " + parsedJSON['api-error'], logger.DEBUG)
+                    logger.log(u"Incorrect authentication credentials for " + self.name + " : " + parsedJSON['api-error'])
                     raise AuthException("Your authentication credentials for " + self.name + " are incorrect, check your config.")
 
         return True
@@ -86,7 +86,7 @@ class BTNProvider(generic.TorrentProvider):
         parsedJSON = self._api_call(apikey, params)
 
         if not parsedJSON:
-            logger.log(u"No data returned from " + self.name, logger.ERROR)
+            logger.log(u"No data returned from " + self.name)
             return []
 
         if self._checkAuthFromData(parsedJSON):
@@ -137,22 +137,22 @@ class BTNProvider(generic.TorrentProvider):
             parsedJSON = server.getTorrents(apikey, params, int(results_per_page), int(offset))
 
         except jsonrpclib.jsonrpc.ProtocolError, error:
-            logger.log(u"JSON-RPC protocol error while accessing " + self.name + ": " + ex(error), logger.ERROR)
+            logger.log(u"JSON-RPC protocol error while accessing " + self.name + ": " + ex(error))
             parsedJSON = {'api-error': ex(error)}
             return parsedJSON
 
         except socket.timeout:
-            logger.log(u"Timeout while accessing " + self.name, logger.WARNING)
+            logger.log(u"Timeout while accessing " + self.name)
 
         except socket.error, error:
             # Note that sometimes timeouts are thrown as socket errors
-            logger.log(u"Socket error while accessing " + self.name + ": " + error[1], logger.ERROR)
+            logger.log(u"Socket error while accessing " + self.name + ": " + error[1])
 
         except Exception, error:
             errorstring = str(error)
             if(errorstring.startswith('<') and errorstring.endswith('>')):
                 errorstring = errorstring[1:-1]
-            logger.log(u"Unknown error while accessing " + self.name + ": " + errorstring, logger.ERROR)
+            logger.log(u"Unknown error while accessing " + self.name + ": " + errorstring)
 
         return parsedJSON
 
@@ -356,7 +356,7 @@ class BTNCache(tvcache.TVCache):
 
         # Set maximum to 24 hours (24 * 60 * 60 = 86400 seconds) of "RSS" data search, older things will need to be done through backlog
         if seconds_since_last_update > 86400:
-            logger.log(u"The last known successful update on " + self.provider.name + " was more than 24 hours ago, only trying to fetch the last 24 hours!", logger.WARNING)
+            logger.log(u"The last known successful update on " + self.provider.name + " was more than 24 hours ago, only trying to fetch the last 24 hours!")
             seconds_since_last_update = 86400
 
         data = self.provider._doSearch(search_params=None, age=seconds_since_last_update)
@@ -367,10 +367,10 @@ class BTNCache(tvcache.TVCache):
         (title, url) = self.provider._get_title_and_url(item)
 
         if title and url:
-            logger.log(u"Adding item to results: " + title, logger.DEBUG)
+            logger.log(u"Adding item to results: " + title)
             self._addCacheEntry(title, url)
         else:
-            logger.log(u"The data returned from the " + self.provider.name + " is incomplete, this result is unusable", logger.ERROR)
+            logger.log(u"The data returned from the " + self.provider.name + " is incomplete, this result is unusable")
             return
 
     def _checkAuth(self, data):

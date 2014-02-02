@@ -16,20 +16,23 @@
 # You should have received a copy of the GNU General Public License
 # along with Sick Beard.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['ezrss',
+__all__ = ['deildu',
            'tvtorrents',
            'womble',
            'btn',
            'thepiratebay',
            'kat',
-           'publichd', 
+           'publichd',
            'torrentleech',
            'scc',
            'torrentday',
            'hdbits',
            'iptorrents',
-           'omgwtfnzbs'
+           'omgwtfnzbs',
+           'ezrss'
            ]
+#__all__ = ['deildu'
+#           ]
 
 import sickbeard
 
@@ -37,7 +40,8 @@ from os import sys
 
 def sortedProviderList():
 
-    initialList = sickbeard.providerList + sickbeard.newznabProviderList + sickbeard.torrentRssProviderList
+#    initialList = sickbeard.providerList + sickbeard.newznabProviderList + sickbeard.torrentRssProviderList
+    initialList = sickbeard.providerList
     providerDict = dict(zip([x.getID() for x in initialList], initialList))
 
     newList = []
@@ -82,7 +86,7 @@ def getNewznabProviderList(data):
             providerDict[curDefault.name].name = curDefault.name
             providerDict[curDefault.name].url = curDefault.url
             providerDict[curDefault.name].needs_auth = curDefault.needs_auth
-        
+
     return filter(lambda x: x, providerList)
 
 
@@ -132,7 +136,8 @@ def getProviderModule(name):
 
 def getProviderClass(id):
 
-    providerMatch = [x for x in sickbeard.providerList + sickbeard.newznabProviderList + sickbeard.torrentRssProviderList if x.getID() == id]
+#    providerMatch = [x for x in sickbeard.providerList + sickbeard.newznabProviderList + sickbeard.torrentRssProviderList if x.getID() == id]
+    providerMatch = [x for x in sickbeard.providerList if x.getID() == id]
 
     if len(providerMatch) != 1:
         return None

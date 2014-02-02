@@ -40,8 +40,8 @@ def initWebServer(options = {}):
         def http_error_401_hander(status, message, traceback, version):
             """ Custom handler for 401 error """
             if status != "401 Unauthorized":
-                logger.log(u"CherryPy caught an error: %s %s" % (status, message), logger.ERROR)
-                logger.log(traceback, logger.DEBUG)
+                logger.log(u"CherryPy caught an error: %s %s" % (status, message))
+                logger.log(traceback)
             return r'''<!DOCTYPE html>
 <html>
     <head>
@@ -86,7 +86,7 @@ def initWebServer(options = {}):
                     enable_https = False
 
             if not (os.path.exists(https_cert) and os.path.exists(https_key)):
-                logger.log(u"Disabled HTTPS because of missing CERT and KEY files", logger.WARNING)
+                logger.log(u"Disabled HTTPS because of missing CERT and KEY files")
                 sickbeard.ENABLE_HTTPS = False
                 enable_https = False
 

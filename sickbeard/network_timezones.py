@@ -43,7 +43,7 @@ def _update_zoneinfo():
 
     if url_data is None:
         # When urlData is None, trouble connecting to github
-        logger.log(u"Loading zoneinfo.txt failed. Unable to get URL: " + url_zv, logger.ERROR)
+        logger.log(u"Loading zoneinfo.txt failed. Unable to get URL: " + url_zv)
         return
 
     if (lib.dateutil.zoneinfo.ZONEINFOFILE != None):
@@ -106,7 +106,7 @@ def update_network_dict():
 
     if url_data is None:
         # When urlData is None, trouble connecting to github
-        logger.log(u"Loading Network Timezones update failed. Unable to get URL: " + url, logger.ERROR)
+        logger.log(u"Loading Network Timezones update failed. Unable to get URL: " + url)
         return
 
     try:

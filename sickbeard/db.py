@@ -81,31 +81,31 @@ class DBConnection:
                     for qu in querylist:
                         if len(qu) == 1:
                             if logTransaction:
-                                logger.log(qu[0], logger.DEBUG)
+                                logger.log(qu[0])
                             sqlResult.append(self.connection.execute(qu[0]))
                         elif len(qu) > 1:
                             if logTransaction:
-                                logger.log(qu[0] + " with args " + str(qu[1]), logger.DEBUG)
+                                logger.log(qu[0] + " with args " + str(qu[1]))
                             sqlResult.append(self.connection.execute(qu[0], qu[1]))
                     self.connection.commit()
-                    logger.log(u"Transaction with "  + str(len(querylist)) + u" query's executed", logger.DEBUG)
+                    logger.log(u"Transaction with "  + str(len(querylist)) + u" query's executed")
                     return sqlResult
                 except sqlite3.OperationalError, e:
                     sqlResult = []
                     if self.connection:
                         self.connection.rollback()
                     if "unable to open database file" in e.message or "database is locked" in e.message:
-                        logger.log(u"DB error: " + ex(e), logger.WARNING)
+                        logger.log(u"DB error: " + ex(e))
                         attempt += 1
                         time.sleep(1)
                     else:
-                        logger.log(u"DB error: " + ex(e), logger.ERROR)
+                        logger.log(u"DB error: " + ex(e))
                         raise
                 except sqlite3.DatabaseError, e:
                     sqlResult = []
                     if self.connection:
                         self.connection.rollback()
-                    logger.log(u"Fatal error executing query: " + ex(e), logger.ERROR)
+                    logger.log(u"Fatal error executing query: " + ex(e))
                     raise
 
             return sqlResult
@@ -133,14 +133,14 @@ class DBConnection:
                     break
                 except sqlite3.OperationalError, e:
                     if "unable to open database file" in e.message or "database is locked" in e.message:
-                        logger.log(u"DB error: " + ex(e), logger.WARNING)
+                        logger.log(u"DB error: " + ex(e))
                         attempt += 1
                         time.sleep(1)
                     else:
-                        logger.log(u"DB error: " + ex(e), logger.ERROR)
+                        logger.log(u"DB error: " + ex(e))
                         raise
                 except sqlite3.DatabaseError, e:
-                    logger.log(u"Fatal error executing query: " + ex(e), logger.ERROR)
+                    logger.log(u"Fatal error executing query: " + ex(e))
                     raise
 
             return sqlResult
@@ -208,17 +208,18 @@ def prettyName(class_name):
 
 def _processUpgrade(connection, upgradeClass):
     instance = upgradeClass(connection)
-    logger.log(u"Checking " + prettyName(upgradeClass.__name__) + " database upgrade", logger.DEBUG)
+    logger.log(u"Checking " + prettyName(upgradeClass.__name__) + " database upgrade")
     if not instance.test():
         logger.log(u"Database upgrade required: " + prettyName(upgradeClass.__name__), logger.MESSAGE)
         try:
             instance.execute()
         except sqlite3.DatabaseError, e:
-            print "Error in " + str(upgradeClass.__name__) + ": " + ex(e)
+            logger.log(u"DEBUG db.py....")
+            #print "Error in " + str(upgradeClass.__name__) + ": " + ex(e)
             raise
-        logger.log(upgradeClass.__name__ + " upgrade completed", logger.DEBUG)
+        logger.log(upgradeClass.__name__ + " upgrade completed")
     else:
-        logger.log(upgradeClass.__name__ + " upgrade not required", logger.DEBUG)
+        logger.log(upgradeClass.__name__ + " upgrade not required")
 
     for upgradeSubClass in upgradeClass.__subclasses__():
         _processUpgrade(connection, upgradeSubClass)

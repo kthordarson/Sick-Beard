@@ -33,9 +33,9 @@ class NMA_Notifier:
         if nma_priority == None:
             nma_priority = sickbeard.NMA_PRIORITY
     
-        logger.log(u"NMA title: " + title, logger.DEBUG)
-        logger.log(u"NMA event: " + event, logger.DEBUG)
-        logger.log(u"NMA message: " + message, logger.DEBUG)
+        logger.log(u"NMA title: " + title)
+        logger.log(u"NMA event: " + event)
+        logger.log(u"NMA message: " + message)
         
         batch = False
         
@@ -48,7 +48,7 @@ class NMA_Notifier:
         response = p.push(title, event, message, priority=nma_priority, batch_mode=batch)
                
         if not response[nma_api][u'code'] == u'200':
-            logger.log(u'Could not send notification to NotifyMyAndroid', logger.ERROR)
+            logger.log(u'Could not send notification to NotifyMyAndroid')
             return False
         else:
             return True

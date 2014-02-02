@@ -49,7 +49,7 @@ class ProperFinder():
         # look for propers every night at 1 AM
         updateTime = datetime.time(hour=1)
 
-        logger.log(u"Checking proper time", logger.DEBUG)
+        logger.log(u"Checking proper time")
 
         hourDiff = datetime.datetime.today().time().hour - updateTime.hour
 
@@ -79,7 +79,7 @@ class ProperFinder():
             try:
                 curPropers = curProvider.findPropers(search_date)
             except exceptions.AuthException, e:
-                logger.log(u"Authentication error: " + ex(e), logger.ERROR)
+                logger.log(u"Authentication error: " + ex(e))
                 continue
 
             # if they haven't been added by a different provider than add the proper to the list
@@ -87,7 +87,7 @@ class ProperFinder():
                 name = self._genericName(x.name)
 
                 if not name in propers:
-                    logger.log(u"Found new proper: " + x.name, logger.DEBUG)
+                    logger.log(u"Found new proper: " + x.name)
                     x.provider = curProvider
                     propers[name] = x
 
@@ -102,11 +102,11 @@ class ProperFinder():
                 myParser = NameParser(False)
                 parse_result = myParser.parse(curProper.name)
             except InvalidNameException:
-                logger.log(u"Unable to parse the filename " + curProper.name + " into a valid episode", logger.DEBUG)
+                logger.log(u"Unable to parse the filename " + curProper.name + " into a valid episode")
                 continue
 
             if not parse_result.episode_numbers:
-                logger.log(u"Ignoring " + curProper.name + " because it's for a full season rather than specific episode", logger.DEBUG)
+                logger.log(u"Ignoring " + curProper.name + " because it's for a full season rather than specific episode")
                 continue
 
             # populate our Proper instance
@@ -134,7 +134,7 @@ class ProperFinder():
 
                     # if it matches
                     if genericName == self._genericName(curSceneName):
-                        logger.log(u"Successful match! Result " + parse_result.series_name + " matched to show " + curShow.name, logger.DEBUG)
+                        logger.log(u"Successful match! Result " + parse_result.series_name + " matched to show " + curShow.name)
 
                         # set the tvdbid in the db to the show's tvdbid
                         curProper.tvdbid = curShow.tvdbid
@@ -150,14 +150,14 @@ class ProperFinder():
                 continue
 
             if not show_name_helpers.filterBadReleases(curProper.name):
-                logger.log(u"Proper " + curProper.name + " isn't a valid scene release that we want, igoring it", logger.DEBUG)
+                logger.log(u"Proper " + curProper.name + " isn't a valid scene release that we want, igoring it")
                 continue
 
             # if we have an air-by-date show then get the real season/episode numbers
             if curProper.season == -1 and curProper.tvdbid:
                 showObj = helpers.findCertainShow(sickbeard.showList, curProper.tvdbid)
                 if not showObj:
-                    logger.log(u"This should never have happened, post a bug about this!", logger.ERROR)
+                    logger.log(u"This should never have happened, post a bug about this!")
                     raise Exception("BAD STUFF HAPPENED")
 
                 tvdb_lang = showObj.lang
@@ -174,7 +174,7 @@ class ProperFinder():
                     curProper.season = int(epObj["seasonnumber"])
                     curProper.episodes = [int(epObj["episodenumber"])]
                 except tvdb_exceptions.tvdb_episodenotfound:
-                    logger.log(u"Unable to find episode with date " + str(curProper.episode) + " for show " + parse_result.series_name + ", skipping", logger.WARNING)
+                    logger.log(u"Unable to find episode with date " + str(curProper.episode) + " for show " + parse_result.series_name + ", skipping")
                     continue
 
             # check if we actually want this proper (if it's the right quality)
@@ -223,13 +223,13 @@ class ProperFinder():
                         isSame = True
                         break
                 if isSame:
-                    logger.log(u"This proper is already in history, skipping it", logger.DEBUG)
+                    logger.log(u"This proper is already in history, skipping it")
                     continue
 
                 # get the episode object
                 showObj = helpers.findCertainShow(sickbeard.showList, curProper.tvdbid)
                 if showObj == None:
-                    logger.log(u"Unable to find the show with tvdbid " + str(curProper.tvdbid) + " so unable to download the proper", logger.ERROR)
+                    logger.log(u"Unable to find the show with tvdbid " + str(curProper.tvdbid) + " so unable to download the proper")
                     continue
                 epObj = showObj.getEpisode(curProper.season, curProper.episode)
 

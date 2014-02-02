@@ -42,7 +42,7 @@ class ShowUpdater():
         update_datetime = datetime.datetime.today()
         update_date = update_datetime.date()
 
-        logger.log(u"Checking update interval", logger.DEBUG)
+        logger.log(u"Checking update interval")
 
         hour_diff = update_datetime.time().hour - run_updater_time.hour
 
@@ -59,7 +59,7 @@ class ShowUpdater():
 
             # Does our cache_dir exists
             if not ek.ek(os.path.isdir, cache_dir):
-                logger.log(u"Can't clean " + cache_dir + " if it doesn't exist", logger.WARNING)
+                logger.log(u"Can't clean " + cache_dir + " if it doesn't exist")
             else:
                 max_age = datetime.timedelta(hours=12)
                 # Get all our cache files
@@ -75,7 +75,7 @@ class ShowUpdater():
                             try:
                                 ek.ek(os.remove, cache_file_path)
                             except OSError, e:
-                                logger.log(u"Unable to clean " + cache_dir + ": " + repr(e) + " / " + str(e), logger.WARNING)
+                                logger.log(u"Unable to clean " + cache_dir + ": " + repr(e) + " / " + str(e))
                                 break
 
         # select 10 'Ended' tv_shows updated more than 90 days ago to include in this update
@@ -98,12 +98,12 @@ class ShowUpdater():
                 if curShow.should_update(update_date=update_date) or curShow.tvdbid in stale_should_update:
                     curQueueItem = sickbeard.showQueueScheduler.action.updateShow(curShow, True)  # @UndefinedVariable
                 else:
-                    logger.log(u"Not updating episodes for show " + curShow.name + " because it's marked as ended and last/next episode is not within the grace period.", logger.DEBUG)
+                    logger.log(u"Not updating episodes for show " + curShow.name + " because it's marked as ended and last/next episode is not within the grace period.")
                     curQueueItem = sickbeard.showQueueScheduler.action.refreshShow(curShow, True)  # @UndefinedVariable
 
                 piList.append(curQueueItem)
 
             except (exceptions.CantUpdateException, exceptions.CantRefreshException), e:
-                logger.log(u"Automatic update failed: " + ex(e), logger.ERROR)
+                logger.log(u"Automatic update failed: " + ex(e))
 
         ui.ProgressIndicators.setIndicator('dailyUpdate', ui.QueueProgressIndicator("Daily Update", piList))

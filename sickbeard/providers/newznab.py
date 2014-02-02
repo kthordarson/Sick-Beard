@@ -155,7 +155,7 @@ class NewznabProvider(generic.NZBProvider):
     def _checkAuth(self):
 
         if self.needs_auth and not self.key:
-            logger.log(u"Incorrect authentication credentials for " + self.name + " : " + "API key is missing", logger.DEBUG)
+            logger.log(u"Incorrect authentication credentials for " + self.name + " : " + "API key is missing")
             raise AuthException("Your authentication credentials for " + self.name + " are missing, check your config.")
 
         return True
@@ -175,7 +175,7 @@ class NewznabProvider(generic.NZBProvider):
             elif code == '102':
                 raise AuthException("Your account isn't allowed to use the API on " + self.name + ", contact the administrator")
             else:
-                logger.log(u"Unknown error given from " + self.name + ": " + parsedXML.attrib['description'], logger.ERROR)
+                logger.log(u"Unknown error given from " + self.name + ": " + parsedXML.attrib['description'])
                 return False
 
         return True
@@ -205,12 +205,12 @@ class NewznabProvider(generic.NZBProvider):
 
         search_url = self.url + 'api?' + urllib.urlencode(params)
 
-        logger.log(u"Search url: " + search_url, logger.DEBUG)
+        logger.log(u"Search url: " + search_url)
 
         data = self.getURL(search_url)
 
         if not data:
-            logger.log(u"No data returned from " + search_url, logger.ERROR)
+            logger.log(u"No data returned from " + search_url)
             return []
 
         # hack this in until it's fixed server side
@@ -220,7 +220,7 @@ class NewznabProvider(generic.NZBProvider):
         parsedXML = helpers.parse_xml(data)
 
         if parsedXML is None:
-            logger.log(u"Error trying to load " + self.name + " XML data", logger.ERROR)
+            logger.log(u"Error trying to load " + self.name + " XML data")
             return []
 
         if self._checkAuthFromData(parsedXML):
@@ -229,7 +229,7 @@ class NewznabProvider(generic.NZBProvider):
                 items = parsedXML.findall('.//item')
 
             else:
-                logger.log(u"Resulting XML from " + self.name + " isn't RSS, not parsing it", logger.ERROR)
+                logger.log(u"Resulting XML from " + self.name + " isn't RSS, not parsing it")
                 return []
 
             results = []
@@ -238,10 +238,10 @@ class NewznabProvider(generic.NZBProvider):
                 (title, url) = self._get_title_and_url(curItem)
 
                 if title and url:
-                    logger.log(u"Adding item from RSS to results: " + title, logger.DEBUG)
+                    logger.log(u"Adding item from RSS to results: " + title)
                     results.append(curItem)
                 else:
-                    logger.log(u"The XML returned from the " + self.name + " RSS feed is incomplete, this result is unusable", logger.DEBUG)
+                    logger.log(u"The XML returned from the " + self.name + " RSS feed is incomplete, this result is unusable")
 
             return results
 
@@ -307,12 +307,12 @@ class NewznabCache(tvcache.TVCache):
 
         rss_url = self.provider.url + 'api?' + urllib.urlencode(params)
 
-        logger.log(self.provider.name + " cache update URL: " + rss_url, logger.DEBUG)
+        logger.log(self.provider.name + " cache update URL: " + rss_url)
 
         data = self.provider.getURL(rss_url)
 
         if not data:
-            logger.log(u"No data returned from " + rss_url, logger.ERROR)
+            logger.log(u"No data returned from " + rss_url)
             return None
 
         # hack this in until it's fixed server side

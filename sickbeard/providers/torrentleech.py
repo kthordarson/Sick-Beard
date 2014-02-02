@@ -79,13 +79,13 @@ class TorrentLeechProvider(generic.TorrentProvider):
         try:
             response = self.session.post(self.urls['login'], data=login_params, timeout=30)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-            logger.log(u'Unable to connect to ' + self.name + ' provider: ' +ex(e), logger.ERROR)
+            logger.log(u'Unable to connect to ' + self.name + ' provider: ' +ex(e))
             return False
         
         if re.search('Invalid Username/password', response.text) \
         or re.search('<title>Login :: TorrentLeech.org</title>', response.text) \
         or response.status_code == 401:
-            logger.log(u'Invalid username or password for ' + self.name + ' Check your settings', logger.ERROR)       
+            logger.log(u'Invalid username or password for ' + self.name + ' Check your settings')       
             return False
         
         return True
@@ -154,7 +154,7 @@ class TorrentLeechProvider(generic.TorrentProvider):
                 
                 searchURL = self.urls['search'] % (search_string, self.categories)
 
-                logger.log(u"Search string: " + searchURL, logger.DEBUG)
+                logger.log(u"Search string: " + searchURL)
         
                 data = self.getURL(searchURL)
                 if not data:
@@ -168,7 +168,7 @@ class TorrentLeechProvider(generic.TorrentProvider):
 
                     #Continue only if one Release is found                    
                     if len(torrent_rows)<2:
-                        logger.log(u"The Data returned from " + self.name + " do not contains any torrent", logger.DEBUG)
+                        logger.log(u"The Data returned from " + self.name + " do not contains any torrent")
                         continue
 
                     for result in torrent_table.find_all('tr')[1:]:
@@ -192,12 +192,12 @@ class TorrentLeechProvider(generic.TorrentProvider):
                             continue
 
                         item = title, download_url, id, seeders, leechers
-                        logger.log(u"Found result: " + title + "(" + searchURL + ")", logger.DEBUG)
+                        logger.log(u"Found result: " + title + "(" + searchURL + ")")
 
                         items[mode].append(item)
 
                 except Exception, e:
-                    logger.log(u"Failed parsing " + self.name + " Traceback: "  + traceback.format_exc(), logger.ERROR)
+                    logger.log(u"Failed parsing " + self.name + " Traceback: "  + traceback.format_exc())
 
             #For each search mode sort all the items by seeders
             items[mode].sort(key=lambda tup: tup[3], reverse=True)        
@@ -226,11 +226,11 @@ class TorrentLeechProvider(generic.TorrentProvider):
         try:
             response = self.session.get(url)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-            logger.log(u"Error loading "+self.name+" URL: " + ex(e), logger.ERROR)
+            logger.log(u"Error loading "+self.name+" URL: " + ex(e))
             return None
 
         if response.status_code != 200:
-            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(response.status_code) + ': ' + clients.http_error_code[response.status_code], logger.WARNING)
+            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(response.status_code) + ': ' + clients.http_error_code[response.status_code])
             return None
 
         return response.content
@@ -271,7 +271,7 @@ class TorrentLeechCache(tvcache.TVCache):
         if not title or not url:
             return
 
-        logger.log(u"Adding item to cache: " + title, logger.DEBUG)
+        logger.log(u"Adding item to cache: " + title)
 
         self._addCacheEntry(title, url)
 

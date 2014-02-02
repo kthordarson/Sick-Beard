@@ -87,15 +87,15 @@ class TorrentDayProvider(generic.TorrentProvider):
             try:
                 response = self.session.post(self.urls['login'],  data=login_params, timeout=30)
             except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-                logger.log(u'Unable to connect to ' + self.name + ' provider: ' + ex(e), logger.ERROR)
+                logger.log(u'Unable to connect to ' + self.name + ' provider: ' + ex(e))
                 return False
             
             if re.search('You tried too often', response.text):
-                logger.log(u'Too many login access for ' + self.name + ', can''t retrive any data', logger.ERROR)
+                logger.log(u'Too many login access for ' + self.name + ', can''t retrive any data')
                 return False
             
             if response.status_code == 401:
-                logger.log(u'Invalid username or password for ' + self.name + ', Check your settings!', logger.ERROR)       
+                logger.log(u'Invalid username or password for ' + self.name + ', Check your settings!')       
                 return False
             
             sickbeard.TORRENTDAY_UID = requests.utils.dict_from_cookiejar(self.session.cookies)['uid']
@@ -219,11 +219,11 @@ class TorrentDayProvider(generic.TorrentProvider):
         try:
             response = self.session.get(url)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-            logger.log(u"Error loading " + self.name + " URL: " + ex(e), logger.ERROR)
+            logger.log(u"Error loading " + self.name + " URL: " + ex(e))
             return None
 
         if response.status_code != 200:
-            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(response.status_code) + ': ' + clients.http_error_code[response.status_code], logger.WARNING)
+            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(response.status_code) + ': ' + clients.http_error_code[response.status_code])
             return None
 
         return response.content
@@ -264,7 +264,7 @@ class TorrentDayCache(tvcache.TVCache):
         if not title or not url:
             return
 
-        logger.log(u"Adding item to cache: " + title, logger.DEBUG)
+        logger.log(u"Adding item to cache: " + title)
 
         self._addCacheEntry(title, url)            
 

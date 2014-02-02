@@ -53,7 +53,7 @@ class EmailNotifier:
             show = self._parseEp(ep_name)
             to = self._generate_recepients(show)
             if len(to) == 0:
-                logger.log('Skipping email notify because there are no configured recepients', logger.WARNING)
+                logger.log('Skipping email notify because there are no configured recepients')
             else:
             	try:
 	                msg = MIMEMultipart('alternative')
@@ -65,9 +65,9 @@ class EmailNotifier:
                 msg['From'] = sickbeard.EMAIL_FROM
                 msg['To'] = ','.join(to)
                 if self._sendmail(sickbeard.EMAIL_HOST, sickbeard.EMAIL_PORT, sickbeard.EMAIL_FROM, sickbeard.EMAIL_TLS, sickbeard.EMAIL_USER, sickbeard.EMAIL_PASSWORD, to, msg):
-                    logger.log("Snatch notification sent to [%s] for '%s'" % (to, ep_name), logger.DEBUG)
+                    logger.log("Snatch notification sent to [%s] for '%s'" % (to, ep_name))
                 else:
-                    logger.log("Snatch notification ERROR: %s" % self.last_err, logger.ERROR)                
+                    logger.log("Snatch notification ERROR: %s" % self.last_err)                
 
     def notify_download(self, ep_name, title="Completed:"):
         """
@@ -80,7 +80,7 @@ class EmailNotifier:
             show = self._parseEp(ep_name)
             to = self._generate_recepients(show)
             if len(to) == 0:
-                logger.log('Skipping email notify because there are no configured recepients', logger.WARNING)
+                logger.log('Skipping email notify because there are no configured recepients')
             else:
             	try:
 	                msg = MIMEMultipart('alternative')
@@ -92,9 +92,9 @@ class EmailNotifier:
                 msg['From'] = sickbeard.EMAIL_FROM
                 msg['To'] = ','.join(to)
                 if self._sendmail(sickbeard.EMAIL_HOST, sickbeard.EMAIL_PORT, sickbeard.EMAIL_FROM, sickbeard.EMAIL_TLS, sickbeard.EMAIL_USER, sickbeard.EMAIL_PASSWORD, to, msg):
-                    logger.log("Download notification sent to [%s] for '%s'" % (to, ep_name), logger.DEBUG)
+                    logger.log("Download notification sent to [%s] for '%s'" % (to, ep_name))
                 else:
-                    logger.log("Download notification ERROR: %s" % self.last_err, logger.ERROR)
+                    logger.log("Download notification ERROR: %s" % self.last_err)
 
     def notify_subtitle_download(self, ep_name, lang, title="Downloaded subtitle:"):
         """
@@ -107,7 +107,7 @@ class EmailNotifier:
             show = self._parseEp(ep_name)
             to = self._generate_recepients(show)
             if len(to) == 0:
-                logger.log('Skipping email notify because there are no configured recepients', logger.WARNING)
+                logger.log('Skipping email notify because there are no configured recepients')
             else:
             	try:
 	                msg = MIMEMultipart('alternative')
@@ -119,9 +119,9 @@ class EmailNotifier:
                 msg['From'] = sickbeard.EMAIL_FROM
                 msg['To'] = ','.join(to)
                 if self._sendmail(sickbeard.EMAIL_HOST, sickbeard.EMAIL_PORT, sickbeard.EMAIL_FROM, sickbeard.EMAIL_TLS, sickbeard.EMAIL_USER, sickbeard.EMAIL_PASSWORD, to, msg):
-                    logger.log("Download notification sent to [%s] for '%s'" % (to, ep_name), logger.DEBUG)
+                    logger.log("Download notification sent to [%s] for '%s'" % (to, ep_name))
                 else:
-                    logger.log("Download notification ERROR: %s" % self.last_err, logger.ERROR)
+                    logger.log("Download notification ERROR: %s" % self.last_err)
 
     def _generate_recepients(self, show):
         addrs = []
@@ -141,24 +141,24 @@ class EmailNotifier:
                             addrs.append(addr)
                         
         addrs = set(addrs)
-        logger.log('Notification recepients: %s' % addrs, logger.DEBUG)
+        logger.log('Notification recepients: %s' % addrs)
         return addrs
     
     def _sendmail(self, host, port, smtp_from, use_tls, user, pwd, to, msg, smtpDebug=False):
-        logger.log('HOST: %s; PORT: %s; FROM: %s, TLS: %s, USER: %s, PWD: %s, TO: %s' % (host, port, smtp_from, use_tls, user, pwd, to), logger.DEBUG)
+        logger.log('HOST: %s; PORT: %s; FROM: %s, TLS: %s, USER: %s, PWD: %s, TO: %s' % (host, port, smtp_from, use_tls, user, pwd, to))
         srv = smtplib.SMTP(host, int(port))
         if smtpDebug:
             srv.set_debuglevel(1)
         try:
             if (use_tls == '1' or use_tls == True) or (len(user) > 0 and len(pwd) > 0):
                 srv.ehlo()
-                logger.log('Sent initial EHLO command!', logger.DEBUG)
+                logger.log('Sent initial EHLO command!')
             if use_tls == '1' or use_tls == True:
                 srv.starttls()
-                logger.log('Sent STARTTLS command!', logger.DEBUG)
+                logger.log('Sent STARTTLS command!')
             if len(user) > 0 and len(pwd) > 0:
                 srv.login(user, pwd)
-                logger.log('Sent LOGIN command!', logger.DEBUG)
+                logger.log('Sent LOGIN command!')
             srv.sendmail(smtp_from, to, msg.as_string())
             srv.quit()
             return True
@@ -170,7 +170,7 @@ class EmailNotifier:
         sep = " - "
         titles = ep_name.split(sep)
         titles.sort(key=len, reverse=True)
-        logger.log("TITLES: %s" % titles, logger.DEBUG)
+        logger.log("TITLES: %s" % titles)
         return titles
         
 notifier = EmailNotifier

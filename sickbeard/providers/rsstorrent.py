@@ -134,11 +134,11 @@ class TorrentRssProvider(generic.TorrentProvider):
         try:
             response = self.session.get(url)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
-            logger.log(u"Error loading "+self.name+" URL: " + ex(e), logger.ERROR)
+            logger.log(u"Error loading "+self.name+" URL: " + ex(e))
             return None
             
         if response.status_code != 200:
-            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(response.status_code) + ': ' + clients.http_error_code[response.status_code], logger.WARNING)
+            logger.log(self.name + u" page requested with url " + url +" returned status code is " + str(response.status_code) + ': ' + clients.http_error_code[response.status_code])
             return None
 
         return response.content
@@ -153,7 +153,7 @@ class TorrentRssProvider(generic.TorrentProvider):
             fileOut.close()
             helpers.chmodAsParent(dumpName)
         except IOError, e:
-            logger.log("Unable to save the file: " + ex(e), logger.ERROR)
+            logger.log("Unable to save the file: " + ex(e))
             return False
         logger.log(u"Saved custom_torrent html dump " + dumpName + " ", logger.MESSAGE)
         return True 
@@ -167,7 +167,7 @@ class TorrentRssCache(tvcache.TVCache):
 
     def _getRSSData(self):
 
-        logger.log(u"TorrentRssCache cache update URL: " + self.provider.url, logger.DEBUG)
+        logger.log(u"TorrentRssCache cache update URL: " + self.provider.url)
         data = self.provider.getURL(self.provider.url)
         return data
 
@@ -175,10 +175,10 @@ class TorrentRssCache(tvcache.TVCache):
         
         (title, url) = self.provider._get_title_and_url(item)
         if not title or not url:
-            logger.log(u"The XML returned from the RSS feed is incomplete, this result is unusable", logger.ERROR)
+            logger.log(u"The XML returned from the RSS feed is incomplete, this result is unusable")
             return
         
-        logger.log(u"Adding item from RSS to cache: " + title, logger.DEBUG)
+        logger.log(u"Adding item from RSS to cache: " + title)
         self._addCacheEntry(title, url)
 
     def _remove_namespace(self, item):

@@ -120,10 +120,10 @@ class WDTVMetadata(generic.GenericMetadata):
                 break
 
         if not season_dir:
-            logger.log(u"Unable to find a season dir for season "+str(season), logger.DEBUG)
+            logger.log(u"Unable to find a season dir for season "+str(season))
             return None
 
-        logger.log(u"Using "+str(season_dir)+"/folder.jpg as season dir for season "+str(season), logger.DEBUG)
+        logger.log(u"Using "+str(season_dir)+"/folder.jpg as season dir for season "+str(season))
 
         return ek.ek(os.path.join, show_obj.location, season_dir, 'folder.jpg')
 
@@ -152,7 +152,7 @@ class WDTVMetadata(generic.GenericMetadata):
         except tvdb_exceptions.tvdb_shownotfound, e:
             raise exceptions.ShowNotFoundException(e.message)
         except tvdb_exceptions.tvdb_error, e:
-            logger.log("Unable to connect to TVDB while creating meta files - skipping - "+ex(e), logger.ERROR)
+            logger.log("Unable to connect to TVDB while creating meta files - skipping - "+ex(e))
             return False
 
         rootNode = etree.Element("details")
