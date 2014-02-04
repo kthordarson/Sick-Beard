@@ -191,7 +191,9 @@ class GenericProvider:
         Returns a Quality value obtained from the node's data
         """
         (title, url) = self._get_title_and_url(item) # @UnusedVariable
+        logger.log(u"DEBUG generic.py sending to sceneQuality.....")
         quality = Quality.sceneQuality(title)
+        logger.log(u"DEBUG generic.py getQuality returned from sceneQuality ... " + title + " result " + str(quality))
         return quality
 
     def _doSearch(self):
@@ -223,11 +225,11 @@ class GenericProvider:
 
     def findEpisode(self, episode, manualSearch=False):
 
-#        logger.log(u"Searching "+self.name+" for " + episode.prettyName())
+        logger.log(u"DEBUG generic.py Searching "+self.name+" for " + episode.prettyName())
 
         self.cache.updateCache()
         results = self.cache.searchCache(episode, manualSearch)
-#        logger.log(u"Cache results: " + str(results))
+        logger.log(u"DEBUG generic.py returned from Cache results ")
 
         # if we got some results then use them no matter what.
         # OR
@@ -243,13 +245,13 @@ class GenericProvider:
         for item in itemList:
 
             (title, url) = self._get_title_and_url(item)
-
+            logger.log(u"DEBUG generic.py findEpisode title " + title + " url " + url)
             # parse the file name
             try:
                 myParser = NameParser()
                 parse_result = myParser.parse(title)
             except InvalidNameException:
-                logger.log(u"Unable to parse the filename " + title + " into a valid episode")
+                logger.log(u"DEBUG generic.py findEpisode Unable to parse the filename " + title + " into a valid episode")
                 continue
 
             if episode.show.air_by_date:
@@ -259,14 +261,16 @@ class GenericProvider:
             elif parse_result.season_number != episode.season or episode.episode not in parse_result.episode_numbers:
                 logger.log(u"Episode " + title + " isn't "+str(episode.season) + "x" + str(episode.episode) + ", skipping it")
                 continue
-
-            quality = self.getQuality(item)
-
+            krem = re.search('^(.*/)?(?:$|(.+?)(?:(\.[^.]*$)|$))', url)
+            qstring = krem.group(2)
+            quality = self.getQuality(qstring)
+#            quality = self.getQuality(item)
+            logger.log(u"DEBUG generic findEpisode got quality for item " + qstring + " " + str(quality))
             if not episode.show.wantEpisode(episode.season, episode.episode, quality, manualSearch):
-                logger.log(u"Ignoring result " + title + " because we don't want an episode that is " + Quality.qualityStrings[quality])
+                logger.log(u"DEBUG generic.py findEpisode Ignoring result " + title + " because we don't want an episode that is " + Quality.qualityStrings[quality])
                 continue
 
-            logger.log(u"Found result " + title + " at " + url)
+            logger.log(u"DEBUG generic.py findEpisode Found result " + title + " at " + url)
 
             result = self.getResult([episode])
             result.url = url
@@ -280,26 +284,29 @@ class GenericProvider:
         return results
 
     def findSeasonResults(self, show, season):
-#        logger.log(u"DEBUG generic.py starting findSeasonResults")
+        logger.log(u"DEBUG generic.py starting findSeasonResults")
         itemList = []
         results = {}
 
         for curString in self._get_season_search_strings(show, season):
-#            logger.log(u"DEBUG generic.py curString loop ")
+            logger.log(u"DEBUG generic.py curString loop " + str(curString))
             itemList += self._doSearch(curString)
 
         for item in itemList:
-#            logger.log(u"DEBUG generic.py itemList loop ")
+            logger.log(u"DEBUG generic.py itemList loop " + str(item))
             (title, url) = self._get_title_and_url(item)
-
-            quality = self.getQuality(item)
-
+            logger.log(u"DEBUG generic.py findSeasonResults title " + title + " url " + url)
+            krem = re.search('^(.*/)?(?:$|(.+?)(?:(\.[^.]*$)|$))', url)
+            qstring = krem.group(2)
+            quality = self.getQuality(qstring)
+#            quality = self.getQuality(item)
+            logger.log(u"DEBUG generic findSeasonResults got quality for item " + qstring + " " + str(quality))
             # parse the file name
             try:
                 myParser = NameParser(False)
                 parse_result = myParser.parse(title)
             except InvalidNameException:
-                logger.log(u"Unable to parse the filename " + title + " into a valid episode")
+                logger.log(u"DEBUG generic.py findSeasonResults Unable to parse the filename " + title + " into a valid episode")
                 continue
 
             if not show.air_by_date:
@@ -331,14 +338,15 @@ class GenericProvider:
             wantEp = True
             for epNo in actual_episodes:
                 if not show.wantEpisode(actual_season, epNo, quality):
+                    logger.log(u"DEBUG generic.py epNo triggered .. do not want episode for some reason ... ")
                     wantEp = False
                     break
 
             if not wantEp:
-                logger.log(u"Ignoring result " + title + " because we don't want an episode that is " + Quality.qualityStrings[quality])
+                logger.log(u"DEBUG generic.py findSeasonResults Ignoring result " + title + " because we don't want an episode that is " + Quality.qualityStrings[quality])
                 continue
 
-            logger.log(u"Found result " + title + " at " + url)
+            logger.log(u"DEBUG generic.py findSeasonResults Found result " + title + " at " + url)
 
             # make a result object
             epObj = []

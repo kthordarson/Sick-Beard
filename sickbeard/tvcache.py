@@ -33,7 +33,7 @@ from sickbeard.exceptions import ex, AuthException
 try:
     import xml.etree.cElementTree as etree
 except ImportError:
-    import elementtree.ElementTree as etree 
+    import elementtree.ElementTree as etree
 
 from lib.tvdb_api import tvdb_api, tvdb_exceptions
 
@@ -106,36 +106,36 @@ class TVCache():
                 self.setLastUpdate()
             else:
                 return []
-    
+
             # now that we've loaded the current RSS feed lets delete the old cache
             logger.log(u"Clearing " + self.provider.name + " cache and updating with new information")
             self._clearCache()
-    
+
             parsedXML = helpers.parse_xml(data)
-            
+
             if parsedXML is None:
                 logger.log(u"Error trying to load " + self.provider.name + " RSS feed")
                 return []
-            
+
             if self._checkAuth(parsedXML):
-                
+
                 if parsedXML.tag == 'rss':
                     items = parsedXML.findall('.//item')
-                    
+
                 else:
                     logger.log(u"Resulting XML from " + self.provider.name + " isn't RSS, not parsing it")
                     return []
-                
+
                 for item in items:
                     self._parseItem(item)
-    
+
             else:
                 raise AuthException(u"Your authentication credentials for " + self.provider.name + " are incorrect, check your config")
-        
+
         return []
 
     def _translateTitle(self, title):
-        return title.replace(' ', '.') 
+        return title.replace(' ', '.')
 
     def _translateLinkURL(self, url):
         return url.replace('&amp;', '&')
@@ -144,16 +144,16 @@ class TVCache():
 
         title = helpers.get_xml_text(item.find('title'))
         url = helpers.get_xml_text(item.find('link'))
-        
+
         self._checkItemAuth(title, url)
 
         if title and url:
             title = self._translateTitle(title)
             url = self._translateLinkURL(url)
-            
+
             logger.log(u"Adding item from RSS to cache: " + title)
             self._addCacheEntry(title, url)
-        
+
         else:
              logger.log(u"The XML returned from the " + self.provider.name + " feed is incomplete, this result is unusable")
              return
@@ -244,7 +244,7 @@ class TVCache():
                 # check the name cache and see if we already know what show this is
                 logger.log(u"Checking the cache to see if we already know the tvdb id of "+parse_result.series_name)
                 tvdb_id = name_cache.retrieveNameFromCache(parse_result.series_name)
-                
+
                 # remember if the cache lookup worked or not so we know whether we should bother updating it later
                 if tvdb_id == None:
                     logger.log(u"No cache results returned, continuing on with the search")
@@ -252,7 +252,7 @@ class TVCache():
                 else:
                     logger.log(u"Cache lookup found " + repr(tvdb_id) + ", using that")
                     from_cache = True
-                
+
                 # if the cache failed, try looking up the show name in the database
                 if tvdb_id == None:
                     logger.log(u"Trying to look the show up in the show database")
@@ -271,7 +271,7 @@ class TVCache():
                             tvdb_lang = curShow.lang
                             break
 
-                # if tvdb_id was anything but None (0 or a number) then 
+                # if tvdb_id was anything but None (0 or a number) then
                 if not from_cache:
                     name_cache.addNameToCache(parse_result.series_name, tvdb_id)
 
@@ -319,6 +319,7 @@ class TVCache():
         curTimestamp = int(time.mktime(datetime.datetime.today().timetuple()))
 
         if not quality:
+            logger.log(u"DEBUG tvcache.py calling sceneQuality for name: " + name)
             quality = Quality.sceneQuality(name)
 
         if not isinstance(name, unicode):
@@ -381,7 +382,7 @@ class TVCache():
 
             # if the show says we want that episode then add it to the list
             if not showObj.wantEpisode(curSeason, curEp, curQuality, manualSearch):
-                logger.log(u"Skipping " + curResult["name"] + " because we don't want an episode that's " + Quality.qualityStrings[curQuality])
+                logger.log(u"DEBUG tvcache.py Skipping " + curResult["name"] + " because we don't want an episode that's " + Quality.qualityStrings[curQuality])
 
             else:
 
@@ -394,7 +395,7 @@ class TVCache():
                 title = curResult["name"]
                 url = curResult["url"]
 
-                logger.log(u"Found result " + title + " at " + url)
+                logger.log(u"DEBUG tvcache.py Found result " + title + " at " + url)
 
                 result = self.provider.getResult([epObj])
                 result.url = url

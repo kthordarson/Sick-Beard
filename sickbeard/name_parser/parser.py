@@ -322,7 +322,7 @@ class NameParserCache(object):
 
     def get(self, name):
         if name in self._previous_parsed:
-            logger.log(u"Using cached parse result for: " + name)
+            logger.log(u"Using cached parse result for: ")
             return self._previous_parsed[name]
         else:
             return None

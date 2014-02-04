@@ -1,5 +1,5 @@
-# -*- coding: UTF-8 -*-
-# Author: Trymbill <@trymbill>
+# -*- coding: utf-8 -*-
+# kth edit of iptorrents module from sickbeard
 # URL: http://code.google.com/p/sickbeard/
 #
 # This file is part of Sick Beard.
@@ -18,96 +18,80 @@
 # along with Sick Beard.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import urllib
-import urllib2
-#import cookielib
-import sys
-import os
 
 import sickbeard
 import generic
 from sickbeard.common import Quality
-# from sickbeard.name_parser.parser import NameParser, InvalidNameException
 from sickbeard import logger
 from sickbeard import tvcache
-from sickbeard import helpers
 from sickbeard import show_name_helpers
 from sickbeard.common import Overview
 from sickbeard.exceptions import ex
-from sickbeard import encodingKludge as ek
 from lib import requests
+from bs4 import BeautifulSoup
 
 
-class DeilduProvider(generic.TorrentProvider):
+class deilduProvider(generic.TorrentProvider):
 
-    urls = {'base_url': 'https://www.deildu.net',
-            'login': 'http://deildu.net/takelogin.php',
-            'search': 'http://deildu.net/browse.php?sort=seeders&type=desc&cat=0',
-            }
+    urls = {
+        'base_url': 'http://deildu.net/',
+        'login': 'http://deildu.net/takelogin.php',
+        'detail': 'http://deildu.net/details.php?id=%s',
+        'search': 'http://deildu.net/browse.php?search=%s%s',
+        'base': 'http://deildu.net/',
+    }
 
+#        'search': 'http://deildu.net/browse.php?search=%s%s&sort=seeders&type=desc&cat=0',
     def __init__(self):
+
         generic.TorrentProvider.__init__(self, "deildu")
+
         self.supportsBacklog = True
+
+        self.cache = deilduCache(self)
+
+        self.url = self.urls['base_url']
+
         self.session = None
-        self.cache = DeilduCache(self)
-        self.url = 'http://deildu.net/'
-        self.searchurl = self.url + 'browse.php?cat=0&search=%s&sort=seeders&type=desc'
-        self.re_title_url = '<tr>.*?browse\.php.*?details\.php\?id=(?P<id>\d+).+?<b>(?P<title>.*?)</b>.+?class=\"index\" href=\"(?P<url>.*?)".+?sinnum.+?align=\"right\">(?P<seeders>.*?)</td>.*?align=\"right\">(?P<leechers>.*?)</td>.*?</tr>'
 
-    def _doLogin(self):
+#        self.categories = 73
 
-        login_params = {'username': sickbeard.deildu_USERNAME,
-                        'password': sickbeard.deildu_PASSWORD,
-#                        'login': 'submit',
-                        }
-
-#        login_params = {'username': "",
-#                        'password': "",
-#                        }
-#
-#                        'login': 'submit',
-        self.session = requests.Session()
-
-        try:
-            logger.log(u"DEBUG deildu.py _doLogin starting for user " + sickbeard.deildu_USERNAME)
-            response = self.session.post(self.urls['login'], data=login_params, timeout=30)
-        except Exception, e:
-            logger.log(u'Unable to connect to ' + self.name + ' provider: ' + ex(e))
-            return False
-
-        if re.search('Innskr&#225;ning', response.text) or response.status_code == 401:
-            logger.log(u'DEBUG deildu.py Invalid username or password for ' + self.name + ', Check your settings!')
-            return False
-
-        return True
+        self.categorie = ''
 
     def isEnabled(self):
         return sickbeard.deildu
 
     def imageName(self):
-        return 'deildu.png'
+        return 'iptorrents.png'
 
     def getQuality(self, item):
-
-        quality = Quality.nameQuality(item[0])
+        logger.log(u"DEBUG deildu.py someone called getQuality .. sending to nameQuality ..." + str(item))
+#        (title, url) = item
+        quality = Quality.nameQuality(item)
         return quality
 
-    def _reverseQuality(self, quality):
+    def _doLogin(self):
 
-        quality_string = ''
+        login_params = {'username': sickbeard.deildu_USERNAME,
+                        'password': sickbeard.deildu_PASSWORD,
+                        'login': 'submit',
+                        }
 
-        if quality == Quality.SDTV:
-            quality_string = 'HDTV x264'
-        elif quality == Quality.HDTV:
-            quality_string = '720p HDTV x264'
-        elif quality == Quality.HDWEBDL:
-            quality_string = '720p WEB-DL'
-        elif quality == Quality.HDBLURAY:
-            quality_string = '720p Bluray x264'
-        elif quality == Quality.FULLHDBLURAY:
-            quality_string = '1080p Bluray x264'
+        self.session = requests.Session()
+        logger.log(u"DEBUG deildu.py _doLogin running ...")
+        try:
+            response = self.session.post(self.urls['login'], data=login_params, timeout=30)
+        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
+            logger.log(u'Unable to connect to ' + self.name + ' provider: ' +ex(e), logger.ERROR)
+            return False
 
-        return quality_string
+        if re.search('tries left', response.text) \
+        or re.search('<title>IPT</title>', response.text) \
+        or response.status_code == 401:
+            logger.log(u'Invalid username or password for ' + self.name + ' Check your settings', logger.ERROR)
+            return False
+
+        return True
 
     def _get_season_search_strings(self, show, season=None):
 
@@ -117,18 +101,17 @@ class DeilduProvider(generic.TorrentProvider):
             return []
 
         seasonEp = show.getAllEpisodes(season)
+
         wantedEp = [x for x in seasonEp if show.getOverview(x.status) in (Overview.WANTED, Overview.QUAL)]
-        # If Every episode in Season is a wanted Episode then search for Season first
-        if wantedEp == seasonEp:
+
+        #If Every episode in Season is a wanted Episode then search for Season first
+        if wantedEp == seasonEp and not show.air_by_date:
             search_string = {'Season': [], 'Episode': []}
             for show_name in set(show_name_helpers.allPossibleShowNames(show)):
-                ep_string = show_name + ' S%02d' % int(season)  # 1) ShowName SXX
+                ep_string = show_name +' S%02d' % int(season) #1) ShowName SXX
                 search_string['Season'].append(ep_string)
 
-                ep_string = show_name + ' Season ' + str(season)  # 2) ShowName Season X
-                search_string['Season'].append(ep_string)
-
-        # Building the search string with the episodes we need
+        #Building the search string with the episodes we need
         for ep_obj in wantedEp:
             search_string['Episode'] += self._get_episode_search_strings(ep_obj)[0]['Episode']
 
@@ -147,11 +130,12 @@ class DeilduProvider(generic.TorrentProvider):
 
         if ep_obj.show.air_by_date:
             for show_name in set(show_name_helpers.allPossibleShowNames(ep_obj.show)):
-                ep_string = show_name_helpers.sanitizeSceneName(show_name) + ' ' + str(ep_obj.airdate)
+                ep_string = show_name_helpers.sanitizeSceneName(show_name) +' '+ str(ep_obj.airdate)
                 search_string['Episode'].append(ep_string)
         else:
             for show_name in set(show_name_helpers.allPossibleShowNames(ep_obj.show)):
-                ep_string = show_name_helpers.sanitizeSceneName(show_name) + ' ' + sickbeard.config.naming_ep_type[2] % {'seasonnumber': ep_obj.season, 'episodenumber': ep_obj.episode}
+                ep_string = show_name_helpers.sanitizeSceneName(show_name) +' '+ \
+                sickbeard.config.naming_ep_type[2] % {'seasonnumber': ep_obj.season, 'episodenumber': ep_obj.episode}
 
                 search_string['Episode'].append(ep_string)
 
@@ -159,168 +143,138 @@ class DeilduProvider(generic.TorrentProvider):
 
     def _doSearch(self, search_params, show=None):
 
-#        logger.log(u"DEBUG deildu.py starting _doSearch ")
         results = []
-#        items = {'Season': [], 'Episode': []}
-        items = {'Season': [], 'Episode': [], 'RSS': []}
+        items = {'Season': [], 'Episode': []}
 
         if not self._doLogin():
-            return []
+            return
 
-        self.deildu_urls_1 = self.url + '/browse.php?cat=0&search=%s&sort=seeders&type=desc'
+#        freeleech = '&free=on' if sickbeard.deildu_FREELEECH else ''
+        logger.log(u"DEBUG deildu.py _doSearch running...")
         for mode in search_params.keys():
             for search_string in search_params[mode]:
-#                search_string = search_string.replace('.', ' ')
-                search_string = search_string.encode('cp1252', 'ignore')
+                oldstring = search_string
+                search_string = search_string.replace('.', '+')
+                search_string = search_string.replace(' ', '+')
 
-                searchURL = self.searchurl % (urllib.quote(search_string))
-#                logger.log(u"Search url: " + searchURL)
-#                logger.log(u"Search string: " + urllib.quote(search_string))
+                logger.log(u"DEBUG deildu.py _doSearch .. " + str(self.urls['search']) + " " + str(self.categorie) + " " + str(search_string))
+                searchURL = self.urls['search'] % (search_string, "&sort=seeders&type=desc&cat=0")
 
+                logger.log(u"Search string: " + searchURL)
+                search_string = oldstring
                 data = self.getURL(searchURL)
-#                if 'login' in data:
-#                    logger.log(u"DEBUG deildu.py Login handler failed, login form or nothing returned")
                 if not data:
-                    logger.log(u"DEBUG deildu.py Deildu reported that no torrent was found")
+                    return []
+                html = data.decode('cp1252')
+                html = BeautifulSoup(data)
+
                 try:
-                    match = re.compile(self.re_title_url, re.DOTALL).finditer(urllib.unquote(data))
-                except:
-                    logger.log(u"DEBUG deildu.py: vesen i regex")
-                for torrent in match:
-                    title = torrent.group('title').replace('_', '.').decode('cp1252')
-#                    logger.log(u"deildu.py torrent match loop data1: " + str(title))
-                    url = torrent.group('url').decode('cp1252')
-                    id = int(torrent.group('id'))
-                    seeders = int(re.sub('\D', '', torrent.group('seeders')))
-                    leechers = int(re.sub('\D', '', torrent.group('leechers')))
-                    if seeders == 0:
-                        continue
-                    if not show_name_helpers.filterBadReleases(title):
-                        continue
-                    if not title:
-                        continue
-                    item = title, self.url + url, id, seeders, leechers
-                    items[mode].append(item)
-            items[mode].sort(key=lambda tup: tup[3], reverse=True)
+                    if html.find(text='Nothing found!'):
+                        logger.log(u"No results found for: " + search_string + "(" + searchURL + ")")
+                        return []
+
+                    result_table = html.find('table', attrs = {'class' : 'torrentlist'})
+
+                    if not result_table:
+                        logger.log(u"No results found for: " + search_string + "(" + searchURL + ")")
+                        return []
+
+                    entries = result_table.find_all('tr')
+
+                    for result in entries[1:]:
+                        torrent = result.find_all('td')[1].find('a').find('b').string
+                        torrent_name = torrent.string
+                        torrent_detail_url = self.urls['base_url'] + (result.find_all('td')[3].find('a'))['href']
+                        torrent_download_url = self.urls['base_url'] + (result.find_all('td')[2].find('a'))['href']
+                        try:
+                            torrent_seeders = int((result.find_all('td')[8].find('b').string))
+                        except:
+                            torrent_seeders = 0
+#                        torrent = result.find_all('td').find('a')
+#                        torrent_id = int(torrent['href'].replace('/details.php?id=', ''))
+#                        torrent_name = torrent.string
+#                        torrent_download_url = self.urls['download'] % (torrent_id, torrent_name.replace(' ', '.'))
+#                        torrent_details_url = self.urls['detail'] % (torrent_id)
+#                        torrent_seeders = int(result.find('td', attrs = {'class' : 'ac t_seeders'}).string)
+#                        torrent_leechers = int(result.find('td', attrs = {'class' : 'ac t_leechers'}).string)
+
+                        #Filter unseeded torrent
+                        if torrent_seeders == 0 or not torrent_name \
+                        or not show_name_helpers.filterBadReleases(torrent_name):
+                            continue
+
+                        item = torrent, torrent_download_url
+#                        item = torrent_name, torrent_download_url, torrent_id, torrent_seeders, torrent_leechers
+                        logger.log(u"DEBUG deildu.py Found result: " + torrent_name + " url " + searchURL)
+                        items[mode].append(item)
+                        logger.log(u"DEBUG deildu.py appended to items....")
+
+                except Exception, e:
+                    logger.log(u"DEBUG deildu.py Failed to parsing " + self.name + " page url: " + searchURL + " " + ex(e))
+
+            #For each search mode sort all the items by seeders
+#            items[mode].sort(key=lambda tup: tup[3], reverse=True)
 
             results += items[mode]
+            logger.log(u"DEBUG deildu.py results to items mode ... ")
 
         return results
 
     def _get_title_and_url(self, item):
 
-        title, url, id, seeders, leechers = item
-
+        title, url = item
+        logger.log(u"DEBUG deildu.py _get_title_and_url running we got title: " + title + " url " + url)
         if url:
-            url = url.replace('&amp;', '&')
+            url = str(url).replace('&amp;','&')
+            logger.log(u"DEBUG deildu.py now url got changed to: " + url )
 
         return (title, url)
 
-    def downloadResult(self, result):
-        """
-        Save the result to disk.
-        """
-        logger.log(u"DEBUG deildu.py running downloadResult ... Making sure we have a cookie for Deildu")
-        logger.log(u"DEBUG deildu.py Downloading a result from " + str(self.name) + " at " + str(result.url))
-#        data = self.getURL(result.url, [], dlh.cj)
-
-        if not self._doLogin():
-            return []
-
-        data = self.getURL(result.url)
-        if data is None:
-            return False
-        saveDir = sickbeard.TORRENT_DIR
-        writeMode = 'wb'
-        # use the result name as the filename
-        fileName = ek.ek(os.path.join, saveDir, helpers.sanitizeFileName(result.name) + '.' + self.providerType)
-        logger.log(u"Saving to " + fileName)
-        try:
-            fileOut = open(fileName, writeMode)
-            fileOut.write(data)
-            fileOut.close()
-            helpers.chmodAsParent(fileName)
-        except IOError, e:
-            logger.log(u"Unable to save the file: " + ex(e))
-            return False
-        return self._verify_download(fileName)
-
-    def getURL(self, url, headers=None, cj=None):
-
+    def getURL(self, url, headers=None):
+        logger.log(u"DEBUG deildu.py _getURL running...")
         if not self.session:
             self._doLogin()
 
         if not headers:
             headers = []
+
         try:
-#            logger.log(u"DEBUG deildu.py running getURL ... ")
             response = self.session.get(url)
-        except (urllib2.HTTPError, IOError), e:
-            logger.log(u"DEBUG deildu.py excetion error from urllib2 getURL ... ")
-            logger.log(u"Error loading " + self.name + " URL: " + str(sys.exc_info()) + " - " + ex(e))
+        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
+            logger.log(u"Error loading "+self.name+" URL: " + ex(e), logger.ERROR)
             return None
+
         return response.content
 
-
-class DeilduCache(tvcache.TVCache):
+class deilduCache(tvcache.TVCache):
 
     def __init__(self, provider):
+
         tvcache.TVCache.__init__(self, provider)
-        # only poll Deildu every 10 minutes max
-        self.minTime = 10
 
-    def updateCache(self):
-#        logger.log(u"DEBUG deildu.py in DeilduCache ...")
-        re_title_url = self.provider.re_title_url
-
-        if not self.shouldUpdate():
-            return
-#        logger.log(u"DEBUG deildu.py in DeilduCache calling _getData ... ")
-        data = self._getData()
-
-        # as long as the http request worked we count this as an update
-        if data:
-            self.setLastUpdate()
-        else:
-            return []
-
-        # now that we've loaded the current Deildu data lets delete the old cache
-        logger.log(u"DEBUG deildu.py Clearing cache..")
-        self._clearCache()
-
-        match = re.compile(re_title_url, re.DOTALL).finditer(urllib.unquote(data))
-        if not match:
-            logger.log(u"The Data returned from Deildu is incomplete, this result is unusable")
-            return []
-
-        for torrent in match:
-
-            title = torrent.group('title').replace('_', '.')  # Do not know why but SickBeard skip release with '_' in name
-            url = torrent.group('url')
-
-            item = (title, url)
-
-            self._parseItem(item)
+        # only poll deildu every 20 minutes max
+        self.minTime = 20
 
     def _getData(self):
-#        logger.log(u"DEBUG deildu.py in _getData ...")
-        try:
-            url = self.provider.url + 'browse.php?c12=1&c8=1&incldead=0'
-#            logger.log(u"DEBUG deildu.py _getData url string: ")
-        except Exception, e:
-            logger.log(u"DEBUG deildu.py vesen med provider.url ... ", ex(e))
-#        logger.log(u"Deildu cache update URL ")
-        try:
-                data = self.provider.getURL(url)
-        except Exception, e:
-            logger.log(u"DEBUG deildu.py vesen med provider.getURL ... ", ex(e))
+
+#        url = self.provider.urls['search'] % (self.provider.categories, "", "")
+        url = self.provider.urls['search'] % ('', '')
+
+        logger.log(u"deildu cache update URL: "+ url)
+
+        data = self.provider.getURL(url)
+
         return data
 
     def _parseItem(self, item):
+
         (title, url) = item
+
         if not title or not url:
             return
-        logger.log(u"Adding item to cache: ")
+
+        logger.log(u"Adding item to cache: "+title)
+
         self._addCacheEntry(title, url)
 
-provider = DeilduProvider()
+provider = deilduProvider()

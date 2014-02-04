@@ -22,7 +22,9 @@ import operator
 import platform
 import re
 
+#from sickbeard import helpers, classes, logger, db, version
 from sickbeard import version
+import logger
 
 USER_AGENT = 'Sick Beard/alpha2-' + version.SICKBEARD_VERSION.replace(' ', '-') + ' (' + platform.system() + ' ' + platform.release() + ')'
 
@@ -142,7 +144,7 @@ class Quality:
         Return The quality from an episode File renamed by Sickbeard
         If no quality is achieved it will try sceneQuality regex
         """
-
+        logger.log(u"DEBUG common.py we are now in nameQuality for name " + name)
         name = os.path.basename(name)
 
         # if we have our exact text then assume we put it there
@@ -162,9 +164,10 @@ class Quality:
         """
         Return The quality from the scene episode File
         """
-
+        logger.log(u"DEBUG commony.py running sceneQuality for " + name)
         name = os.path.basename(name)
 
+        logger.log(u"DEBUG commony.py osbasename " + name)
         checkName = lambda list, func: func([re.search(x, name, re.I) for x in list])
 
         if checkName(["(pdtv|hdtv|dsr|tvrip|web.dl|webrip).(xvid|x264|h.?264)"], all) and not checkName(["(720|1080)[pi]"], all):
@@ -194,10 +197,11 @@ class Quality:
 
     @staticmethod
     def assumeQuality(name):
+        logger.log(u"DEBUG common.py landed in assumeQuality for name " + name)
         if name.lower().endswith((".avi", ".mp4")):
             return Quality.SDTV
-#        elif name.lower().endswith(".mkv"):
-#            return Quality.HDTV
+        elif name.lower().endswith(".mkv"):
+            return Quality.HDTV
         elif name.lower().endswith(".ts"):
             return Quality.RAWHDTV
         else:

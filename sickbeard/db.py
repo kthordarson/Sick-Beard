@@ -80,12 +80,12 @@ class DBConnection:
                 try:
                     for qu in querylist:
                         if len(qu) == 1:
-                            if logTransaction:
-                                logger.log(qu[0])
+#                            if logTransaction:
+#                                logger.log(qu[0])
                             sqlResult.append(self.connection.execute(qu[0]))
                         elif len(qu) > 1:
-                            if logTransaction:
-                                logger.log(qu[0] + " with args " + str(qu[1]))
+#                            if logTransaction:
+#                                logger.log(qu[0] + " with args " + str(qu[1]))
                             sqlResult.append(self.connection.execute(qu[0], qu[1]))
                     self.connection.commit()
                     logger.log(u"Transaction with "  + str(len(querylist)) + u" query's executed")
@@ -123,10 +123,10 @@ class DBConnection:
             while attempt < 5:
                 try:
                     if args == None:
-                        logger.log(self.filename + ": " + query, logger.DB)
+#                        logger.log(self.filename + ": " + query, logger.DB)
                         sqlResult = self.connection.execute(query)
                     else:
-                        logger.log(self.filename + ": " + query + " with args " + str(args), logger.DB)
+#                        logger.log(self.filename + ": " + query + " with args " + str(args), logger.DB)
                         sqlResult = self.connection.execute(query, args)
                     self.connection.commit()
                     # get out of the connection attempt loop since we were successful

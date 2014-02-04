@@ -351,22 +351,24 @@ def findSeason(show, season):
     didSearch = False
 
     for curProvider in providers.sortedProviderList():
-#        logger.log(u"DEBUG search.py in findSeason curProvider: "+curProvider.name)
+        logger.log(u"DEBUG search.py in findSeason curProvider: "+curProvider.name)
         if not curProvider.isActive():
             continue
 
         try:
-#            logger.log(u"DEBUG search.py in curProvider: "+curProvider.name+" show" + show.name + " season " + str(season))
+            logger.log(u"DEBUG search.py in curProvider: "+curProvider.name+" show" + show.name + " season " + str(season))
             curResults = curProvider.findSeasonResults(show, season)
-#            logger.log(u"DEBUG search.py in curProvider got curResults... "+curResults)
+            logger.log(u"DEBUG search.py in curProvider got curResults... ")
             # make a list of all the results for this provide
             for curEp in curResults:
-#                logger.log(u"DEBUG search.py in curProvider in curEP loop")
+                logger.log(u"DEBUG search.py in curProvider in curEP loop")
                 # skip non-tv crap
                 curResults[curEp] = filter(lambda x:  show_name_helpers.filterBadReleases(x.name) and show_name_helpers.isGoodResult(x.name, show), curResults[curEp])
                 if curEp in foundResults:
+                    logger.log(u"DEBUG search.py in curProvider in curEP loop if ... ")
                     foundResults[curEp] += curResults[curEp]
                 else:
+                    logger.log(u"DEBUG search.py in curProvider in curEP if else ... ")
                     foundResults[curEp] = curResults[curEp]
         except Exception, e:
             logger.log(u"DEBUG search.py findSeason omg vesen   " + ex(e))
@@ -403,6 +405,7 @@ def findSeason(show, season):
     if bestSeasonNZB:
 
         # get the quality of the season nzb
+        logger.log(u"DEBUG search.py NZB calling sceneQuality dunno")
         seasonQual = Quality.sceneQuality(bestSeasonNZB.name)
         seasonQual = bestSeasonNZB.quality
         logger.log(u"The quality of the season "+bestSeasonNZB.provider.providerType+" is "+Quality.qualityStrings[seasonQual])
