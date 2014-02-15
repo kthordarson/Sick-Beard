@@ -55,7 +55,7 @@ class ShowQueue(generic_queue.GenericQueue):
 
     def isInRenameQueue(self, show):
         return self._isInQueue(show, (ShowQueueActions.RENAME,))
-    
+
     def isInSubtitleQueue(self, show):
         return self._isInQueue(show, (ShowQueueActions.SUBTITLE,))
 
@@ -70,7 +70,7 @@ class ShowQueue(generic_queue.GenericQueue):
 
     def isBeingRenamed(self, show):
         return self._isBeingSomethinged(show, (ShowQueueActions.RENAME,))
-    
+
     def isBeingSubtitled(self, show):
         return self._isBeingSomethinged(show, (ShowQueueActions.SUBTITLE,))
 
@@ -109,7 +109,7 @@ class ShowQueue(generic_queue.GenericQueue):
             return
 
         queueItemObj = QueueItemRefresh(show)
-        
+
         self.add_item(queueItemObj)
 
         return queueItemObj
@@ -121,7 +121,7 @@ class ShowQueue(generic_queue.GenericQueue):
         self.add_item(queueItemObj)
 
         return queueItemObj
-    
+
     def downloadSubtitles(self, show, force=False):
 
         queueItemObj = QueueItemSubtitle(show)
@@ -132,7 +132,7 @@ class ShowQueue(generic_queue.GenericQueue):
 
     def addShow(self, tvdb_id, showDir, default_status=None, quality=None, flatten_folders=None, subtitles=None, lang="en"):
         queueItemObj = QueueItemAdd(tvdb_id, showDir, default_status, quality, flatten_folders, lang, subtitles)
-        
+
         self.add_item(queueItemObj)
 
         return queueItemObj
@@ -144,7 +144,7 @@ class ShowQueueActions:
     FORCEUPDATE=4
     RENAME=5
     SUBTITLE=6
-    
+
     names = {REFRESH: 'Refresh',
                     ADD: 'Add',
                     UPDATE: 'Update',
@@ -167,7 +167,7 @@ class ShowQueueItem(generic_queue.QueueItem):
     def __init__(self, action_id, show):
         generic_queue.QueueItem.__init__(self, ShowQueueActions.names[action_id], action_id)
         self.show = show
-    
+
     def isInQueue(self):
         return self in sickbeard.showQueueScheduler.action.queue + [sickbeard.showQueueScheduler.action.currentItem] #@UndefinedVariable
 
@@ -197,7 +197,7 @@ class QueueItemAdd(ShowQueueItem):
 
         # this will initialize self.show to None
         ShowQueueItem.__init__(self, ShowQueueActions.ADD, self.show)
-        
+
     def _getName(self):
         """
         Returns the show name if there is a show object created, if not returns
@@ -232,9 +232,9 @@ class QueueItemAdd(ShowQueueItem):
                 ltvdb_api_parms = sickbeard.TVDB_API_PARMS.copy()
                 if self.lang:
                     ltvdb_api_parms['language'] = self.lang
-        
+
                 logger.log(u"TVDB: " + repr(ltvdb_api_parms))
-        
+
                 t = tvdb_api.Tvdb(**ltvdb_api_parms)
                 s = t[self.tvdb_id]
 
@@ -270,7 +270,7 @@ class QueueItemAdd(ShowQueueItem):
             self.show.quality = self.quality if self.quality else sickbeard.QUALITY_DEFAULT
             self.show.flatten_folders = self.flatten_folders if self.flatten_folders != None else sickbeard.FLATTEN_FOLDERS_DEFAULT
             self.show.paused = False
-            
+
             # be smartish about this
             if self.show.genre and "talk show" in self.show.genre.lower():
                 self.show.air_by_date = 1
@@ -315,9 +315,9 @@ class QueueItemAdd(ShowQueueItem):
             logger.log(traceback.format_exc())
             self._finishEarly()
             raise
-        
+
         # add it to the show list
-        sickbeard.showList.append(self.show)         
+        sickbeard.showList.append(self.show)
 
         try:
             self.show.loadEpisodesFromTVDB()
@@ -348,7 +348,7 @@ class QueueItemAdd(ShowQueueItem):
             sickbeard.backlogSearchScheduler.action.searchBacklog([self.show]) #@UndefinedVariable
 
         self.show.writeMetadata()
-        self.show.populateCache()    
+        self.show.populateCache()
 
         self.show.flushEpisodes()
 
@@ -432,7 +432,7 @@ class QueueItemSubtitle(ShowQueueItem):
 
         ShowQueueItem.execute(self)
 
-        logger.log(u"Downloading subtitles for "+self.show.name)
+        logger.log(u"DEUBG show_queue.py QueItemSubtitle.... Downloading subtitles for "+self.show.name)
 
         self.show.downloadSubtitles()
 
@@ -470,13 +470,13 @@ class QueueItemUpdate(ShowQueueItem):
         except Exception, e:
             logger.log(u"Error loading IMDb info: " + ex(e))
             logger.log(traceback.format_exc())
-        
+
         try:
             self.show.saveToDB()
         except Exception, e:
             logger.log(u"Error saving the episode to the database: " + ex(e))
             logger.log(traceback.format_exc())
-        
+
         # get episode list from DB
         logger.log(u"Loading all episodes from the database")
         DBEpList = self.show.loadEpisodesFromDB()

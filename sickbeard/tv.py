@@ -1185,7 +1185,7 @@ class TVEpisode(object):
         if not ek.ek(os.path.isfile, self.location):
             logger.log(str(self.show.tvdbid) + ": Episode file doesn't exist, can't download subtitles for episode " + str(self.season) + "x" + str(self.episode))
             return
-        logger.log(str(self.show.tvdbid) + ": Downloading subtitles for episode " + str(self.season) + "x" + str(self.episode))
+        logger.log(str(self.show.tvdbid) + ": DEBUG tv.py ... Downloading subtitles for episode " + str(self.season) + "x" + str(self.episode))
 
         previous_subtitles = self.subtitles
 
@@ -1212,7 +1212,7 @@ class TVEpisode(object):
                         helpers.chmodAsParent(subtitle.path)
 
         except Exception as e:
-            logger.log(u"Error occurred when downloading subtitles: " + traceback.format_exc())
+            logger.log(u"DEBUG tv.py ... Error occurred when downloading subtitles: " + traceback.format_exc())
             return
 
         self.refreshSubtitles()
@@ -1226,7 +1226,7 @@ class TVEpisode(object):
             subtitleList = ", ".join(subliminal.language.Language(x).name for x in newsubtitles)
             #logger.log(str(self.show.tvdbid) + u": Downloaded " + subtitleList + " subtitles for episode " + str(self.season) + "x" + str(self.episode))
 
-            notifiers.notify_subtitle_download(self.prettyName(), subtitleList)
+#            notifiers.notify_subtitle_download(self.prettyName(), subtitleList)
 
         else:
             logger.log(str(self.show.tvdbid) + u": No subtitles downloaded for episode " + str(self.season) + "x" + str(self.episode))
