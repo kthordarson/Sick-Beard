@@ -13,6 +13,8 @@ server.key
 *.cookies
 data/*
 *.tmpl
+sickbeard/.ropeproject/*
+*.org
 
 #  SB Test Related   #
 ######################
