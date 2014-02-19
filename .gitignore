@@ -15,6 +15,7 @@ data/*
 *.tmpl
 sickbeard/.ropeproject/*
 *.org
+*.orig
 
 #  SB Test Related   #
 ######################

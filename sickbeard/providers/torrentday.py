@@ -18,12 +18,16 @@
 import json
 import re
 import traceback
+import datetime
 
 import sickbeard
 import generic
 from sickbeard.common import Quality
 from sickbeard import logger
 from sickbeard import tvcache
+from sickbeard import db
+from sickbeard import classes
+from sickbeard import helpers
 from sickbeard import show_name_helpers
 from sickbeard.common import Overview 
 from sickbeard.exceptions import ex
@@ -135,7 +139,7 @@ class TorrentDayProvider(generic.TorrentProvider):
         
         return [search_string]
 
-    def _get_episode_search_strings(self, ep_obj):
+    def _get_episode_search_strings(self, ep_obj, add_string=''):
        
         search_string = {'Episode': []}
        
@@ -151,7 +155,7 @@ class TorrentDayProvider(generic.TorrentProvider):
                 ep_string = show_name_helpers.sanitizeSceneName(show_name) +' '+ \
                 sickbeard.config.naming_ep_type[2] % {'seasonnumber': ep_obj.season, 'episodenumber': ep_obj.episode}
 
-                search_string['Episode'].append(ep_string)
+                search_string['Episode'].append(re.sub('\s+', ' ', ep_string))
     
         return [search_string]
 
@@ -167,6 +171,8 @@ class TorrentDayProvider(generic.TorrentProvider):
         
         for mode in search_params.keys():
             for search_string in search_params[mode]:
+
+                logger.log(u"Search string: " + search_string, logger.DEBUG)
                 
                 search_string = '+'.join(search_string.split())
                 
@@ -184,7 +190,7 @@ class TorrentDayProvider(generic.TorrentProvider):
 
                 for torrent in torrents:
                     
-                    title = torrent['name']
+                    title = re.sub(r"\[.*\=.*\].*\[/.*\]", "", torrent['name'])
                     url = self.urls['download'] %( torrent['id'], torrent['fname'] )
                     seeders = int(torrent['seed'])
                     leechers = int(torrent['leech'])
@@ -227,7 +233,32 @@ class TorrentDayProvider(generic.TorrentProvider):
             return None
 
         return response.content
-       
+
+    def findPropers(self, search_date=datetime.datetime.today()):
+
+        results = []
+
+        sqlResults = db.DBConnection().select('SELECT s.show_name, e.showid, e.season, e.episode, e.status, e.airdate FROM tv_episodes AS e' +
+                                              ' INNER JOIN tv_shows AS s ON (e.showid = s.tvdb_id)' +
+                                              ' WHERE e.airdate >= ' + str(search_date.toordinal()) +
+                                              ' AND (e.status IN (' + ','.join([str(x) for x in Quality.DOWNLOADED]) + ')' +
+                                              ' OR (e.status IN (' + ','.join([str(x) for x in Quality.SNATCHED]) + ')))'
+                                              )
+        if not sqlResults:
+            return []
+
+        for sqlShow in sqlResults:
+            curShow = helpers.findCertainShow(sickbeard.showList, int(sqlShow["showid"]))
+            curEp = curShow.getEpisode(int(sqlShow["season"]), int(sqlShow["episode"]))
+            searchString = self._get_episode_search_strings(curEp, add_string='PROPER|REPACK')
+
+            for item in self._doSearch(searchString[0]):
+                title, url = self._get_title_and_url(item)
+                results.append(classes.Proper(title, url, datetime.datetime.today()))
+
+        return results
+
+
 class TorrentDayCache(tvcache.TVCache):
 
     def __init__(self, provider):
