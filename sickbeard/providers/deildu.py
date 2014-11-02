@@ -33,13 +33,21 @@ from bs4 import BeautifulSoup
 
 class deilduProvider(generic.TorrentProvider):
 
+#    urls = {
+#        'base_url': 'http://deildu.net/',
+#        'login': 'http://deildu.net/takelogin.php',
+#        'detail': 'http://deildu.net/details.php?id=%s',
+#        'search': 'http://deildu.net/browse.php?search=%s%s',
+#        'base': 'http://deildu.net/',
+#    }
     urls = {
-        'base_url': 'http://deildu.net/',
-        'login': 'http://deildu.net/takelogin.php',
-        'detail': 'http://deildu.net/details.php?id=%s',
-        'search': 'http://deildu.net/browse.php?search=%s%s',
-        'base': 'http://deildu.net/',
+        'base_url': 'http://iceland.pm/',
+        'login': 'http://iceland.pm/takelogin.php',
+        'detail': 'http://iceland.pm/details.php?id=%s',
+        'search': 'http://iceland.pm/browse.php?search=%s%s',
+        'base': 'http://iceland.pm/',
     }
+
 
 #        'search': 'http://deildu.net/browse.php?search=%s%s&sort=seeders&type=desc&cat=0',
     def __init__(self):
