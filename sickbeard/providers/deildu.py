@@ -41,11 +41,11 @@ class deilduProvider(generic.TorrentProvider):
 #        'base': 'http://deildu.net/',
 #    }
     urls = {
-        'base_url': 'http://iceland.pm/',
-        'login': 'http://iceland.pm/takelogin.php',
-        'detail': 'http://iceland.pm/details.php?id=%s',
-        'search': 'http://iceland.pm/browse.php?search=%s%s',
-        'base': 'http://iceland.pm/',
+        'base_url': 'http://icetracker.org/',
+        'login': 'http://icetracker.org/takelogin.php',
+        'detail': 'http://icetracker.org/details.php?id=%s',
+        'search': 'http://icetracker.org/browse.php?search=%s%s',
+        'base': 'http://icetracker.org/',
     }
 
 
